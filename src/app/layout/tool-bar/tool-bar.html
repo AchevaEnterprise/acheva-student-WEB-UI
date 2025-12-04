@@ -1,0 +1,47 @@
+<div class="h-[5rem] border-b-[1px] border-b-[#D2D1D1] flex justify-between items-center px-[2rem]">
+  <div>
+    @if (breadcrumbs().length > 0) {
+      <div class="flex items-center gap-2 text-sm mb-1">
+        @for (breadcrumb of breadcrumbs(); track $index) {
+          @if ($index > 0) {
+            <span class="text-gray-400">></span>
+          }
+          @if (breadcrumb.link && $index < breadcrumbs().length - 1) {
+            <button class="text-blue-600 hover:text-blue-800" (click)="navigateTo(breadcrumb.link)">
+              {{ breadcrumb.label }}
+            </button>
+          } @else {
+            <span class="text-gray-600">{{ breadcrumb.label }}</span>
+          }
+        }
+      </div>
+    }
+    <h3 class="acva-heading-6 fw-500">{{ pageTitle() }}</h3>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <button class="cursor-pointer" [matBadge]="badgeCount()" (click)="openNotification()">
+      <app-svg
+        svgWidth="1.5rem"
+        svgHeight="1.5rem"
+        src="icons/general/notification-bell.svg"
+      ></app-svg>
+    </button>
+
+    <div class="flex items-center gap-3 cursor-pointer">
+      <img
+        src=""
+        [appImageFallback]="'icons/general/profile-pic-placeholder.svg'"
+        alt="Avatar"
+        class="w-8 h-8 aspect-square object-cover rounded-full"
+      />
+
+      <div>
+        <p class="font-medium">
+          {{ activeAccount()?.fullName }}
+        </p>
+        <p class="text-neutral-500 text-sm">Student ({{ activeAccount()?.department?.name }})</p>
+      </div>
+    </div>
+  </div>
+</div>

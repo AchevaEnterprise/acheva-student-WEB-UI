@@ -1,0 +1,47 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import {
+  MAT_SNACK_BAR_DATA,
+  MatSnackBarAction,
+  MatSnackBarActions,
+  MatSnackBarLabel,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
+import { IAppNotification } from '../../core/models/notification.model';
+import { Svg } from '../svg/svg';
+
+@Component({
+  selector: 'app-toast',
+  imports: [
+    Svg,
+    MatProgressBarModule,
+    MatButtonModule,
+    MatSnackBarAction,
+    MatSnackBarActions,
+    MatSnackBarLabel,
+  ],
+  templateUrl: './toast.html',
+  styleUrl: './toast.scss',
+})
+export class Toast implements OnInit {
+  snackBarRef = inject(MatSnackBarRef);
+  progress = signal<number>(0);
+
+  public readonly data: IAppNotification = inject<IAppNotification>(MAT_SNACK_BAR_DATA);
+
+  ngOnInit() {
+    const duration = 5000;
+    const intervalTime = 100;
+    const increment = 100 / (duration / intervalTime);
+
+    const interval = setInterval(() => {
+      this.progress.update((progress) => {
+        const next = progress + increment;
+        return next > 100 ? 100 : next;
+      });
+
+      if (this.progress() >= 100) clearInterval(interval);
+    }, intervalTime);
+  }
+}

@@ -1,0 +1,3 @@
+# ng test
+ng lint --fix
+git add ${added_files}
