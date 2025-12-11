@@ -1,13 +1,13 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
-import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RouterLink, Router } from '@angular/router';
-import { Subscription, finalize } from 'rxjs';
-import { AuthenticationService } from '../../services/auth.service';
-import { Svg } from '../../../../shared/svg/svg';
+import { Router, RouterLink } from '@angular/router';
+import { finalize, Subscription } from 'rxjs';
 import { Button } from '../../../../shared/form/button/button';
+import { Svg } from '../../../../shared/svg/svg';
 import { SvgBackground } from '../../components/svg-background/svg-background';
+import { AuthenticationService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-password-reset',
@@ -47,7 +47,7 @@ export class PasswordReset implements OnDestroy {
             this.router.navigate(['/auth/verify-email'], {
               queryParams: {
                 email: this.emailCtrl.value as string,
-                accountId: res.data.user.id as string,
+                accountId: (res.data as { user: { id: string } }).user.id,
               },
             });
           },

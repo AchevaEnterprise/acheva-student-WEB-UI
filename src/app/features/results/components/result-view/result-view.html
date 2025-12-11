@@ -1,0 +1,43 @@
+<div class="bg-[#fff] p-6 m-8 w-full">
+  <header class="text-center">
+    <h2 class="font-semibold text-[1.5rem]">DEPARTMENT OF MATHEMATICS</h2>
+    <h4 class="font-medium text-[1rem]">SCHOOL OF PHYSICAL SCIENCES</h4>
+    <h5 class="font-medium text-[1rem]">FEDERAL UNIVERSITY OF TECHNOLOGY, OWERRI</h5>
+    <p>P.M.B 1526, OWERRI, IMO STATE</p>
+  </header>
+
+  <div class="mt-8 flex gap-4 justify-between mb-6 text-[.89rem]">
+    <p class="font-semibold">CHIMAMANDA OKOYE JULIET</p>
+    <p>Registration Number: 20231038305</p>
+    <p>Harmattan Semester</p>
+  </div>
+
+  <table class="w-full text-center">
+    <thead class="border-t-[1px] border-b-[1px] border-gray-400">
+      <tr>
+        <th>COURSE CODE</th>
+        <th>TEST</th>
+        <th>LAB</th>
+        <th>EXAM</th>
+        <th>TOTAL</th>
+        <th>FINAL GRADE</th>
+        <th>STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+        <tr>
+          <td>CSC 301</td>
+          <td>92</td>
+          <td>92</td>
+          <td>92</td>
+          <td>92</td>
+          <td>A</td>
+          <td class="mx-auto block">
+            <app-status-badge status="PASS" />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

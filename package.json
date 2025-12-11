@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "prepare": "husky",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint:css": "stylelint \"src/**/*.{css,scss}\"",
+    "lint:css:fix": "stylelint \"src/**/*.{css,scss}\" --fix"
   },
   "prettier": {
     "printWidth": 100,
@@ -33,11 +35,13 @@
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@auth0/angular-jwt": "^5.2.0",
+    "@ngrx/effects": "^20.1.0",
+    "@ngrx/store": "^20.1.0",
+    "@ngrx/store-devtools": "^20.1.0",
     "@tailwindcss/postcss": "^4.1.17",
     "highcharts": "^12.2.0",
     "highcharts-angular": "^5.0.0",
     "ngx-mat-select-search": "^8.0.2",
-    "postcss": "^8.5.6",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.1.17",
     "tslib": "^2.3.0"
@@ -59,7 +63,13 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.6",
     "prettier": "^3.7.3",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^39.0.1",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-config-tailwindcss": "^1.0.0",
+    "stylelint-scss": "^6.13.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.46.4"
   }

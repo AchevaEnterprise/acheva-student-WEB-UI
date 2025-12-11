@@ -1,0 +1,24 @@
+<div class="border-r-2 border-gray-200 p-4 h-full">
+  <h3 class="acva-heading-4">Settings</h3>
+  <p class="acva-para-1 text-gray-500">
+    Enhance your account through preferences and notifications that work best for you
+  </p>
+
+  <ul class="mt-8 grid gap-4 overflow-y-auto">
+    @for (route of menu(); track route) {
+      <li class="cursor-pointer">
+        <a
+          class="flex items-center gap-2 pl-[0.6938rem] h-[3rem] no-underline rounded-[1rem] transition-all duration-200 ease-in-out acva-para-2"
+          [routerLink]="route.route"
+          routerLinkActive="bg-gradient-to-b from-[#2793FF] to-[#77BBFF] text-white"
+        >
+          <div>
+            <!-- <app-svg src="icons/logos/company-name-logo.svg" /> -->
+            <h5 class="font-semibold">{{ route.label }}</h5>
+            <p class="text-gray-500 text-[.9rem]">{{ route.description }}</p>
+          </div></a
+        >
+      </li>
+    }
+  </ul>
+</div>

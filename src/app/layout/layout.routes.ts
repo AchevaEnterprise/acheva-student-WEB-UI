@@ -18,26 +18,39 @@ export const routes: Routes = [
         },
         loadComponent: () => import('../features/dashboard/dashboard').then((m) => m.Dashboard),
       },
-      // {
-      //   path: 'support',
-      //   data: {
-      //     title: 'Support & Help',
-      //   },
-      //   loadComponent: () =>
-      //     import('../@features/support/support.component').then(
-      //       (m) => m.SupportComponent
-      //     ),
-      // },
-      // {
-      //   path: 'user-settings',
-      //   data: {
-      //     title: 'User Settings',
-      //   },
-      //   loadChildren: () =>
-      //     import('../@features/user-settings/user-settings.routes').then(
-      //       (m) => m.routes
-      //     ),
-      // },
+      {
+        path: 'results',
+        data: {
+          title: 'My Result',
+        },
+        loadComponent: () => import('../features/results/results').then((m) => m.Results),
+      },
+      {
+        path: 'payment-history',
+        data: {
+          title: 'Payment History',
+        },
+        loadComponent: () =>
+          import('../features/payment-history/payment-history').then((m) => m.PaymentHistory),
+      },
+      {
+        path: 'faq',
+        data: {
+          title: 'FAQs',
+        },
+        loadComponent: () => import('../features/faq/faq').then((m) => m.Faq),
+      },
+      {
+        path: 'support',
+        data: {
+          title: 'Support & Help',
+        },
+        loadComponent: () => import('../features/support/support').then((m) => m.Support),
+      },
+      {
+        path: 'settings',
+        loadChildren: () => import('../features/settings/settings.routes').then((m) => m.routes),
+      },
     ],
   },
 ];

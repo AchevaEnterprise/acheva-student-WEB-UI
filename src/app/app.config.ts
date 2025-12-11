@@ -1,6 +1,7 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
+  isDevMode,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -11,7 +12,14 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorHandlerInterceptor } from './core/interceptors/error-handler.interceptor';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
 
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { routes } from './app.routes';
+import { ProfileEffects } from './core/store/profile/profile.effect';
+import { profileReducer } from './core/store/profile/profile.reducer';
+import { SchoolEffects } from './core/store/school/school.effect';
+import { schoolReducer } from './core/store/school/school.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +29,12 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([errorHandlerInterceptor, retryInterceptor, authInterceptor])
     ),
+    provideStore({
+      profile: profileReducer,
+      school: schoolReducer,
+    }),
+    provideEffects([ProfileEffects, SchoolEffects]),
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     provideHighcharts(),
     provideNativeDateAdapter(),
   ],

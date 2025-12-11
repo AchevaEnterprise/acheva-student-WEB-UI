@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'greeting',
 })
 export class GreetingPipe implements PipeTransform {
-  transform(): string {
+  transform(_: string): string {
     const hour = new Date().getHours();
 
     if (hour < 12) {

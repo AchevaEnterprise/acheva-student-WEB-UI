@@ -6,8 +6,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { finalize, Subscription } from 'rxjs';
 import { IDepartment, IFaculty, ISchool, LevelsEnum } from '../../../../core/models/school.model';
+import { AppState } from '../../../../core/store/app.state';
+import {
+  loadDepartments,
+  loadFaculties,
+  loadSchools,
+} from '../../../../core/store/school/school.action';
+import {
+  departmentsSelector,
+  facultiesSelector,
+  schoolsSelector,
+} from '../../../../core/store/school/school.selector';
 import { ToastService } from '../../../../core/utility/toast.service';
 import { UtilityService } from '../../../../core/utility/utility.service';
 import { Button } from '../../../../shared/form/button/button';
@@ -40,6 +52,7 @@ import { AuthenticationService } from '../../services/auth.service';
 export class SignUp implements OnInit, OnDestroy {
   private readonly authService = inject(AuthenticationService);
   private readonly toast = inject(ToastService);
+  private readonly store = inject(Store<AppState>);
 
   private readonly utilsService = inject(UtilityService);
   private readonly router = inject(Router);
@@ -83,6 +96,7 @@ export class SignUp implements OnInit, OnDestroy {
   form: FormGroup = new FormGroup({
     fullname: new FormControl(null, Validators.required),
     email: new FormControl(null, [Validators.required, Validators.email]),
+    registrationNumber: new FormControl(null, Validators.required),
     school: new FormControl(null, Validators.required),
     faculty: new FormControl(null, Validators.required),
     department: new FormControl(null, Validators.required),
@@ -96,8 +110,7 @@ export class SignUp implements OnInit, OnDestroy {
   showConfirmPassword = signal<boolean>(false);
 
   ngOnInit(): void {
-    console.warn('USer: ', this.authService.activeAccount());
-    // this.getSchools();
+    this.getSchools();
   }
 
   togglePasswordVisibility() {
@@ -109,40 +122,38 @@ export class SignUp implements OnInit, OnDestroy {
   }
 
   getSchools() {
-    // this.store.dispatch(loadSchools());
-    // this.sub.add(
-    //   this.store.select(schoolsSelector).subscribe({
-    //     next: (schools) => {
-    //       this.schoolsOptions.set(schools);
-    //     },
-    //   })
-    // );
+    this.store.dispatch(loadSchools());
+    this.sub.add(
+      this.store.select(schoolsSelector).subscribe({
+        next: (schools) => {
+          this.schoolsOptions.set(schools);
+        },
+      })
+    );
   }
 
   getFaculties(event: MatSelectChange) {
-    console.warn('Event: ', event);
-    // const schoolId = event.value as string;
-    // this.store.dispatch(loadFaculties({ schoolId }));
-    // this.sub.add(
-    //   this.store.select(facultiesSelector).subscribe({
-    //     next: (faculties) => {
-    //       this.facultiesOptions.set(faculties);
-    //     },
-    //   })
-    // );
+    const schoolId = event.value as string;
+    this.store.dispatch(loadFaculties({ schoolId }));
+    this.sub.add(
+      this.store.select(facultiesSelector).subscribe({
+        next: (faculties) => {
+          this.facultiesOptions.set(faculties);
+        },
+      })
+    );
   }
 
   getDepartments(event: MatSelectChange) {
-    console.warn('Event: ', event);
-    // const facultyId = event.value as string;
-    // this.store.dispatch(loadDepartments({ facultyId }));
-    // this.sub.add(
-    //   this.store.select(departmentsSelector).subscribe({
-    //     next: (departments) => {
-    //       this.departmentsOptions.set(departments);
-    //     },
-    //   })
-    // );
+    const facultyId = event.value as string;
+    this.store.dispatch(loadDepartments({ facultyId }));
+    this.sub.add(
+      this.store.select(departmentsSelector).subscribe({
+        next: (departments) => {
+          this.departmentsOptions.set(departments);
+        },
+      })
+    );
   }
 
   submitForm() {
