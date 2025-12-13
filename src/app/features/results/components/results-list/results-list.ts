@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Svg } from "../../../../shared/svg/svg";
+import { Svg } from '../../../../shared/svg/svg';
 
 @Component({
   selector: 'app-results-list',
