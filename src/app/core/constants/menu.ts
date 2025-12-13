@@ -10,14 +10,14 @@ export const MENU: IMenu[] = [
   },
   {
     label: 'My Result',
-    active_icon: 'icons/menu/my-result-inactive.svg',
-    inactive_icon: 'icons/menu/my-result-inactive.svg',
+    active_icon: 'icons/menu/result-chart-active.svg',
+    inactive_icon: 'icons/menu/result-chart-inactive.svg',
     route: 'results',
     isActive: true,
   },
   {
     label: 'Payment History',
-    active_icon: 'icons/menu/history-inactive.svg',
+    active_icon: 'icons/menu/history-active.svg',
     inactive_icon: 'icons/menu/history-inactive.svg',
     route: 'payment-history',
     isActive: true,
@@ -38,7 +38,7 @@ export const MENU: IMenu[] = [
   },
   {
     label: 'User Settings',
-    active_icon: 'icons/menu/settings-inactive.svg',
+    active_icon: 'icons/menu/settings-active.svg',
     inactive_icon: 'icons/menu/settings-inactive.svg',
     route: 'settings',
     isActive: true,

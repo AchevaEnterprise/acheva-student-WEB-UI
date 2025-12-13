@@ -4,20 +4,24 @@
     Enhance your account through preferences and notifications that work best for you
   </p>
 
-  <ul class="mt-8 grid gap-4 overflow-y-auto">
+  <ul class="mt-8 grid gap-1 overflow-y-auto">
     @for (route of menu(); track route) {
       <li class="cursor-pointer">
         <a
-          class="flex items-center gap-2 pl-[0.6938rem] h-[3rem] no-underline rounded-[1rem] transition-all duration-200 ease-in-out acva-para-2"
+          class="flex items-center gap-2 text-gray-400 justify-between py-[2rem] px-[0.6938rem] h-[3rem] no-underline rounded-[1rem] transition-all duration-200 ease-in-out acva-para-2 hover:bg-gray-200"
           [routerLink]="route.route"
-          routerLinkActive="bg-gradient-to-b from-[#2793FF] to-[#77BBFF] text-white"
+          routerLinkActive="text-black! bg-gray-200"
         >
-          <div>
-            <!-- <app-svg src="icons/logos/company-name-logo.svg" /> -->
-            <h5 class="font-semibold">{{ route.label }}</h5>
-            <p class="text-gray-500 text-[.9rem]">{{ route.description }}</p>
-          </div></a
-        >
+          <div class="flex gap-2 items-center">
+            <app-svg [src]="route.inactive_icon" [svgWidth]="'1.5rem'" />
+            <div>
+              <h5 class="font-semibold">{{ route.label }}</h5>
+              <p class="text-[.9rem]">{{ route.description }}</p>
+            </div>
+          </div>
+
+          <app-svg src="icons/general/arrow-right-icon.svg" />
+        </a>
       </li>
     }
   </ul>

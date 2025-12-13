@@ -1,14 +1,18 @@
-<div class="border-r-2 border-gray-200 p-4 h-full">
+<div class="border-r-2 border-gray-200 p-4 h-full bg-white">
   <h3 class="acva-heading-4">All Results</h3>
-  <p class="acva-para-1 text-gray-500">Access all results across your different semesters and sessions.</p>
+  <p class="acva-para-1 text-gray-500">
+    Access all results across your different semesters and sessions.
+  </p>
 
-  <ul class="mt-8 grid gap-4 overflow-y-auto">
+  <ul class="mt-8 overflow-y-auto h-[73vh]">
     @for (item of [1, 2, 3, 4, 5, 6]; track item) {
-      <li class="cursor-pointer">
-        <!-- <app-svg src="icons/logos/company-name-logo.svg" /> -->
+      <li
+        class="cursor-pointer hover:bg-gray-200 p-2 text-gray-400 py-[1rem] px-[0.6938rem] flex gap-2 rounded-lg"
+      >
+        <app-svg src="icons/general/result-file-icon.svg" svgWidth="2rem" />
         <div>
           <h5 class="font-semibold">100L</h5>
-          <p class="text-gray-500 text-[.9rem]">2024/2025 Academic Session</p>
+          <p class="text-[.9rem]">2024/2025 Academic Session</p>
         </div>
       </li>
     }

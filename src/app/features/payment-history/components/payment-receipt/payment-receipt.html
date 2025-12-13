@@ -1,33 +1,38 @@
-<div class="grid place-content-center p-4 h-full w-full">
+<div class="grid place-content-center h-full w-full">
   <!-- <app-empty-state description="Note:  Your receipt would appear here after payment has been completed" /> -->
 
-  <div class="w-[22rem]">
-   <header class="text-center grid place-content-center">
-     <img [appImageFallback]="'icons/general/profile-pic-placeholder.svg'" src="" alt="" class="w-[5rem] h-[5rem] rounded-[50%] mx-auto" />
-    <h3 class="font-semibold mt-2">Chimamanda Okoye. J</h3>
-    <p class="acva-para-1 text-gray-500">Computer Science, 300L</p>
-   </header>
+  <div class="min-w-[22vw] px-4 py-22 rounded-lg bg-white">
+    <header class="text-center grid place-content-center">
+      <img
+        [appImageFallback]="'icons/general/profile-pic-placeholder.svg'"
+        src=""
+        alt=""
+        class="w-[5rem] h-[5rem] rounded-[50%] mx-auto"
+      />
+      <h3 class="font-semibold mt-2">Chimamanda Okoye. J</h3>
+      <p class="acva-para-1 text-gray-500">Computer Science, 300L</p>
+    </header>
 
     <div class="mt-4 grid gap-4">
       <p class="acva-para-1 flex justify-between">
         <span>Registration Number</span>
-        <span>20231038305</span>
+        <span class="font-medium">20231038305</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Email Address</span>
-        <span>chimamandaok@gmail.com</span>
+        <span class="font-medium">chimamandaok@gmail.com</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Faculty</span>
-        <span>SOPS</span>
+        <span class="font-medium">SOPS</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Department</span>
-        <span>Mathematics</span>
+        <span class="font-medium">Mathematics</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Phone Number</span>
-        <span>08105559553</span>
+        <span class="font-medium">08105559553</span>
       </p>
     </div>
 
@@ -35,23 +40,23 @@
     <div class="grid gap-4">
       <p class="acva-para-1 flex justify-between">
         <span>Due Amount</span>
-        <span>{{ '10000' | currency: 'NGN' : 'symbol-narrow' }}</span>
+        <span class="font-medium">{{ '10000' | currency: 'NGN' : 'symbol-narrow' }}</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Due Date</span>
-        <span>July 24th, 2026</span>
+        <span class="font-medium">July 24th, 2026</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Service Charge</span>
-        <span>{{ '20000' | currency: 'NGN' : 'symbol-narrow' }}</span>
+        <span class="font-medium">{{ '20000' | currency: 'NGN' : 'symbol-narrow' }}</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Paystack Charge</span>
-        <span>Unpaid</span>
+        <span class="font-medium">Unpaid</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Status</span>
-        <span>Unpaid</span>
+        <span class="font-medium">Unpaid</span>
       </p>
     </div>
   </div>

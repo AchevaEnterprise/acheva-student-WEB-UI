@@ -2,7 +2,12 @@
 
 <div class="flex gap-4 justify-between mt-8">
   <header class="flex gap-3 items-center">
-    <img [appImageFallback]="'icons/general/profile-pic-placeholder.svg'" src="" alt="" class="w-[5rem] h-[5rem] rounded-[50%] mx-auto" />
+    <img
+      [appImageFallback]="'icons/general/profile-pic-placeholder.svg'"
+      src=""
+      alt=""
+      class="w-[5rem] h-[5rem] rounded-[50%] mx-auto"
+    />
     <div>
       <h3 class="font-semibold mt-2">Chimamanda Okoye. J</h3>
       <p class="acva-para-1 text-gray-500">Computer Science, 300L</p>
@@ -15,61 +20,69 @@
 <div class="bg-gray-200 rounded-lg p-4 mt-8">
   <div class="grid grid-cols-3 gap-4">
     <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-        <div>
-            <p class="text-[.8rem]">Courses Enrolled</p>
-            <h3 class="font-semibold acva-heading-4">8</h3>
-        </div>
+      <div>
+        <p class="text-[.8rem]">Courses Enrolled</p>
+        <h3 class="font-semibold acva-heading-4">8</h3>
+      </div>
 
-        <app-svg src="icons/general/course-enrolled-icon.svg" [svgWidth]="'2rem'" />
-    </div>
-    
-     <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-        <div>
-            <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
-            <h3 class="font-semibold acva-heading-4">3.79</h3>
-        </div>
-
-        <app-svg src="icons/general/cummulative-cgpa-icon.svg" [svgWidth]="'4rem'" [svgHeight]="'4rem'" />
+      <app-svg src="icons/general/course-enrolled-icon.svg" [svgWidth]="'2rem'" />
     </div>
 
-     <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-        <div>
-            <p class="text-[.8rem]">Departmental Dues</p>
-            <h3 class="font-semibold acva-heading-4">1</h3>
-        </div>
+    <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
+      <div>
+        <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
+        <h3 class="font-semibold acva-heading-4">3.79</h3>
+      </div>
 
-        <app-svg src="icons/general/departmental-due-icon.svg" [svgWidth]="'2rem'" [svgHeight]="'3rem'" />
+      <app-svg
+        src="icons/general/cummulative-cgpa-icon.svg"
+        [svgWidth]="'4rem'"
+        [svgHeight]="'4rem'"
+      />
+    </div>
+
+    <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
+      <div>
+        <p class="text-[.8rem]">Departmental Dues</p>
+        <h3 class="font-semibold acva-heading-4">1</h3>
+      </div>
+
+      <app-svg
+        src="icons/general/departmental-due-icon.svg"
+        [svgWidth]="'2rem'"
+        [svgHeight]="'3rem'"
+      />
     </div>
   </div>
 
-  <div class="mt-4 grid gap-4  bg-white rounded-[12px] p-4">
+  <div class="mt-4 grid gap-4 bg-white rounded-[12px] p-4">
     <p class="acva-para-1 flex justify-between">
       <span>Full name</span>
-      <span>Chimamanda Okoye Juliet</span>
+      <span class="font-medium">Chimamanda Okoye Juliet</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Registration Number</span>
-      <span>20231038305</span>
+      <span class="font-medium">20231038305</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Course Adviser</span>
-      <span>Dr Nnamdi Araka</span>
+      <span class="font-medium">Dr Nnamdi Araka</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Current Level</span>
-      <span>300L</span>
+      <span class="font-medium">300L</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Current Session</span>
-      <span>2025/2026</span>
+      <span class="font-medium">2025/2026</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Current Semester</span>
-      <span>1st Semester</span>
+      <span class="font-medium">1st Semester</span>
     </p>
     <p class="acva-para-1 flex justify-between">
       <span>Joined Date</span>
-      <span>24/02/2025</span>
+      <span class="font-medium">24/02/2025</span>
     </p>
   </div>
 </div>

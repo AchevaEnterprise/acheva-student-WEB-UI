@@ -49,13 +49,13 @@ export class Dashboard {
     {
       label: 'Results',
       count: 0,
-      iconSrc: 'images/general/dash-card-draft.svg',
+      iconSrc: 'icons/general/result-analytics-icon.svg',
       infoLabel: 'Results published by the CA',
     },
     {
       label: 'Departmental Dues',
       count: 0,
-      iconSrc: 'images/general/dash-card-pending.svg',
+      iconSrc: 'icons/general/departmental-due-icon.svg',
       infoLabel: 'Results published by the CA',
     },
   ]);
