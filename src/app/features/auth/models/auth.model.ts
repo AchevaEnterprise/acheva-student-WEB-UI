@@ -1,4 +1,4 @@
-import { IDepartment, IFaculty, LevelsEnum } from '../../../core/models/school.model';
+import { IDepartment, IFaculty, ISchool, LevelsEnum } from '../../../core/models/school.model';
 
 export interface ILogIn {
   email: string;
@@ -25,6 +25,7 @@ export interface IAuthProfile {
   email: string;
   faculty: IFaculty;
   department: IDepartment;
+  school: ISchool;
   session: string;
   level: LevelsEnum;
   accountType: 'STUDENT';

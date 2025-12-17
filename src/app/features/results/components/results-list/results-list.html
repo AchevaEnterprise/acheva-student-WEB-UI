@@ -5,9 +5,12 @@
   </p>
 
   <ul class="mt-8 overflow-y-auto h-[73vh]">
-    @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+    @for (result of results(); track result) {
       <li
         class="cursor-pointer hover:bg-gray-200 p-2 text-gray-400 py-[1rem] px-[0.6938rem] flex gap-2 rounded-lg"
+        tabindex="0"
+        (click)="viewResult(result)"
+        (keydown)="viewResult(result)"
       >
         <app-svg src="icons/general/result-file-icon.svg" svgWidth="2rem" />
         <div>

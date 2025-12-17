@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -16,6 +16,9 @@ import { Chart } from './components/chart/chart';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { StudentService } from '../../core/services/student';
+import { Button } from '../../shared/form/button/button';
 import { Paginator } from '../../shared/paginator/paginator';
 import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher/segment-switcher';
 
@@ -38,12 +41,15 @@ import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher
     DatePipe,
     GreetingPipe,
     Paginator,
+    Button,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
   private readonly authService = inject(AuthenticationService);
+  private readonly studentService = inject(StudentService);
+  private readonly router = inject(Router);
 
   analtyics = signal<IAnalytics[]>([
     {
@@ -71,6 +77,8 @@ export class Dashboard {
     'actions',
   ];
   dataSource = signal<unknown[]>([]);
+  hasPaidDues = signal<boolean>(false);
+  session = signal<string>('');
 
   semesterOptions = signal<{ label: string; value: string }[]>([
     { label: '1st Semester', value: SemesterEnum.FIRST },
@@ -144,5 +152,30 @@ export class Dashboard {
     this.activeSegment.update(
       () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!
     );
+  }
+
+  ngOnInit(): void {
+    const session = this.authService.activeAccount()?.session;
+    this.session.set(session!);
+    this.getAnalytics();
+  }
+
+  getAnalytics() {
+    this.studentService.getAnalytics().subscribe({
+      next: (resp) => {
+        const { results, departmentalDues, hasPaidDues } = resp.data;
+
+        this.hasPaidDues.set(hasPaidDues);
+        this.analtyics.update((analytics: IAnalytics[]) => {
+          analytics[0].count = results;
+          analytics[1].count = departmentalDues;
+          return analytics;
+        });
+      },
+    });
+  }
+
+  payResultFee() {
+    this.router.navigate(['/payment-history']);
   }
 }

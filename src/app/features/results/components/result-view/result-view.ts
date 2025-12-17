@@ -1,10 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { IResult } from '../../../../core/models/student.model';
+import { UppercasePipe } from '../../../../core/pipes/uppercase.pipe';
+import { EmptyState } from '../../../../shared/empty-state/empty-state';
 import { StatusBadge } from '../../../../shared/status-badge/status-badge';
+import { AuthenticationService } from '../../../auth/services/auth.service';
 
+interface ResultViewData {
+  fullName: string;
+  school: string;
+  department: string;
+  faculty: string;
+  registrationNumber: string;
+}
 @Component({
   selector: 'app-result-view',
-  imports: [StatusBadge],
+  imports: [StatusBadge, EmptyState, UppercasePipe],
   templateUrl: './result-view.html',
   styleUrl: './result-view.scss',
 })
-export class ResultView {}
+export class ResultView {
+  private readonly authService = inject(AuthenticationService);
+  results = input<IResult[]>([]);
+
+  resultData = computed<ResultViewData>(() => {
+    this.results();
+    const { fullName, department, faculty, school, registrationNumber } =
+      this.authService.activeAccount()!;
+
+    return {
+      fullName: fullName ?? '',
+      department: department?.name ?? '',
+      faculty: faculty?.name ?? '',
+      registrationNumber: registrationNumber ?? '',
+      school: school?.name ?? '',
+    };
+  });
+}

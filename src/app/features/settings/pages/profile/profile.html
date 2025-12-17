@@ -9,80 +9,86 @@
       class="w-[5rem] h-[5rem] rounded-[50%] mx-auto"
     />
     <div>
-      <h3 class="font-semibold mt-2">Chimamanda Okoye. J</h3>
-      <p class="acva-para-1 text-gray-500">Computer Science, 300L</p>
+      <h3 class="font-semibold mt-2">{{ profile()?.student?.fullName }}</h3>
+      <p class="acva-para-1 text-gray-500">
+        {{ profile()?.student?.department?.name }}, {{ profile()?.student?.level }}
+      </p>
     </div>
   </header>
 
   <app-button label="Upload new picture" />
 </div>
 
-<div class="bg-gray-200 rounded-lg p-4 mt-8">
-  <div class="grid grid-cols-3 gap-4">
-    <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-      <div>
-        <p class="text-[.8rem]">Courses Enrolled</p>
-        <h3 class="font-semibold acva-heading-4">8</h3>
+@if (loading()) {
+  <app-loader />
+} @else {
+  <div class="bg-gray-200 rounded-lg p-4 mt-8">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
+        <div>
+          <p class="text-[.8rem]">Courses Enrolled</p>
+          <h3 class="font-semibold acva-heading-4">{{ profile()?.coursesEnrolled || 0 }}</h3>
+        </div>
+
+        <app-svg src="icons/general/course-enrolled-icon.svg" [svgWidth]="'2rem'" />
       </div>
 
-      <app-svg src="icons/general/course-enrolled-icon.svg" [svgWidth]="'2rem'" />
+      <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
+        <div>
+          <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
+          <h3 class="font-semibold acva-heading-4">{{ profile()?.cgpa || 0 }}</h3>
+        </div>
+
+        <app-svg
+          src="icons/general/cummulative-cgpa-icon.svg"
+          [svgWidth]="'4rem'"
+          [svgHeight]="'4rem'"
+        />
+      </div>
+
+      <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
+        <div>
+          <p class="text-[.8rem]">Departmental Dues</p>
+          <h3 class="font-semibold acva-heading-4">{{ profile()?.departmentalDues || 0 }}</h3>
+        </div>
+
+        <app-svg
+          src="icons/general/departmental-due-icon.svg"
+          [svgWidth]="'2rem'"
+          [svgHeight]="'3rem'"
+        />
+      </div>
     </div>
 
-    <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-      <div>
-        <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
-        <h3 class="font-semibold acva-heading-4">3.79</h3>
-      </div>
-
-      <app-svg
-        src="icons/general/cummulative-cgpa-icon.svg"
-        [svgWidth]="'4rem'"
-        [svgHeight]="'4rem'"
-      />
-    </div>
-
-    <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-      <div>
-        <p class="text-[.8rem]">Departmental Dues</p>
-        <h3 class="font-semibold acva-heading-4">1</h3>
-      </div>
-
-      <app-svg
-        src="icons/general/departmental-due-icon.svg"
-        [svgWidth]="'2rem'"
-        [svgHeight]="'3rem'"
-      />
+    <div class="mt-4 grid gap-4 bg-white rounded-[12px] p-4">
+      <p class="acva-para-1 flex justify-between">
+        <span>Full name</span>
+        <span class="font-medium">{{ profile()?.student?.fullName }}</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Registration Number</span>
+        <span class="font-medium">{{ profile()?.student?.registrationNumber }}</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Course Adviser</span>
+        <span class="font-medium">{{ profile()?.courseAdviserName }}</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Current Level</span>
+        <span class="font-medium">{{ profile()?.student?.level }}</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Current Session</span>
+        <span class="font-medium">{{ profile()?.student?.session }}</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Current Semester</span>
+        <span class="font-medium">1st Semester</span>
+      </p>
+      <p class="acva-para-1 flex justify-between">
+        <span>Joined Date</span>
+        <span class="font-medium">{{ profile()?.student?.createdAt | date: 'mediumDate' }}</span>
+      </p>
     </div>
   </div>
-
-  <div class="mt-4 grid gap-4 bg-white rounded-[12px] p-4">
-    <p class="acva-para-1 flex justify-between">
-      <span>Full name</span>
-      <span class="font-medium">Chimamanda Okoye Juliet</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Registration Number</span>
-      <span class="font-medium">20231038305</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Course Adviser</span>
-      <span class="font-medium">Dr Nnamdi Araka</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Current Level</span>
-      <span class="font-medium">300L</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Current Session</span>
-      <span class="font-medium">2025/2026</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Current Semester</span>
-      <span class="font-medium">1st Semester</span>
-    </p>
-    <p class="acva-para-1 flex justify-between">
-      <span>Joined Date</span>
-      <span class="font-medium">24/02/2025</span>
-    </p>
-  </div>
-</div>
+}
