@@ -1,9 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { IResult } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/student';
+import { ToastService } from '../../core/utility/toast.service';
 import { ResultPreview } from './components/result-preview/result-preview';
 import { ResultView } from './components/result-view/result-view';
-import { ResultsList } from './components/results-list/results-list';
+import { IResultSessions, ResultsList } from './components/results-list/results-list';
+import { UtilityService } from '../../core/utility/utility.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-results',
@@ -11,28 +14,32 @@ import { ResultsList } from './components/results-list/results-list';
   templateUrl: './results.html',
   styleUrl: './results.scss',
 })
-export class Results implements OnInit {
+export class Results {
   private readonly studentService = inject(StudentService);
+  private readonly toastService = inject(ToastService);
+  private readonly utils = inject(UtilityService);
 
   GPA = signal<number>(0);
-  allResults = signal<IResult[]>([]);
-  result = signal<IResult | null>(null);
+  results = signal<IResult[]>([]);
 
-  ngOnInit(): void {
-    this.getResults();
-  }
+  viewResult(sessionData: IResultSessions) {
+    this.utils.showLoader();
+    const { session, level } = sessionData;
 
-  getResults() {
-    this.studentService.getResults().subscribe({
-      next: (resp) => {
-        const { gpa, results } = resp.data;
-        this.GPA.set(gpa);
-        this.allResults.set(results);
-      },
-    });
-  }
+    this.studentService
+      .getResults(level, session)
+      .pipe(finalize(() => this.utils.hideLoader()))
+      .subscribe({
+        next: (resp) => {
+          if (!resp.status) {
+            this.toastService.showNotification('error', 'Error Occured', resp.message);
+            return;
+          }
 
-  viewResult(result: IResult) {
-    this.result.set(result);
+          const { gpa, results } = resp.data;
+          this.GPA.set(gpa);
+          this.results.set(results);
+        },
+      });
   }
 }

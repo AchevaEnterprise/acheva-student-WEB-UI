@@ -1,5 +1,5 @@
 <div class="grid grid-cols-[23%_1fr_22%] gap-4 h-full">
-    <app-results-list [results]="allResults()" (viewResultEvent)="viewResult($event)" />
-    <app-result-view [results]="allResults()" />
-    <app-result-preview />
+  <app-results-list (viewSessionResultEvent)="viewResult($event)" />
+  <app-result-view [results]="results()" [gpa]="GPA()" />
+  <app-result-preview />
 </div>

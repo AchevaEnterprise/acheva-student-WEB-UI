@@ -21,6 +21,7 @@ interface ResultViewData {
 export class ResultView {
   private readonly authService = inject(AuthenticationService);
   results = input<IResult[]>([]);
+  gpa = input<number>();
 
   resultData = computed<ResultViewData>(() => {
     this.results();
