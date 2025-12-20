@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { finalize, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Subscription } from 'rxjs';
 import { IDepartment, IFaculty, ISchool, LevelsEnum } from '../../../../core/models/school.model';
 import { AppState } from '../../../../core/store/app.state';
 import {
@@ -62,6 +62,7 @@ export class SignUp implements OnInit, OnDestroy {
   schoolsOptions = signal<ISchool[]>([]);
   facultiesOptions = signal<IFaculty[]>([]);
   departmentsOptions = signal<IDepartment[]>([]);
+  admissionYearOptions = signal<string[]>(this.utilsService.generateAdmissionYear());
 
   levelOptions = signal<{ label: string; value: LevelsEnum }[]>([
     {
@@ -88,6 +89,14 @@ export class SignUp implements OnInit, OnDestroy {
       label: '600 Level',
       value: LevelsEnum.YEAR_SIX,
     },
+    {
+      label: 'Reference',
+      value: LevelsEnum.REFERENCE,
+    },
+    {
+      label: 'Unregistered',
+      value: LevelsEnum.UNREGISTERED,
+    },
   ]);
   sessionOptions = signal<string[]>(this.utilsService.generateSchoolSessions());
 
@@ -100,7 +109,7 @@ export class SignUp implements OnInit, OnDestroy {
     school: new FormControl(null, Validators.required),
     faculty: new FormControl(null, Validators.required),
     department: new FormControl(null, Validators.required),
-    session: new FormControl(null, Validators.required),
+    admissionYear: new FormControl(null, Validators.required),
     level: new FormControl(null, Validators.required),
     password: new FormControl(null, Validators.required),
     confirm_password: new FormControl(null, Validators.required),
@@ -110,6 +119,7 @@ export class SignUp implements OnInit, OnDestroy {
   showConfirmPassword = signal<boolean>(false);
 
   ngOnInit(): void {
+    this.regNoListener();
     this.getSchools();
   }
 
@@ -128,7 +138,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (schools) => {
           this.schoolsOptions.set(schools);
         },
-      })
+      }),
     );
   }
 
@@ -140,20 +150,58 @@ export class SignUp implements OnInit, OnDestroy {
         next: (faculties) => {
           this.facultiesOptions.set(faculties);
         },
-      })
+      }),
     );
   }
 
-  getDepartments(event: MatSelectChange) {
-    const facultyId = event.value as string;
+  getDepartments(event: MatSelectChange | string) {
+    const facultyId = typeof event === 'string' ? event : (event.value as string);
     this.store.dispatch(loadDepartments({ facultyId }));
     this.sub.add(
       this.store.select(departmentsSelector).subscribe({
         next: (departments) => {
           this.departmentsOptions.set(departments);
         },
-      })
+      }),
     );
+  }
+
+  regNoListener() {
+    this.form.controls['registrationNumber'].valueChanges
+      .pipe(distinctUntilChanged(), debounceTime(800))
+      .subscribe({
+        next: (regNo) => {
+          const school = this.form.controls['school'].value;
+          this.getStudentInfoByRegNo(regNo, school);
+        },
+      });
+  }
+
+  getStudentInfoByRegNo(regNo: string, school: string) {
+    this.authService.getStudentProfileByRegNo(regNo, school).subscribe({
+      next: (resp) => {
+        const { fullName, admissionYear, level, faculty, department } = resp.data;
+        this.form.patchValue({
+          fullname: fullName,
+          admissionYear: admissionYear,
+          level: level,
+          faculty: faculty._id,
+          department: department._id,
+        });
+
+        if (faculty) this.getDepartments(faculty._id);
+      },
+    });
+  }
+
+  compareFacultyFn(faculty1: IFaculty, faculty2: IFaculty) {
+    return faculty1 && faculty2 ? faculty1._id === faculty2._id : faculty1 === faculty2;
+  }
+
+  compareDepartmentFn(department1: IDepartment, department2: IDepartment) {
+    return department1 && department2
+      ? department1._id === department2._id
+      : department1 === department2;
   }
 
   submitForm() {
@@ -211,7 +259,7 @@ export class SignUp implements OnInit, OnDestroy {
               this.toast.showNotification(
                 'success',
                 'Account Created',
-                'Your account was created successfully'
+                'Your account was created successfully',
               );
               this.router.navigate(['/auth/confirm-email'], {
                 queryParams: { accountId: (res.data as { _id: string })._id },
@@ -222,10 +270,10 @@ export class SignUp implements OnInit, OnDestroy {
             this.toast.showNotification(
               'error',
               'Account Creation Failed',
-              err?.error?.message || 'Something went wrong'
+              err?.error?.message || 'Something went wrong',
             );
           },
-        })
+        }),
     );
   }
 

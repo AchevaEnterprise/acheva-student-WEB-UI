@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -13,6 +13,7 @@ import {
   ILogIn,
   IResetPassword,
   ISignUp,
+  IStudentRegProfile,
 } from '../models/auth.model';
 
 @Injectable({
@@ -63,7 +64,7 @@ export class AuthenticationService {
 
           this.activeAccount.set(rest);
           localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
-        })
+        }),
       );
   }
 
@@ -84,15 +85,25 @@ export class AuthenticationService {
           this.activeAccount.set(resp.data);
           localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
         }
-      })
+      }),
     );
+  }
+
+  getStudentProfileByRegNo(
+    regNo: string,
+    school: string
+  ): Observable<IAPIResponse<IStudentRegProfile>> {
+    let params = new HttpParams();
+    params = params.append('registrationNumber', regNo);
+    params = params.append('school', school);
+    return this.http.get<IAPIResponse<IStudentRegProfile>>(`${this.authUrl}/students`, { params });
   }
 
   forgotPassword(email: string): Observable<IAPIResponse<unknown>> {
     return this.http.post<IAPIResponse<unknown>>(
       `${this.authUrl}/forgot-password`,
       { email },
-      { params: { accountType: 'STUDENT' } }
+      { params: { accountType: 'STUDENT' } },
     );
   }
 
@@ -100,14 +111,14 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(
       `${this.authUrl}/resend-email-verification`,
       { email },
-      { params: { accountType: 'LECTURER' } }
+      { params: { accountType: 'LECTURER' } },
     );
   }
 
   confirmCode(accountId: string, token: string): Observable<IAPIResponse<{ token: string }>> {
     return this.http.patch<IAPIResponse<{ token: string }>>(
       `${this.authUrl}/verify-email/${accountId}`,
-      { token }
+      { token },
     );
   }
 
@@ -118,7 +129,7 @@ export class AuthenticationService {
   refreshToken(refreshToken: string): Observable<IAPIResponse<IAccessRefreshToken>> {
     return this.http.post<IAPIResponse<IAccessRefreshToken>>(
       `${this.authUrl}/students/refresh-token`,
-      { refreshToken }
+      { refreshToken },
     );
   }
 

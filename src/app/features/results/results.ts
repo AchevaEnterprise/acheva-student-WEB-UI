@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import { IResult } from '../../core/models/student.model';
+import { finalize } from 'rxjs';
+import { IResult, IResultEntry } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/student';
 import { ToastService } from '../../core/utility/toast.service';
+import { UtilityService } from '../../core/utility/utility.service';
 import { ResultPreview } from './components/result-preview/result-preview';
 import { ResultView } from './components/result-view/result-view';
 import { IResultSessions, ResultsList } from './components/results-list/results-list';
-import { UtilityService } from '../../core/utility/utility.service';
-import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-results',
@@ -21,6 +21,7 @@ export class Results {
 
   GPA = signal<number>(0);
   results = signal<IResult[]>([]);
+  resultEntries = signal<IResultEntry[]>([]);
 
   viewResult(sessionData: IResultSessions) {
     this.utils.showLoader();
@@ -41,5 +42,9 @@ export class Results {
           this.results.set(results);
         },
       });
+  }
+
+  setResultEntries(entries: IResultEntry[]) {
+    this.resultEntries.set(entries);
   }
 }

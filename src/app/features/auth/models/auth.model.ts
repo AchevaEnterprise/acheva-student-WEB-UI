@@ -36,6 +36,21 @@ export interface IAuthProfile {
 
 export type IAccount = Omit<IAuthProfile, 'accessToken' | 'refreshToken'>;
 
+export interface IStudentRegProfile {
+  _id: string;
+  fullName: string;
+  registrationNumber: string;
+  faculty: IFaculty;
+  department: IDepartment;
+  school: ISchool;
+  level: LevelsEnum;
+  admissionYear: string;
+  accountType: 'STUDENT';
+  emailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IResetPassword {
   password: string;
   confirmPassword: string;

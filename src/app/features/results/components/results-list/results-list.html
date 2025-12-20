@@ -4,32 +4,61 @@
     Access all results across your different semesters and sessions.
   </p>
 
-  <ul class="mt-8 overflow-y-auto h-[73vh]">
-    @for (session of sessionsList(); track session) {
-      <li
-        class="cursor-pointer hover:bg-gray-100 p-2 py-[1rem] px-[0.6938rem] flex gap-2 rounded-lg"
-        [ngClass]="{
-          'text-[#43413E]': session.payed && session.active,
-          'text-[#8E8D8B]': !session.payed && session.active,
-          'text-gray-300': !session.payed && !session.active,
-        }"
-        tabindex="0"
-        (click)="viewSessionResult(session)"
-        (keydown)="viewSessionResult(session)"
-      >
-        @if (session.payed) {
-          <app-svg src="icons/general/result-file-icon.svg" svgWidth="2rem" />
-        } @else if (!session.payed && session.active) {
-          <app-svg src="icons/general/result-enabled-icon.svg" svgWidth="2rem" />
-        } @else {
-          <app-svg src="icons/general/result-disabled-icon.svg" svgWidth="2rem" />
-        }
+  <div class="mt-8 overflow-y-auto h-[calc(100vh_-_40vh)]">
+    @if (loading()) {
+      <app-loader />
+    } @else {
+      <ul cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+        @for (session of sessionsList(); track session) {
+          <li
+            class="cursor-pointer hover:bg-gray-100 p-2 py-[1rem] px-[0.6938rem] flex gap-2 rounded-lg"
+            [ngClass]="{
+              'text-[#43413E]': session.payed && session.active,
+              'text-[#8E8D8B]': !session.payed && session.active,
+              'text-gray-300':
+                (!session.payed && !session.active) || (session.payed && !session.active),
+            }"
+            tabindex="0"
+            (click)="viewSessionResult(session)"
+            (keydown)="viewSessionResult(session)"
+          >
+            @if (session.payed) {
+              <app-svg src="icons/general/result-file-icon.svg" svgWidth="2rem" />
+            } @else if (!session.payed && session.active) {
+              <app-svg src="icons/general/result-enabled-icon.svg" svgWidth="2rem" />
+            } @else {
+              <app-svg src="icons/general/result-disabled-icon.svg" svgWidth="2rem" />
+            }
 
-        <div>
-          <h5 class="font-semibold">{{ session.level }}</h5>
-          <p class="text-[.9rem]">{{ session.session }} Academic Session</p>
+            <div>
+              <h5 class="font-semibold">{{ session.level }}L</h5>
+              <p class="text-[.9rem]">{{ session.session }} Academic Session</p>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="isOpen()"
+        (detach)="isOpen.set(false)"
+      >
+        <div class="overlay">
+          You are yet to pay the departmental dues for this session and as such cannot view this
+          level's result. Kindly pay to continue.
+
+          <div class="flex justify-center gap-4 mt-4">
+            <app-button
+              label="Cancel"
+              type="outline"
+              class="btn-sm"
+              (clickEvent)="cancelOverlay()"
+            />
+            <app-button label="Pay now" class="btn-sm" />
+          </div>
         </div>
-      </li>
+      </ng-template>
     }
-  </ul>
+  </div>
 </div>

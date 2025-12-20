@@ -1,4 +1,4 @@
-import { IDepartment, IFaculty, ISchool } from './school.model';
+import { IDepartment, IFaculty, ISchool, LevelsEnum } from './school.model';
 
 export interface IStudent {
   _id: string;
@@ -42,7 +42,27 @@ export interface IResult {
   courseCode: string;
 }
 
+export interface IResultEntry {
+  resultId: string;
+  courseId: string;
+  courseCode: string;
+  courseTitle: string;
+  test: number;
+  lab: number;
+  exam: number;
+  total: number;
+  grade: string;
+  status: string;
+  createdAt: Date;
+}
+
 export interface IStudentResult {
   gpa: number;
   results: IResult[];
+}
+
+export interface IStudentSessionsResult {
+  session: string;
+  level: LevelsEnum;
+  entries: IResultEntry[];
 }

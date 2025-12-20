@@ -4,7 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAPIResponse } from '../models/api-response.model';
 import { LevelsEnum } from '../models/school.model';
-import { IStudentAnalytics, IStudentProfile, IStudentResult } from '../models/student.model';
+import {
+  IStudentAnalytics,
+  IStudentProfile,
+  IStudentResult,
+  IStudentSessionsResult,
+} from '../models/student.model';
 
 @Injectable({
   providedIn: 'root',
@@ -27,5 +32,9 @@ export class StudentService {
     params = params.append('session', session);
 
     return this.http.get<IAPIResponse<IStudentResult>>(`${this.studentUrl}/results`, { params });
+  }
+
+  getResultsBySessions(): Observable<IAPIResponse<IStudentSessionsResult[]>> {
+    return this.http.get<IAPIResponse<IStudentSessionsResult[]>>(`${this.studentUrl}/sessions`);
   }
 }

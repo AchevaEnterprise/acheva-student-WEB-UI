@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
+import { IResultEntry } from '../../../../core/models/student.model';
 
 @Component({
   selector: 'app-result-preview',
@@ -7,4 +8,6 @@ import { MatDivider } from '@angular/material/divider';
   templateUrl: './result-preview.html',
   styleUrl: './result-preview.scss',
 })
-export class ResultPreview {}
+export class ResultPreview {
+  resultEntries = input<IResultEntry[]>([]);
+}
