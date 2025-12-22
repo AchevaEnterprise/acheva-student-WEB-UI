@@ -64,7 +64,7 @@ export class AuthenticationService {
 
           this.activeAccount.set(rest);
           localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
-        }),
+        })
       );
   }
 
@@ -85,7 +85,7 @@ export class AuthenticationService {
           this.activeAccount.set(resp.data);
           localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
         }
-      }),
+      })
     );
   }
 
@@ -103,7 +103,7 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(
       `${this.authUrl}/forgot-password`,
       { email },
-      { params: { accountType: 'STUDENT' } },
+      { params: { accountType: 'STUDENT' } }
     );
   }
 
@@ -111,14 +111,14 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(
       `${this.authUrl}/resend-email-verification`,
       { email },
-      { params: { accountType: 'LECTURER' } },
+      { params: { accountType: 'LECTURER' } }
     );
   }
 
   confirmCode(accountId: string, token: string): Observable<IAPIResponse<{ token: string }>> {
     return this.http.patch<IAPIResponse<{ token: string }>>(
       `${this.authUrl}/verify-email/${accountId}`,
-      { token },
+      { token }
     );
   }
 
@@ -129,7 +129,7 @@ export class AuthenticationService {
   refreshToken(refreshToken: string): Observable<IAPIResponse<IAccessRefreshToken>> {
     return this.http.post<IAPIResponse<IAccessRefreshToken>>(
       `${this.authUrl}/students/refresh-token`,
-      { refreshToken },
+      { refreshToken }
     );
   }
 
