@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, inject, model, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -38,6 +38,7 @@ import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher
     MatTableModule,
     MatMenuModule,
     Svg,
+    TitleCasePipe,
     DatePipe,
     GreetingPipe,
     Paginator,
@@ -150,7 +151,7 @@ export class Dashboard implements OnInit {
 
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(
-      () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!
+      () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!,
     );
   }
 
