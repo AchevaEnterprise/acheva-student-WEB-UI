@@ -247,7 +247,7 @@ export class SignUp implements OnInit, OnDestroy {
       confirm_password,
       session,
       level,
-    } = this.form.value as {
+    } = this.form.getRawValue() as {
       fullname: string;
       email: string;
       school: string;
