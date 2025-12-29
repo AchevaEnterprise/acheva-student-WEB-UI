@@ -4,6 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -45,6 +46,7 @@ import { AuthenticationService } from '../../services/auth.service';
     MatPrefix,
     Button,
     PasswordValidity,
+    MatProgressSpinner,
   ],
   templateUrl: './sign-up.html',
   styleUrl: './sign-up.scss',
@@ -58,6 +60,7 @@ export class SignUp implements OnInit, OnDestroy {
   private readonly router = inject(Router);
 
   isLoading = signal(false);
+  loadingProfile = signal(false);
 
   schoolsOptions = signal<ISchool[]>([]);
   facultiesOptions = signal<IFaculty[]>([]);
@@ -138,7 +141,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (schools) => {
           this.schoolsOptions.set(schools);
         },
-      })
+      }),
     );
   }
 
@@ -150,7 +153,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (faculties) => {
           this.facultiesOptions.set(faculties);
         },
-      })
+      }),
     );
   }
 
@@ -162,7 +165,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (departments) => {
           this.departmentsOptions.set(departments);
         },
-      })
+      }),
     );
   }
 
@@ -178,20 +181,48 @@ export class SignUp implements OnInit, OnDestroy {
   }
 
   getStudentInfoByRegNo(regNo: string, school: string) {
-    this.authService.getStudentProfileByRegNo(regNo, school).subscribe({
-      next: (resp) => {
-        const { fullName, admissionYear, level, faculty, department } = resp.data;
-        this.form.patchValue({
-          fullname: fullName,
-          admissionYear: admissionYear,
-          level: level,
-          faculty: faculty._id,
-          department: department._id,
-        });
+    this.loadingProfile.set(true);
+    this.authService
+      .getStudentProfileByRegNo(regNo, school)
+      .pipe(finalize(() => this.loadingProfile.set(false)))
+      .subscribe({
+        next: (resp) => {
+          const studentInfo = resp.data;
+          if (studentInfo) {
+            const { fullName, admissionYear, level, faculty, department } = studentInfo;
 
-        if (faculty) this.getDepartments(faculty._id);
-      },
-    });
+            this.form.patchValue({
+              fullname: fullName,
+              admissionYear: admissionYear,
+              level: level,
+              faculty: faculty._id,
+              department: department._id,
+            });
+
+            this.form.controls['fullname'].disable();
+            this.form.controls['admissionYear'].disable();
+            this.form.controls['level'].disable();
+            this.form.controls['faculty'].disable();
+            this.form.controls['department'].disable();
+
+            if (faculty) this.getDepartments(faculty._id);
+          } else {
+            this.form.patchValue({
+              fullname: '',
+              admissionYear: '',
+              level: '',
+              faculty: '',
+              department: '',
+            });
+
+            this.form.controls['fullname'].enable();
+            this.form.controls['admissionYear'].enable();
+            this.form.controls['level'].enable();
+            this.form.controls['faculty'].enable();
+            this.form.controls['department'].enable();
+          }
+        },
+      });
   }
 
   compareFacultyFn(faculty1: IFaculty, faculty2: IFaculty) {
@@ -259,7 +290,7 @@ export class SignUp implements OnInit, OnDestroy {
               this.toast.showNotification(
                 'success',
                 'Account Created',
-                'Your account was created successfully'
+                'Your account was created successfully',
               );
               this.router.navigate(['/auth/confirm-email'], {
                 queryParams: { accountId: (res.data as { _id: string })._id },
@@ -270,10 +301,10 @@ export class SignUp implements OnInit, OnDestroy {
             this.toast.showNotification(
               'error',
               'Account Creation Failed',
-              err?.error?.message || 'Something went wrong'
+              err?.error?.message || 'Something went wrong',
             );
           },
-        })
+        }),
     );
   }
 

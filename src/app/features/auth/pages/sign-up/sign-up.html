@@ -48,7 +48,12 @@
         </div>
 
         <div class="input-style-1 acheva-input w-full">
-          <p class="acva-para-2 fw-400 label-text">Reg. Number</p>
+          <p class="acva-para-2 fw-400 label-text flex gap-2 items-center">
+            Reg. Number
+            @if (loadingProfile()) {
+              <mat-spinner diameter="16" />
+            }
+          </p>
 
           <mat-form-field [style.width.%]="100" appearance="outline">
             <input
@@ -110,7 +115,6 @@
               placeholder="Select your faculty"
               formControlName="faculty"
               (selectionChange)="getDepartments($event)"
-              [compareWith]="compareFacultyFn"
             >
               @for (faculty of facultiesOptions(); track $index) {
                 <mat-option [value]="faculty._id">{{ faculty.name }}</mat-option>
