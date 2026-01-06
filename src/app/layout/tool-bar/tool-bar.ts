@@ -1,3 +1,4 @@
+import { TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
@@ -10,7 +11,7 @@ import { Svg } from '../../shared/svg/svg';
 
 @Component({
   selector: 'app-tool-bar',
-  imports: [MatBadgeModule, MatMenuModule, ImageFallbackDirective, Svg],
+  imports: [MatBadgeModule, MatMenuModule, ImageFallbackDirective, Svg, TitleCasePipe],
   templateUrl: './tool-bar.html',
   styleUrl: './tool-bar.scss',
 })

@@ -7,7 +7,7 @@
   </div>
 
   @if (!hasPaidDues()) {
-    <div class="flex gap-4 justify-between items-center mt-8 mb-4">
+    <div class="flex gap-4 flex-wrap justify-between items-center mt-8 mb-4">
       <p class="text-red-400">
         Kindly pay departmental dues of {{ session() }} to access your results
       </p>
@@ -16,7 +16,7 @@
   }
 
   <!-- ANALYTICS -->
-  <div class="grid grid-cols-[repeat(auto-fit,_minmax(0,_1fr))] gap-4 mt-4">
+  <div class="grid lg:grid-cols-2 gap-4 mt-4">
     @for (data of analtyics(); track $index) {
       <app-analytics-card [analtyics]="data" />
     }
@@ -191,13 +191,13 @@
         </div>
 
         <div content class="p-4 h-[35vh] overflow-y-auto">
-          @for (activity of activities(); track $index) {
+          <!-- @for (activity of activities(); track $index) {
             <app-activity [activity]="activity" />
-          }
-          <!-- <app-empty-state
+          } -->
+          <app-empty-state
           iconSrc="images/general/empty-disk.svg"
           description="You have no recent activities"
-        /> -->
+        />
         </div>
       </app-card>
 

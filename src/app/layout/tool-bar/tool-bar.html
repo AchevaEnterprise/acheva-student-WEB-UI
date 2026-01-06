@@ -38,7 +38,7 @@
 
       <div>
         <p class="font-medium">
-          {{ activeAccount()?.fullName }}
+          {{ activeAccount()?.fullName | titlecase }}
         </p>
         <p class="text-neutral-500 text-sm">Student ({{ activeAccount()?.department?.name }})</p>
       </div>

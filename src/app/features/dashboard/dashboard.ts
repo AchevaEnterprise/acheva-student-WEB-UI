@@ -10,7 +10,7 @@ import { Card } from '../../shared/card/card';
 import { EmptyState } from '../../shared/empty-state/empty-state';
 import { Svg } from '../../shared/svg/svg';
 import { AuthenticationService } from '../auth/services/auth.service';
-import { Activity, IActivity } from './components/activity/activity';
+import { IActivity } from './components/activity/activity';
 import { AnalyticsCard } from './components/analytics-card/analytics-card';
 import { Chart } from './components/chart/chart';
 
@@ -34,7 +34,7 @@ import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher
     SegmentSwitcher,
     EmptyState,
     MatDatepickerModule,
-    Activity,
+    // Activity,
     MatTableModule,
     MatMenuModule,
     Svg,
@@ -151,7 +151,7 @@ export class Dashboard implements OnInit {
 
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(
-      () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!,
+      () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!
     );
   }
 
