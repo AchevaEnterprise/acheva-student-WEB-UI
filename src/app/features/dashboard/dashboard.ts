@@ -167,11 +167,17 @@ export class Dashboard implements OnInit {
         const { results, departmentalDues, hasPaidDues } = resp.data;
 
         this.hasPaidDues.set(hasPaidDues);
-        this.analtyics.update((analytics: IAnalytics[]) => {
-          analytics[0].count = results;
-          analytics[1].count = departmentalDues;
+        const updatedAnalytics = this.analtyics().map((analytics: IAnalytics) => {
+          if (analytics.label === 'Results') {
+            analytics.count = results;
+          } else if (analytics.label === 'Departmental Dues') {
+            analytics.count = departmentalDues;
+          }
+
           return analytics;
         });
+
+        this.analtyics.set(updatedAnalytics);
       },
     });
   }

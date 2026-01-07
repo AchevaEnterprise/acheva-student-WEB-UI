@@ -8,6 +8,7 @@ import { HighchartsChartComponent } from 'highcharts-angular';
   styleUrl: './chart.scss',
 })
 export class Chart {
+  updateFlag = false;
   chartOptions: Highcharts.Options = {
     chart: {
       type: 'column',
@@ -26,20 +27,18 @@ export class Chart {
       labels: {
         format: '{value}%',
       },
-      title: undefined,
+      title: { text: 'Percentage (%)' },
     },
 
     tooltip: {
-      pointFormat:
-        '<span style="color:{series.color}">{series.name}</span>: ' +
-        '<b>{point.percentage:.1f}%</b><br/>',
+      valueSuffix: ' %',
     },
 
     plotOptions: {
       column: {
-        stacking: 'percent',
         pointPadding: 0.2,
         borderWidth: 0,
+        grouping: true,
       },
     },
 
