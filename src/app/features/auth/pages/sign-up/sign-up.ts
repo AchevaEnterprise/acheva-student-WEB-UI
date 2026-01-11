@@ -141,7 +141,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (schools) => {
           this.schoolsOptions.set(schools);
         },
-      }),
+      })
     );
   }
 
@@ -153,7 +153,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (faculties) => {
           this.facultiesOptions.set(faculties);
         },
-      }),
+      })
     );
   }
 
@@ -165,7 +165,7 @@ export class SignUp implements OnInit, OnDestroy {
         next: (departments) => {
           this.departmentsOptions.set(departments);
         },
-      }),
+      })
     );
   }
 
@@ -290,7 +290,7 @@ export class SignUp implements OnInit, OnDestroy {
               this.toast.showNotification(
                 'success',
                 'Account Created',
-                'Your account was created successfully',
+                'Your account was created successfully'
               );
               this.router.navigate(['/auth/confirm-email'], {
                 queryParams: { accountId: (res.data as { _id: string })._id },
@@ -301,10 +301,10 @@ export class SignUp implements OnInit, OnDestroy {
             this.toast.showNotification(
               'error',
               'Account Creation Failed',
-              err?.error?.message || 'Something went wrong',
+              err?.error?.message || 'Something went wrong'
             );
           },
-        }),
+        })
     );
   }
 
