@@ -36,7 +36,9 @@
       <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
         <div>
           <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
-          <h3 class="font-semibold acva-heading-4">{{ profile()?.cgpa || 0.0 }}</h3>
+          <h3 class="font-semibold acva-heading-4">
+            {{ (profile()?.cgpa | number: '1-2.2') || 0.0 }}
+          </h3>
         </div>
 
         <app-svg

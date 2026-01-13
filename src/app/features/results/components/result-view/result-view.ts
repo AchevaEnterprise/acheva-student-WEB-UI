@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { IResult } from '../../../../core/models/student.model';
 import { UppercasePipe } from '../../../../core/pipes/uppercase.pipe';
@@ -14,7 +15,7 @@ interface ResultViewData {
 }
 @Component({
   selector: 'app-result-view',
-  imports: [StatusBadge, EmptyState, UppercasePipe],
+  imports: [StatusBadge, EmptyState, UppercasePipe, CommonModule],
   templateUrl: './result-view.html',
   styleUrl: './result-view.scss',
 })

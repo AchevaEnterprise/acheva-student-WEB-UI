@@ -1,4 +1,4 @@
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { ImageFallbackDirective } from '../../../../core/directives/image-fallback.directive';
@@ -10,7 +10,7 @@ import { Svg } from '../../../../shared/svg/svg';
 
 @Component({
   selector: 'app-profile',
-  imports: [Button, Svg, ImageFallbackDirective, DatePipe, Loader, TitleCasePipe],
+  imports: [Button, Svg, ImageFallbackDirective, DatePipe, Loader, TitleCasePipe, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })

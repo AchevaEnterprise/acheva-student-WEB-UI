@@ -11,7 +11,7 @@
 
     <div class="mt-8 flex gap-4 justify-between mb-6 text-[.89rem]">
       <p class="font-semibold">{{ resultData().fullName | uppercase }}</p>
-      <p>GPA: {{ gpa() || 0.0 }}</p>
+      <p>GPA: {{ (gpa() | number: '1-2.2' ) || 0.0 }}</p>
       <p>Harmattan Semester</p>
     </div>
 
