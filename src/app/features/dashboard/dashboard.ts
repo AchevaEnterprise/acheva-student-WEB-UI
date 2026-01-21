@@ -148,17 +148,23 @@ export class Dashboard implements OnInit {
   ]);
 
   activeAccount = this.authService.activeAccount;
+  chart = signal<{ courseCode: string; total: number }[]>([]);
+  SemesterEnum = SemesterEnum;
 
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(
       () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!
     );
+
+    this.getStudentResult(switchValue);
   }
 
   ngOnInit(): void {
-    const session = this.authService.activeAccount()?.session;
+    const session = this.activeAccount()?.session;
     this.session.set(session!);
     this.getAnalytics();
+    this.getPerformance();
+    this.getStudentResult(LevelsEnum.YEAR_ONE);
   }
 
   getAnalytics() {
@@ -183,6 +189,28 @@ export class Dashboard implements OnInit {
         });
 
         this.analtyics.set(updatedAnalytics);
+      },
+    });
+  }
+
+  getPerformance(semester?: SemesterEnum) {
+    const { session, level } = this.activeAccount()!;
+
+    this.studentService.getResults(level!, session!, semester || SemesterEnum.FIRST).subscribe({
+      next: (resp) => {
+        const result = resp.data.results?.map((perf) => ({
+          courseCode: perf.courseCode,
+          total: perf.total,
+        }));
+        this.chart.set(result);
+      },
+    });
+  }
+
+  getStudentResult(level: LevelsEnum) {
+    this.studentService.getMyResult().subscribe({
+      next: (resp) => {
+        console.warn('Table: ', resp.data);
       },
     });
   }

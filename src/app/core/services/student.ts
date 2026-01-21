@@ -3,9 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAPIResponse } from '../models/api-response.model';
-import { LevelsEnum } from '../models/school.model';
+import { LevelsEnum, SemesterEnum } from '../models/school.model';
 import {
   IStudentAnalytics,
+  IStudentPerformance,
   IStudentProfile,
   IStudentResult,
   IStudentSessionsResult,
@@ -26,10 +27,32 @@ export class StudentService {
     return this.http.get<IAPIResponse<IStudentAnalytics>>(`${this.studentUrl}/analytics`);
   }
 
-  getResults(level: LevelsEnum, session: string): Observable<IAPIResponse<IStudentResult>> {
+  getPerformance(
+    session: string,
+    semester: SemesterEnum
+  ): Observable<IAPIResponse<IStudentPerformance[]>> {
     let params = new HttpParams();
-    params = params.append('level', level);
-    params = params.append('session', session);
+    if (session) params = params.append('session', session);
+    if (semester) params = params.append('semester', semester);
+
+    return this.http.get<IAPIResponse<IStudentPerformance[]>>(`${this.studentUrl}/performance`, {
+      params,
+    });
+  }
+
+  getMyResult(): Observable<IAPIResponse<IStudentResult>> {
+    return this.http.get<IAPIResponse<IStudentResult>>(`${this.studentUrl}/my-results`);
+  }
+
+  getResults(
+    level: LevelsEnum,
+    session: string,
+    semester: SemesterEnum
+  ): Observable<IAPIResponse<IStudentResult>> {
+    let params = new HttpParams();
+    if (level) params = params.append('level', level);
+    if (session) params = params.append('session', session);
+    if (semester) params = params.append('semester', semester);
 
     return this.http.get<IAPIResponse<IStudentResult>>(`${this.studentUrl}/results`, { params });
   }

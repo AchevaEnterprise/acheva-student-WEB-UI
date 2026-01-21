@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
+import Highcharts from 'highcharts';
 import { HighchartsChartComponent } from 'highcharts-angular';
 
 @Component({
@@ -8,59 +9,67 @@ import { HighchartsChartComponent } from 'highcharts-angular';
   styleUrl: './chart.scss',
 })
 export class Chart {
+  Highcharts: typeof Highcharts = Highcharts;
+
+  chart = input<{ courseCode: string; total: number }[]>([]);
+
   updateFlag = false;
-  chartOptions: Highcharts.Options = {
-    chart: {
-      type: 'column',
-      backgroundColor: 'transparent',
-    },
-    title: undefined,
 
-    xAxis: {
-      categories: ['CSC 101', 'CSC 102', 'CSC 103', 'CSC 104', 'CSC 105'],
-      crosshair: true,
-    },
+  chartOptions = computed<Highcharts.Options>(() => {
+    const data = this.chart() ?? [];
+    this.updateFlag = true;
 
-    yAxis: {
-      min: 0,
-      max: 100,
-      labels: {
-        format: '{value}%',
-      },
-      title: { text: 'Percentage (%)' },
-    },
-
-    tooltip: {
-      valueSuffix: ' %',
-    },
-
-    plotOptions: {
-      column: {
-        pointPadding: 0.2,
-        borderWidth: 0,
-        grouping: true,
-      },
-    },
-
-    credits: {
-      enabled: false,
-    },
-
-    accessibility: {
-      enabled: false,
-    },
-
-    series: [
-      {
+    return {
+      chart: {
         type: 'column',
-        name: 'Pass Rate',
-        data: [10, 28, 70, 64, 54],
+        backgroundColor: 'transparent',
       },
-      {
-        type: 'column',
-        name: 'Fail Rate',
-        data: [45, 30, 100, 20, 40],
+
+      title: { text: undefined },
+
+      xAxis: {
+        type: 'category',
+        categories: data.map((d) => d.courseCode),
+        crosshair: true,
       },
-    ],
-  };
+
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: {
+          text: 'Total',
+        },
+        labels: {
+          format: '{value}',
+        },
+      },
+
+      tooltip: {
+        pointFormat: '<b>{point.y}</b>',
+      },
+
+      plotOptions: {
+        column: {
+          pointPadding: 0.2,
+          borderWidth: 0,
+        },
+      },
+
+      credits: {
+        enabled: false,
+      },
+
+      accessibility: {
+        enabled: false,
+      },
+
+      series: [
+        {
+          name: 'Total',
+          type: 'column',
+          data: data.map((d) => Number(d.total) || 0),
+        },
+      ],
+    };
+  });
 }

@@ -66,3 +66,8 @@ export interface IStudentSessionsResult {
   level: LevelsEnum;
   entries: IResultEntry[];
 }
+
+export interface IStudentPerformance {
+  courseCode: string;
+  total: number;
+}

@@ -3,6 +3,6 @@
     (viewSessionResultEvent)="viewResult($event)"
     (resultEntriesEvent)="setResultEntries($event)"
   />
-  <app-result-view [results]="results()" [gpa]="GPA()" />
-  <app-result-preview [resultEntries]="resultEntries()" />
+  <app-result-view [results]="results()" [gpa]="GPA()" [semester]="filter().semester" [loading]="loading()" />
+  <app-result-preview [resultEntries]="resultEntries()" (semsterEvent)="getSemesterResult($event)" />
 </div>

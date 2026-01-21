@@ -1,19 +1,26 @@
 <div class="grid place-content-center h-full w-full bg-white overflow-hidden">
-  <!-- <app-empty-state description="Note:  Your receipt would appear here after payment has been completed" /> -->
+  @if (resultEntries().length > 0) {
+    <div class="min-w-[22vw] px-4 overflow-y-auto h-[85vh]">
+      <header class="text-center grid place-content-center mb-10">
+        {{ semstersOptions.length }} Pages
+      </header>
 
-  <div class="min-w-[22vw] px-4 overflow-y-auto h-[85vh]">
-    <header class="text-center grid place-content-center mb-10">2 Pages</header>
+      @for (semester of semstersOptions; track $index) {
+        <div
+          (click)="viewSemesterResult(semester.value)"
+          (keydown)="viewSemesterResult(semester.value)"
+          tabindex="0"
+          class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
+          [class.inactive]="!semester.active"
+          [class.bg-blue-200]="currentSemester === semester.value"
+        >
+          <img src="images/general/result-preview.png" alt="Result Preview" />
+        </div>
 
-    <div class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-gray-100 p-4 cursor-pointer">
-      <img src="images/general/result-preview.png" alt="Result Preview" />
+        <mat-divider class="!my-4" />
+      }
     </div>
-
-    <mat-divider class="!my-4" />
-
-    <div
-      class="inactive border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-gray-100 p-4 cursor-pointer"
-    >
-      <img src="images/general/result-preview.png" alt="Result Preview" />
-    </div>
-  </div>
+  } @else {
+    <app-empty-state description="Note: Your semester result previews would appear here" />
+  }
 </div>

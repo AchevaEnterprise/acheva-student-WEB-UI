@@ -1,6 +1,8 @@
 <div class="p-8">
   <div>
-    <h1 class="acva-heading-4 fw-500">{{ '' | greeting }}, {{ activeAccount()?.fullName | titlecase }}👋</h1>
+    <h1 class="acva-heading-4 fw-500">
+      {{ '' | greeting }}, {{ activeAccount()?.fullName | titlecase }}👋
+    </h1>
     <p class="acva-para-1 text-neutral-500">
       {{ activeAccount()?.department?.name }}, {{ activeAccount()?.level }}L
     </p>
@@ -27,7 +29,11 @@
     <app-card label="Academic Performance">
       <div class="input-style-1 acheva-input" rightHeaderContent>
         <mat-form-field [style.width.%]="100" appearance="outline">
-          <mat-select placeholder="Select Semester" formControlName="semester">
+          <mat-select
+            placeholder="Select Semester"
+            (selectionChange)="getPerformance($event.value)"
+            [value]="SemesterEnum.FIRST"
+          >
             @for (semester of semesterOptions(); track $index) {
               <mat-option [value]="semester.value">{{ semester.label }}</mat-option>
             }
@@ -36,7 +42,7 @@
       </div>
 
       <div content class="p-4">
-        <app-chart />
+        <app-chart [chart]="chart()" />
       </div>
     </app-card>
   </div>
@@ -195,9 +201,9 @@
             <app-activity [activity]="activity" />
           } -->
           <app-empty-state
-          iconSrc="images/general/empty-disk.svg"
-          description="You have no recent activities"
-        />
+            iconSrc="images/general/empty-disk.svg"
+            description="You have no recent activities"
+          />
         </div>
       </app-card>
 
