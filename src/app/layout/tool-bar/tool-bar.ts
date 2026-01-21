@@ -1,12 +1,19 @@
 import { TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { filter } from 'rxjs';
 import { ImageFallbackDirective } from '../../core/directives/image-fallback.directive';
+import { INotification } from '../../core/models/notification.model';
+import { AppState } from '../../core/store/app.state';
+import { loadNotification } from '../../core/store/notification/notification.action';
+import { notificationSelector } from '../../core/store/notification/notification.selector';
 import { UtilityService } from '../../core/utility/utility.service';
 import { AuthenticationService } from '../../features/auth/services/auth.service';
+import { Notification } from '../../shared/notification/notification';
 import { Svg } from '../../shared/svg/svg';
 
 @Component({
@@ -18,16 +25,17 @@ import { Svg } from '../../shared/svg/svg';
 export class ToolBar implements OnInit {
   private readonly authService = inject(AuthenticationService);
   private readonly utilityService = inject(UtilityService);
-  // private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly store = inject(Store<AppState>);
 
   activeAccount = this.authService.activeAccount;
 
   pageTitle = signal<string>('');
   breadcrumbs = signal<{ label: string; link?: string }[]>([]);
   badgeCount = signal<string>(this.utilityService.formatCount(0));
-  // notifications = signal<INotification[]>([]);
+  notifications = signal<INotification[]>([]);
   unreadCount = signal<number>(0);
 
   constructor() {
@@ -48,30 +56,32 @@ export class ToolBar implements OnInit {
   }
 
   openNotification() {
-    // this.dialog.open(NotificationsComponent, {
-    //   width: '30%',
-    //   height: '98%',
-    //   position: { right: '10px' },
-    // });
+    this.dialog.open(Notification, {
+      width: '30%',
+      height: '98%',
+      position: { right: '10px' },
+      data: {
+        notifications: this.notifications(),
+      },
+    });
   }
 
   private loadNotifications() {
-    // this.notificationService.getNotifications().subscribe({
-    //   next: (resp) => {
-    //     if (resp.status && resp.data) {
-    //       this.notifications.set(resp.data);
-    //       const unreadNotifications = resp.data.filter(
-    //         (n: INotification) => n.status === 'UNREAD'
-    //       );
-    //       const count = unreadNotifications.length;
-    //       this.unreadCount.set(count);
-    //       this.badgeCount.set(count > 0 ? count.toString() : '');
-    //     }
-    //   },
-    //   error: (error) => {
-    //     this.badgeCount.set('');
-    //   },
-    // });
+    this.store.dispatch(loadNotification());
+    this.store.select(notificationSelector).subscribe({
+      next: (notifications) => {
+        this.notifications.set(notifications);
+
+        const unreadNotifications = notifications.filter(
+          (n: INotification) => n.status === 'UNREAD'
+        ).length;
+        this.unreadCount.set(unreadNotifications);
+        this.badgeCount.set(unreadNotifications > 0 ? unreadNotifications.toString() : '');
+      },
+      error: (error) => {
+        this.badgeCount.set('');
+      },
+    });
   }
 
   navigateTo(link: string) {

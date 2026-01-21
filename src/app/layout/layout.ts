@@ -1,8 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from '../core/store/app.state';
+import { loadProfile } from '../core/store/profile/profile.action';
+import { AuthenticationService } from '../features/auth/services/auth.service';
 import { SideBar } from './side-bar/side-bar';
 import { ToolBar } from './tool-bar/tool-bar';
-import { RouterOutlet } from '@angular/router';
-import { AuthenticationService } from '../features/auth/services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -12,11 +15,14 @@ import { AuthenticationService } from '../features/auth/services/auth.service';
 })
 export class Layout {
   private readonly authService = inject(AuthenticationService);
+  private readonly store = inject(Store<AppState>);
+
   expanded = signal<boolean>(true);
   screenWidth = signal<number>(window.innerWidth);
 
   constructor() {
     this.authService.loadInitialSession();
+    this.store.dispatch(loadProfile());
   }
 
   onToggleSideNav(data: { expanded: boolean }) {

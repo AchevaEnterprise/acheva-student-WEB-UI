@@ -5,3 +5,11 @@ export interface IAppNotification {
   title: string;
   message: string;
 }
+
+export interface INotification {
+  title: string;
+  message: string;
+  createdAt: Date;
+  status: 'READ' | 'UNREAD';
+}
+

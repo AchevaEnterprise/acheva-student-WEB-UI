@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import { Svg } from '../../../../shared/svg/svg';
+import { INotification } from '../../../../core/models/notification.model';
 
 export interface IActivity {
   type: 'submit' | 'add' | 'reminder' | 'edit';
@@ -12,10 +12,10 @@ export interface IActivity {
 
 @Component({
   selector: 'app-activity',
-  imports: [Svg, MatDividerModule, DatePipe],
+  imports: [MatDividerModule, DatePipe],
   templateUrl: './activity.html',
   styleUrl: './activity.scss',
 })
 export class Activity {
-  activity = input<IActivity>();
+  activity = input<INotification>();
 }

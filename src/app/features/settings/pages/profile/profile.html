@@ -16,7 +16,7 @@
     </div>
   </header>
 
-  <app-button label="Upload new picture" />
+  <app-button label="Upload new picture" [disabled]="true" />
 </div>
 
 @if (loading()) {
@@ -65,7 +65,7 @@
     <div class="mt-4 grid gap-4 bg-white rounded-[12px] p-4">
       <p class="acva-para-1 flex justify-between">
         <span>Full name</span>
-        <span class="font-medium">{{ profile()?.student?.fullName }}</span>
+        <span class="font-medium">{{ profile()?.student?.fullName | titlecase }}</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Registration Number</span>
@@ -73,7 +73,7 @@
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Course Adviser</span>
-        <span class="font-medium">{{ profile()?.courseAdviserName }}</span>
+        <span class="font-medium">{{ profile()?.courseAdviserName | titlecase }}</span>
       </p>
       <p class="acva-para-1 flex justify-between">
         <span>Current Level</span>

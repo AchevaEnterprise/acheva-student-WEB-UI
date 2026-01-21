@@ -1,39 +1,53 @@
-<div class="p-4">
-  <h3 class="acva-heading-5 mb-4">Payment Channel</h3>
-  <mat-divider />
-
-  <div class="flex gap-4 justify-center mt-8 items-center">
-    <img src="images/general/paystack-logo.png" alt="" class="w-[10rem] h-[2rem]" />
-    <img src="images/general/visa-logo.png" alt="" class="w-[8rem] h-[2rem]" />
-    <img src="images/general/verve-logo.png" alt="" class="w-[5rem] h-[4rem]" />
-    <img src="images/general/master-card-logo.png" alt="" class="w-[4rem] h-[2rem]" />
-  </div>
-
-  <p class="font-semibold text-center my-6">Kindly follow the next steps to complete the payment</p>
-
-  <div class="bg-[linear-gradient(180deg,#2793ff,#77bbff)] p-4 rounded-lg grid gap-4 text-[#fff]">
-    <div>
-      <p class="text-[.9rem]">Departmental Dues</p>
-      <h3 class="font-semibold text-[1.5rem]">{{ '10000' | currency: 'NGN' : 'symbol-narrow' }}</h3>
-    </div>
+<div class="grid lg:grid-cols-2 grid-cols-1">
+  <div class="p-4">
+    <h3 class="acva-heading-5 mb-4">Payment Channel</h3>
     <mat-divider />
 
-    <div >
-      <p class="text-[.9rem]">Service Charge</p>
-      <h3 class="font-semibold text-[1.5rem]">{{ '10000' | currency: 'NGN' : 'symbol-narrow' }}</h3>
+    <div class="flex gap-4 justify-center mt-8 items-center">
+      <img src="images/general/paystack-logo.png" alt="" class="w-[10rem] h-[2rem]" />
+      <img src="images/general/visa-logo.png" alt="" class="w-[8rem] h-[2rem]" />
+      <img src="images/general/verve-logo.png" alt="" class="w-[5rem] h-[4rem]" />
+      <img src="images/general/master-card-logo.png" alt="" class="w-[4rem] h-[2rem]" />
     </div>
-    <mat-divider />
+
+    <p class="font-semibold text-center my-6">
+      Kindly follow the next steps to complete the payment
+    </p>
+
+    <div class="bg-[linear-gradient(180deg,#2793ff,#77bbff)] p-4 rounded-lg grid gap-4 text-[#fff]">
+      <div>
+        <p class="text-[.9rem]">Departmental Dues</p>
+        <h3 class="font-semibold text-[1.5rem]">
+          {{ '10000' | currency: 'NGN' : 'symbol-narrow' }}
+        </h3>
+      </div>
+      <mat-divider />
+
+      <div>
+        <p class="text-[.9rem]">Service Charge</p>
+        <h3 class="font-semibold text-[1.5rem]">
+          {{ '10000' | currency: 'NGN' : 'symbol-narrow' }}
+        </h3>
+      </div>
+      <mat-divider />
+    </div>
+
+    <div class="bg-[#D4E9FF] p-4 rounded-lg mt-6 text-[#2793FF]">
+      <div>
+        <p class="text-[.9rem]">Total</p>
+        <h3 class="font-semibold text-[1.5rem]">
+          {{ '20000' | currency: 'NGN' : 'symbol-narrow' }}
+        </h3>
+      </div>
+      <mat-divider />
+    </div>
+
+    <div class="flex justify-center mt-10">
+      <app-button label="Make Payment" />
+    </div>
   </div>
 
-  <div class="bg-[#D4E9FF] p-4 rounded-lg mt-6 text-[#2793FF]">
-     <div>
-      <p class="text-[.9rem]">Total</p>
-      <h3 class="font-semibold text-[1.5rem]">{{ '20000' | currency: 'NGN' : 'symbol-narrow' }}</h3>
-    </div>
-    <mat-divider />
-  </div>
-
-  <div class="flex justify-center mt-10">
-    <app-button label="Make Payment" />
+  <div class="h-[100vh]">
+    <app-payment-receipt />
   </div>
 </div>

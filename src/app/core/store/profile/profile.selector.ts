@@ -9,4 +9,7 @@ export const profileLoadingSelector = createSelector(
   (state: ProfileState) => state.isLoading
 );
 
-export const profileSelector = createSelector(selectProfile, (state: ProfileState) => state.info);
+export const profileSelector = createSelector(
+  selectProfile,
+  (state: ProfileState) => state.profile
+);

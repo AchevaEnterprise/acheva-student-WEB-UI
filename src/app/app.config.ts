@@ -20,6 +20,8 @@ import { ProfileEffects } from './core/store/profile/profile.effect';
 import { profileReducer } from './core/store/profile/profile.reducer';
 import { SchoolEffects } from './core/store/school/school.effect';
 import { schoolReducer } from './core/store/school/school.reducer';
+import { NotificationEffects } from './core/store/notification/notification.effect';
+import { notificationReducer } from './core/store/notification/notification.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,8 +34,9 @@ export const appConfig: ApplicationConfig = {
     provideStore({
       profile: profileReducer,
       school: schoolReducer,
+      notification: notificationReducer,
     }),
-    provideEffects([ProfileEffects, SchoolEffects]),
+    provideEffects([ProfileEffects, SchoolEffects, NotificationEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     provideHighcharts(),
     provideNativeDateAdapter(),

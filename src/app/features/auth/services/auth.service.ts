@@ -77,6 +77,18 @@ export class AuthenticationService {
     if (account) this.activeAccount.set(JSON.parse(account));
   }
 
+  public getStudentProfile() {
+    const userId = this.jwtHelper.decodeToken(this.getToken!)._id;
+    return this.http.get<IAPIResponse<IAuthProfile>>(`${this.baseUrl}/students/${userId}`).pipe(
+      tap((resp) => {
+        if (resp.status) {
+          this.activeAccount.set(resp.data);
+          localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
+        }
+      })
+    );
+  }
+
   public getProfile() {
     const userId = this.jwtHelper.decodeToken(this.getToken!)._id;
     return this.http.get<IAPIResponse<IAuthProfile>>(`${this.baseUrl}/students/${userId}`).pipe(

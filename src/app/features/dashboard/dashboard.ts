@@ -1,4 +1,4 @@
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { Component, inject, model, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,19 +8,22 @@ import { IAnalytics, LevelsEnum, SemesterEnum } from '../../core/models/school.m
 import { GreetingPipe } from '../../core/pipes/greeting.pipe';
 import { Card } from '../../shared/card/card';
 import { EmptyState } from '../../shared/empty-state/empty-state';
-import { Svg } from '../../shared/svg/svg';
 import { AuthenticationService } from '../auth/services/auth.service';
-import { IActivity } from './components/activity/activity';
 import { AnalyticsCard } from './components/analytics-card/analytics-card';
 import { Chart } from './components/chart/chart';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { INotification } from '../../core/models/notification.model';
 import { StudentService } from '../../core/services/student';
+import { AppState } from '../../core/store/app.state';
+import { notificationSelector } from '../../core/store/notification/notification.selector';
+import { selectProfile } from '../../core/store/profile/profile.selector';
 import { Button } from '../../shared/form/button/button';
-import { Paginator } from '../../shared/paginator/paginator';
-import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher/segment-switcher';
+import { ISegmentSwitcher } from '../../shared/segment-switcher/segment-switcher';
+import { Activity } from './components/activity/activity';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,18 +34,15 @@ import { ISegmentSwitcher, SegmentSwitcher } from '../../shared/segment-switcher
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    SegmentSwitcher,
     EmptyState,
     MatDatepickerModule,
     // Activity,
     MatTableModule,
     MatMenuModule,
-    Svg,
     TitleCasePipe,
-    DatePipe,
     GreetingPipe,
-    Paginator,
     Button,
+    Activity,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -51,6 +51,7 @@ export class Dashboard implements OnInit {
   private readonly authService = inject(AuthenticationService);
   private readonly studentService = inject(StudentService);
   private readonly router = inject(Router);
+  private readonly store = inject(Store<AppState>);
 
   analtyics = signal<IAnalytics[]>([
     {
@@ -80,6 +81,7 @@ export class Dashboard implements OnInit {
   dataSource = signal<unknown[]>([]);
   hasPaidDues = signal<boolean>(false);
   session = signal<string>('');
+  cgpa = signal<number>(0);
 
   semesterOptions = signal<{ label: string; value: string }[]>([
     { label: '1st Semester', value: SemesterEnum.FIRST },
@@ -119,37 +121,38 @@ export class Dashboard implements OnInit {
   segmentCardLabel = signal<string>('Access your recent drafts from here');
   segmentCardIconSrc = signal<string>('icons/general/draft-icon.svg');
 
-  activities = signal<IActivity[]>([
-    {
-      type: 'submit',
-      message: 'Database Management System (CSC 301) results has been submitted',
-      date: new Date(),
-    },
-    {
-      type: 'add',
-      message: 'Created new course: Software Engineering (CSC 401)',
-      date: new Date(),
-    },
-    {
-      type: 'reminder',
-      message: 'Reminder: Software Engineering (CSC 401) results due in 4 days',
-      date: new Date(),
-    },
-    {
-      type: 'add',
-      message: 'Created new course: Software Engineering (CSC 401)',
-      date: new Date(),
-    },
-    {
-      type: 'edit',
-      message: 'Updated scores for 4 Students in Software Engineering (CSC 401)',
-      date: new Date(),
-    },
-  ]);
+  // activities = signal<IActivity[]>([
+  //   {
+  //     type: 'submit',
+  //     message: 'Database Management System (CSC 301) results has been submitted',
+  //     date: new Date(),
+  //   },
+  //   {
+  //     type: 'add',
+  //     message: 'Created new course: Software Engineering (CSC 401)',
+  //     date: new Date(),
+  //   },
+  //   {
+  //     type: 'reminder',
+  //     message: 'Reminder: Software Engineering (CSC 401) results due in 4 days',
+  //     date: new Date(),
+  //   },
+  //   {
+  //     type: 'add',
+  //     message: 'Created new course: Software Engineering (CSC 401)',
+  //     date: new Date(),
+  //   },
+  //   {
+  //     type: 'edit',
+  //     message: 'Updated scores for 4 Students in Software Engineering (CSC 401)',
+  //     date: new Date(),
+  //   },
+  // ]);
 
   activeAccount = this.authService.activeAccount;
   chart = signal<{ courseCode: string; total: number }[]>([]);
   SemesterEnum = SemesterEnum;
+  activities = signal<INotification[]>([]);
 
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(
@@ -160,11 +163,19 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
+    this.store.select(selectProfile).subscribe({
+      next: (result) => {
+        const { cgpa } = result.profile as { cgpa: number };
+        this.cgpa.set(cgpa);
+      },
+    });
+
     const session = this.activeAccount()?.session;
     this.session.set(session!);
     this.getAnalytics();
     this.getPerformance();
-    this.getStudentResult(LevelsEnum.YEAR_ONE);
+    // this.getStudentResult(LevelsEnum.YEAR_ONE);
+    this.getActivities();
   }
 
   getAnalytics() {
@@ -217,5 +228,13 @@ export class Dashboard implements OnInit {
 
   payResultFee() {
     this.router.navigate(['/payment-history']);
+  }
+
+  getActivities() {
+    this.store.select(notificationSelector).subscribe({
+      next: (notifications) => {
+        this.activities.set(notifications);
+      },
+    });
   }
 }
