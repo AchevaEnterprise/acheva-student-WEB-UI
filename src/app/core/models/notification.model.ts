@@ -12,4 +12,3 @@ export interface INotification {
   createdAt: Date;
   status: 'READ' | 'UNREAD';
 }
-

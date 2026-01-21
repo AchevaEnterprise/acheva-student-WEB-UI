@@ -78,7 +78,7 @@ export class ToolBar implements OnInit {
         this.unreadCount.set(unreadNotifications);
         this.badgeCount.set(unreadNotifications > 0 ? unreadNotifications.toString() : '');
       },
-      error: (error) => {
+      error: () => {
         this.badgeCount.set('');
       },
     });

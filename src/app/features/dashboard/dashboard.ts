@@ -218,7 +218,7 @@ export class Dashboard implements OnInit {
     });
   }
 
-  getStudentResult(level: LevelsEnum) {
+  getStudentResult(_: LevelsEnum) {
     this.studentService.getMyResult().subscribe({
       next: (resp) => {
         console.warn('Table: ', resp.data);
