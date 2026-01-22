@@ -86,7 +86,7 @@ export class Dashboard implements OnInit {
   semesterOptions = signal<{ label: string; value: string }[]>([
     { label: '1st Semester', value: SemesterEnum.FIRST },
     { label: '2nd Semester', value: SemesterEnum.SECOND },
-    { label: '3rd Semester', value: SemesterEnum.THIRD },
+    // { label: '3rd Semester', value: SemesterEnum.THIRD },
   ]);
 
   segments = signal<ISegmentSwitcher[]>([
@@ -120,34 +120,6 @@ export class Dashboard implements OnInit {
   selectedCalendarDate = model<number>(Date.now());
   segmentCardLabel = signal<string>('Access your recent drafts from here');
   segmentCardIconSrc = signal<string>('icons/general/draft-icon.svg');
-
-  // activities = signal<IActivity[]>([
-  //   {
-  //     type: 'submit',
-  //     message: 'Database Management System (CSC 301) results has been submitted',
-  //     date: new Date(),
-  //   },
-  //   {
-  //     type: 'add',
-  //     message: 'Created new course: Software Engineering (CSC 401)',
-  //     date: new Date(),
-  //   },
-  //   {
-  //     type: 'reminder',
-  //     message: 'Reminder: Software Engineering (CSC 401) results due in 4 days',
-  //     date: new Date(),
-  //   },
-  //   {
-  //     type: 'add',
-  //     message: 'Created new course: Software Engineering (CSC 401)',
-  //     date: new Date(),
-  //   },
-  //   {
-  //     type: 'edit',
-  //     message: 'Updated scores for 4 Students in Software Engineering (CSC 401)',
-  //     date: new Date(),
-  //   },
-  // ]);
 
   activeAccount = this.authService.activeAccount;
   chart = signal<{ courseCode: string; total: number }[]>([]);

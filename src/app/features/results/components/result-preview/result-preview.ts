@@ -27,6 +27,7 @@ export class ResultPreview {
     },
     // {
     //   value: SemesterEnum.THIRD,
+    //    active: true,
     // },
   ];
 
