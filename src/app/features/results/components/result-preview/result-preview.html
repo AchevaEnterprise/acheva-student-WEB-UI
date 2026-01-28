@@ -1,26 +1,48 @@
 <div class="grid place-content-center h-full w-full bg-white overflow-hidden">
-  @if (resultEntries().length > 0) {
-    <div class="min-w-[22vw] px-4 overflow-y-auto h-[85vh]">
-      <header class="text-center grid place-content-center mb-10">
-        {{ semstersOptions.length }} Pages
-      </header>
+  <div class="min-w-[22vw] px-4 overflow-y-auto h-[85vh]">
+    <header class="text-center grid place-content-center mb-10">
+      {{
+        studentResults()?.firstSemsterResult && studentResults()?.secondSemesterResult
+          ? 2
+          : studentResults()?.firstSemsterResult
+            ? 1
+            : 0
+      }}
+      Pages
+    </header>
 
-      @for (semester of semstersOptions; track $index) {
-        <div
-          (click)="viewSemesterResult(semester.value)"
-          (keydown)="viewSemesterResult(semester.value)"
-          tabindex="0"
-          class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
-          [class.inactive]="!semester.active"
-          [class.bg-blue-200]="currentSemester === semester.value"
-        >
-          <img src="images/general/result-preview.png" alt="Result Preview" />
-        </div>
+    @if (studentResults()?.firstSemsterResult) {
+      <div
+        (click)="viewResult(studentResults()?.firstSemsterResult!, SemesterEnum.FIRST)"
+        (keydown)="viewResult(studentResults()?.firstSemsterResult!, SemesterEnum.FIRST)"
+        tabindex="0"
+        class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
+        [class.inactive]="currentSemester !== SemesterEnum.FIRST"
+        [class.bg-blue-200]="currentSemester === SemesterEnum.FIRST"
+      >
+        <img src="images/general/result-preview.png" alt="Result Preview" />
+      </div>
 
-        <mat-divider class="!my-4" />
-      }
-    </div>
-  } @else {
+      <mat-divider class="!my-4" />
+    }
+
+    @if (studentResults()?.secondSemesterResult) {
+      <div
+        (click)="viewResult(studentResults()?.secondSemesterResult!, SemesterEnum.SECOND)"
+        (keydown)="viewResult(studentResults()?.secondSemesterResult!, SemesterEnum.SECOND)"
+        tabindex="0"
+        class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
+        [class.inactive]="currentSemester !== SemesterEnum.SECOND"
+        [class.bg-blue-200]="currentSemester === SemesterEnum.SECOND"
+      >
+        <img src="images/general/result-preview.png" alt="Result Preview" />
+      </div>
+
+      <mat-divider class="!my-4" />
+    }
+  </div>
+
+  @if (!studentResults()?.firstSemsterResult && !studentResults()?.secondSemesterResult) {
     <app-empty-state description="Note: Your semester result previews would appear here" />
   }
 </div>

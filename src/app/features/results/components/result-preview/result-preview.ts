@@ -1,8 +1,9 @@
 import { Component, input, output } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { SemesterEnum } from '../../../../core/models/school.model';
-import { IResultEntry } from '../../../../core/models/student.model';
+import { IStudentResult } from '../../../../core/models/student.model';
 import { EmptyState } from '../../../../shared/empty-state/empty-state';
+import { IStudentResultSemesterRecords } from '../../results';
 
 @Component({
   selector: 'app-result-preview',
@@ -11,28 +12,14 @@ import { EmptyState } from '../../../../shared/empty-state/empty-state';
   styleUrl: './result-preview.scss',
 })
 export class ResultPreview {
-  resultEntries = input<IResultEntry[]>([]);
-  semsterEvent = output<SemesterEnum>();
+  studentResults = input<IStudentResultSemesterRecords>();
+  semsterEvent = output<IStudentResult & { semester: SemesterEnum }>();
 
   currentSemester = SemesterEnum.FIRST;
+  SemesterEnum = SemesterEnum;
 
-  semstersOptions = [
-    {
-      value: SemesterEnum.FIRST,
-      active: true,
-    },
-    {
-      value: SemesterEnum.SECOND,
-      active: true,
-    },
-    // {
-    //   value: SemesterEnum.THIRD,
-    //    active: true,
-    // },
-  ];
-
-  viewSemesterResult(semster: SemesterEnum) {
-    this.currentSemester = semster;
-    this.semsterEvent.emit(semster);
+  viewResult(result: IStudentResult, semester: SemesterEnum) {
+    this.currentSemester = semester;
+    this.semsterEvent.emit({ ...result, semester });
   }
 }

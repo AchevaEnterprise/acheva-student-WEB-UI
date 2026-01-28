@@ -1,12 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { LevelsEnum, SemesterEnum } from '../../core/models/school.model';
-import { IResult, IResultEntry } from '../../core/models/student.model';
+import { IResult, IStudentResult } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/student';
-import { ToastService } from '../../core/utility/toast.service';
 import { ResultPreview } from './components/result-preview/result-preview';
 import { ResultView } from './components/result-view/result-view';
 import { IResultSessions, ResultsList } from './components/results-list/results-list';
+
+export interface IStudentResultSemesterRecords {
+  firstSemsterResult: IStudentResult | null;
+  secondSemesterResult: IStudentResult | null;
+}
 
 @Component({
   selector: 'app-results',
@@ -16,37 +20,46 @@ import { IResultSessions, ResultsList } from './components/results-list/results-
 })
 export class Results {
   private readonly studentService = inject(StudentService);
-  private readonly toastService = inject(ToastService);
 
   GPA = signal<number>(0);
-  results = signal<IResult[]>([]);
-  resultEntries = signal<IResultEntry[]>([]);
+  preview = signal<IResult[]>([]);
+  semester = signal<SemesterEnum>(SemesterEnum.FIRST);
+
+  results = signal<IStudentResultSemesterRecords>({
+    firstSemsterResult: null,
+    secondSemesterResult: null,
+  });
 
   loading = signal(false);
 
   filter = signal({
     session: '',
     level: LevelsEnum.YEAR_ONE,
-    semester: SemesterEnum.FIRST,
   });
 
   getResult() {
     this.loading.set(true);
-    const { session, level, semester } = this.filter();
+    const { session, level } = this.filter();
 
-    this.studentService
-      .getResults(level, session, semester)
+    const semesterResults = [
+      this.studentService.getResults(level, session, SemesterEnum.FIRST),
+      this.studentService.getResults(level, session, SemesterEnum.SECOND),
+    ];
+
+    forkJoin(semesterResults)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (resp) => {
-          if (!resp.status) {
-            this.toastService.showNotification('error', 'Error Occured', resp.message);
-            return;
-          }
-
-          const { gpa, results } = resp.data;
+        next: ([firstSemesterResult, secondSemesterResult]) => {
+          const { gpa, results } = firstSemesterResult.data;
           this.GPA.set(gpa);
-          this.results.set(results);
+          this.preview.set(results);
+
+          this.results.update((results) => {
+            results.firstSemsterResult = firstSemesterResult.data;
+            results.secondSemesterResult = secondSemesterResult.data;
+
+            return results;
+          });
         },
       });
   }
@@ -59,19 +72,14 @@ export class Results {
 
       return filter;
     });
-    this.getResult();
-  }
-
-  getSemesterResult(semster: SemesterEnum) {
-    this.filter.update((filter) => {
-      filter.semester = semster;
-      return filter;
-    });
 
     this.getResult();
   }
 
-  setResultEntries(entries: IResultEntry[]) {
-    this.resultEntries.set(entries);
+  getSemesterResult(studentResult: IStudentResult & { semester: SemesterEnum }) {
+    const { gpa, results, semester } = studentResult;
+    this.GPA.set(gpa);
+    this.semester.set(semester);
+    this.preview.set(results);
   }
 }

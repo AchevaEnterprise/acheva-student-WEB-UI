@@ -1,8 +1,13 @@
-<div class="grid grid-cols-[23%_1fr_22%] gap-4 h-full">
-  <app-results-list
-    (viewSessionResultEvent)="viewResult($event)"
-    (resultEntriesEvent)="setResultEntries($event)"
-  />
-  <app-result-view [results]="results()" [gpa]="GPA()" [semester]="filter().semester" [loading]="loading()" />
-  <app-result-preview [resultEntries]="resultEntries()" (semsterEvent)="getSemesterResult($event)" />
+<div class="grid grid-cols-[23%_1fr] gap-4 h-full">
+  <app-results-list (viewSessionResultEvent)="viewResult($event)" />
+
+  <div class="grid lg:grid-cols-[1fr_22%] grid-cols-1 gap-4 h-full">
+    <app-result-view
+      [results]="preview()"
+      [gpa]="GPA()"
+      [semester]="semester()"
+      [loading]="loading()"
+    />
+    <app-result-preview [studentResults]="results()" (semsterEvent)="getSemesterResult($event)" />
+  </div>
 </div>

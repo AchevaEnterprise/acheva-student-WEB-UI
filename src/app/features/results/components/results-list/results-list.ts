@@ -28,7 +28,6 @@ export class ResultsList implements OnInit {
   private readonly authService = inject(AuthenticationService);
   private readonly studentService = inject(StudentService);
   viewSessionResultEvent = output<IResultSessions>();
-  resultEntriesEvent = output<IResultEntry[]>();
 
   loading = signal(false);
   isOpen = signal(false);
@@ -101,7 +100,6 @@ export class ResultsList implements OnInit {
     if (!session.active) return;
 
     this.viewSessionResultEvent.emit(session);
-    this.resultEntriesEvent.emit(session.entries);
   }
 
   ngOnInit(): void {
