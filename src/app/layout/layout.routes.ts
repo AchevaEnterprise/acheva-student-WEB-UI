@@ -26,6 +26,14 @@ export const routes: Routes = [
         loadComponent: () => import('../features/results/results').then((m) => m.Results),
       },
       {
+        path: 'registration',
+        data: {
+          title: 'Course Registration',
+        },
+        loadComponent: () =>
+          import('../features/registration/registration').then((m) => m.Registration),
+      },
+      {
         path: 'payment-history',
         data: {
           title: 'Payment History',

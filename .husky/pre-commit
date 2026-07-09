@@ -1,4 +1,6 @@
-# ng test
-ng lint --fix
+# Auto-fix lint + styles, then re-stage whatever was fixed.
+# NG_CLI_ANALYTICS guards against the first-run analytics prompt hanging a
+# non-interactive hook (angular.json also sets cli.analytics: false).
+NG_CLI_ANALYTICS=false npx ng lint --fix
 npx stylelint "**/*.scss" --fix
-git add ${added_files}
+git add -u

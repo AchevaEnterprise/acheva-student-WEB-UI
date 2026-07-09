@@ -1,0 +1,173 @@
+<div class="sreg">
+  <header class="mb-6">
+    <h2 class="acva-heading-5 fw-600 m-0">Course Registration</h2>
+    <p class="acva-para-1 text-neutral-500 m-0">
+      What the university has registered for you this semester.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="sreg-empty">Loading your registration…</p>
+  } @else if (!data()?.settings) {
+    <div class="sreg-card sreg-empty">
+      No active academic session has been configured yet — check back soon.
+    </div>
+  } @else if (!registration()) {
+    <div class="sreg-card sreg-empty">
+      You have not been registered for
+      {{ data()?.settings?.activeSession }} ·
+      {{ data()?.settings?.activeSemester | titlecase }} yet. Your Course
+      Advisor runs registration — check back soon.
+    </div>
+  } @else {
+    <!-- Session / status summary -->
+    <section class="sreg-card sreg-summary">
+      <div>
+        <p class="acva-para-2 fw-600 m-0">
+          {{ registration()!.session }} ·
+          {{ registration()!.semester | titlecase }} ·
+          {{ registration()!.level }} Level
+        </p>
+        <p class="acva-caption text-neutral-500 m-0">
+          {{ registration()!.totalUnits }} units total
+          @if (siwesUnits() > 0) {
+            ({{ registration()!.nonSiwesUnits }} +
+            {{ siwesUnits() }}u SIWES)
+          }
+        </p>
+      </div>
+      <span class="sreg-status" [attr.data-status]="registration()!.status">
+        {{ statusLabel() }}
+      </span>
+    </section>
+
+    <!-- Grace banner -->
+    @if (grace(); as graceInfo) {
+      @if (graceInfo.canEdit) {
+        <div class="sreg-banner sreg-banner--open">
+          You can change your electives for
+          <strong>{{ graceInfo.daysLeft }} more day(s)</strong>
+          (until {{ graceInfo.editableUntil | date: 'MMM d, y' }}). After
+          that, only your Course Advisor can make changes.
+        </div>
+      } @else {
+        <div class="sreg-banner sreg-banner--closed">
+          The self-edit window has closed — contact your Course Advisor for
+          any change.
+        </div>
+      }
+    }
+
+    @if (message(); as note) {
+      <div
+        class="sreg-banner"
+        [class.sreg-banner--open]="note.kind === 'ok'"
+        [class.sreg-banner--error]="note.kind === 'error'"
+      >
+        {{ note.text }}
+      </div>
+    }
+
+    <!-- Registered courses -->
+    <section class="sreg-card">
+      <h3 class="acva-para-2 fw-600 m-0 mb-3">
+        Registered courses ({{ activeEntries().length }})
+      </h3>
+      <div class="sreg-table-wrap">
+        <table class="sreg-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Title</th>
+              <th>Units</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of activeEntries(); track entry._id) {
+              <tr>
+                <td class="fw-600">{{ entry.courseCode }}</td>
+                <td>
+                  {{ entry.courseTitle }}
+                  @if (entry.note) {
+                    <span class="acva-caption text-neutral-500 block">
+                      {{ entry.note }}
+                    </span>
+                  }
+                </td>
+                <td>{{ entry.units }}</td>
+                <td>
+                  <span [class]="entryTypeClass(entry)">{{ entry.type }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Elective choices -->
+    @if (grace()?.canEdit && electiveGroups().length > 0) {
+      <section class="sreg-card">
+        <h3 class="acva-para-2 fw-600 m-0 mb-1">Your elective choices</h3>
+        <p class="acva-caption text-neutral-500 mb-3">
+          You must keep one course from each group — picking a different one
+          swaps it instantly.
+        </p>
+        @for (group of electiveGroups(); track group.group) {
+          <div class="sreg-group">
+            <span class="acva-caption fw-600">Group {{ group.group }}</span>
+            <select
+              class="sreg-select"
+              [disabled]="acting()"
+              (change)="swap(group, $event)"
+              [attr.aria-label]="'Elective for group ' + group.group"
+            >
+              @for (option of group.options; track option.courseId) {
+                <option [value]="option.courseId" [selected]="option.isCurrent">
+                  {{ option.label }}{{ option.isCurrent ? ' — current' : '' }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+      </section>
+    }
+
+    @if (grace()?.canEdit && optionalElectives().length > 0) {
+      <section class="sreg-card">
+        <h3 class="acva-para-2 fw-600 m-0 mb-1">Optional electives</h3>
+        <p class="acva-caption text-neutral-500 mb-3">
+          Extra courses you may add if your load allows it.
+        </p>
+        @for (option of optionalElectives(); track option.courseId) {
+          <div class="sreg-group">
+            <span>
+              <span class="fw-600">{{ option.code }}</span>
+              · {{ option.title }} ({{ option.units }}u)
+            </span>
+            @if (option.registered) {
+              <button
+                type="button"
+                class="sreg-btn sreg-btn--outline"
+                [disabled]="acting()"
+                (click)="dropOptional(option.courseId)"
+              >
+                Drop
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="sreg-btn"
+                [disabled]="acting()"
+                (click)="addOptional(option.courseId)"
+              >
+                Add
+              </button>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
