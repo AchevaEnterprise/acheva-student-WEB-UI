@@ -8,6 +8,7 @@ import { IAnalytics, LevelsEnum, SemesterEnum } from '../../core/models/school.m
 import { GreetingPipe } from '../../core/pipes/greeting.pipe';
 import { Card } from '../../shared/card/card';
 import { EmptyState } from '../../shared/empty-state/empty-state';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 import { AuthenticationService } from '../auth/services/auth.service';
 import { AnalyticsCard } from './components/analytics-card/analytics-card';
 import { Chart } from './components/chart/chart';
@@ -43,6 +44,7 @@ import { Activity } from './components/activity/activity';
     GreetingPipe,
     Button,
     Activity,
+    Skeleton,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -126,6 +128,10 @@ export class Dashboard implements OnInit {
   SemesterEnum = SemesterEnum;
   activities = signal<INotification[]>([]);
 
+  /** Drive the dashboard skeletons while the analytics + performance load. */
+  loadingAnalytics = signal(true);
+  loadingChart = signal(true);
+
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(
       () => this.segments().find((segment: ISegmentSwitcher) => segment.value === switchValue)!
@@ -151,6 +157,7 @@ export class Dashboard implements OnInit {
   }
 
   getAnalytics() {
+    this.loadingAnalytics.set(true);
     this.studentService.getAnalytics().subscribe({
       next: (resp) => {
         const { results, departmentalDues, hasPaidDues } = resp.data;
@@ -173,12 +180,15 @@ export class Dashboard implements OnInit {
 
         this.analtyics.set(updatedAnalytics);
       },
+      complete: () => this.loadingAnalytics.set(false),
+      error: () => this.loadingAnalytics.set(false),
     });
   }
 
   getPerformance(semester?: SemesterEnum) {
     const { session, level } = this.activeAccount()!;
 
+    this.loadingChart.set(true);
     this.studentService.getResults(level!, session!, semester || SemesterEnum.FIRST).subscribe({
       next: (resp) => {
         const result = resp.data.results?.map((perf) => ({
@@ -187,6 +197,8 @@ export class Dashboard implements OnInit {
         }));
         this.chart.set(result);
       },
+      complete: () => this.loadingChart.set(false),
+      error: () => this.loadingChart.set(false),
     });
   }
 

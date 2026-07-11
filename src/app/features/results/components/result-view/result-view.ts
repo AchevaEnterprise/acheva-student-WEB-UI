@@ -4,7 +4,7 @@ import { SemesterEnum } from '../../../../core/models/school.model';
 import { IResult } from '../../../../core/models/student.model';
 import { UppercasePipe } from '../../../../core/pipes/uppercase.pipe';
 import { EmptyState } from '../../../../shared/empty-state/empty-state';
-import { Loader } from '../../../../shared/loader/loader';
+import { Skeleton } from '../../../../shared/skeleton/skeleton';
 import { StatusBadge } from '../../../../shared/status-badge/status-badge';
 import { AuthenticationService } from '../../../auth/services/auth.service';
 
@@ -17,7 +17,7 @@ interface ResultViewData {
 }
 @Component({
   selector: 'app-result-view',
-  imports: [StatusBadge, EmptyState, UppercasePipe, CommonModule, Loader],
+  imports: [StatusBadge, EmptyState, UppercasePipe, CommonModule, Skeleton],
   templateUrl: './result-view.html',
   styleUrl: './result-view.scss',
 })

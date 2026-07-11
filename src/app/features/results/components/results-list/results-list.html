@@ -6,7 +6,15 @@
 
   <div class="mt-8 overflow-y-auto h-[calc(100vh_-_40vh)]">
     @if (loading()) {
-      <app-loader />
+      @for (row of [1, 2, 3, 4, 5]; track row) {
+        <div class="flex gap-2 items-center p-2 py-[1rem] px-[0.6938rem]">
+          <app-skeleton width="2rem" height="2rem" [circle]="true" />
+          <div class="flex-1">
+            <app-skeleton width="30%" height="1rem" />
+            <app-skeleton width="60%" height="0.8rem" class="mt-2" />
+          </div>
+        </div>
+      }
     } @else {
       <ul cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         @for (session of sessionsList(); track session) {

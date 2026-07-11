@@ -6,7 +6,7 @@ import { LevelsEnum } from '../../../../core/models/school.model';
 import { IResultEntry } from '../../../../core/models/student.model';
 import { StudentService } from '../../../../core/services/student';
 import { Button } from '../../../../shared/form/button/button';
-import { Loader } from '../../../../shared/loader/loader';
+import { Skeleton } from '../../../../shared/skeleton/skeleton';
 import { Svg } from '../../../../shared/svg/svg';
 import { AuthenticationService } from '../../../auth/services/auth.service';
 
@@ -20,7 +20,7 @@ export interface IResultSessions {
 
 @Component({
   selector: 'app-results-list',
-  imports: [Svg, NgClass, Loader, Button, OverlayModule],
+  imports: [Svg, NgClass, Skeleton, Button, OverlayModule],
   templateUrl: './results-list.html',
   styleUrl: './results-list.scss',
 })

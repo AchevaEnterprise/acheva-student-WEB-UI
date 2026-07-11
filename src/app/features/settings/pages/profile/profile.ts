@@ -7,13 +7,13 @@ import { IStudentProfile } from '../../../../core/models/student.model';
 import { StudentService } from '../../../../core/services/student';
 import { AppState } from '../../../../core/store/app.state';
 import { Button } from '../../../../shared/form/button/button';
-import { Loader } from '../../../../shared/loader/loader';
+import { Skeleton } from '../../../../shared/skeleton/skeleton';
 import { Svg } from '../../../../shared/svg/svg';
 import { selectProfile } from '../../../../core/store/profile/profile.selector';
 
 @Component({
   selector: 'app-profile',
-  imports: [Button, Svg, ImageFallbackDirective, DatePipe, Loader, TitleCasePipe, CommonModule],
+  imports: [Button, Svg, ImageFallbackDirective, DatePipe, Skeleton, TitleCasePipe, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
