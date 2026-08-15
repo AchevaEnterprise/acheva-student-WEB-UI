@@ -1,0 +1,19 @@
+// Warning palette — deliberately amber, not the brand blue. A view-only
+// account is a restriction, and must not read as ordinary product chrome.
+.account-banner {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+
+  &__icon {
+    // The catalogue icon is neutral-toned; tint it to match the banner.
+    filter: sepia(1) saturate(4) hue-rotate(-15deg);
+  }
+
+  &__title {
+    color: #9a3412;
+  }
+
+  &__body {
+    color: #b45309;
+  }
+}

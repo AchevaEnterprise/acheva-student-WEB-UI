@@ -9,3 +9,25 @@ th {
   font-weight: 500;
   font-size: .9rem;
 }
+
+// The score is real and published — it simply cannot count until the Course
+// Advisor confirms a registration the student never had. Amber, because it
+// is a pending step rather than a failure.
+.pending-registration {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: help;
+
+  &__note {
+    color: #9a3412;
+    text-align: left;
+  }
+}

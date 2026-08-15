@@ -13,12 +13,137 @@
       No active academic session has been configured yet — check back soon.
     </div>
   } @else if (!registration()) {
-    <div class="sreg-card sreg-empty">
-      You have not been registered for
-      {{ data()?.settings?.activeSession }} ·
-      {{ data()?.settings?.activeSemester | titlecase }} yet. Your Course
-      Advisor runs registration — check back soon.
-    </div>
+    <!-- Registration is the student's own act. -->
+    @if (blockedReason(); as reason) {
+      <div class="sreg-card sreg-empty">{{ reason }}</div>
+    } @else if (canSelfRegister(); as ready) {
+      @if (options(); as opts) {
+        <section class="sreg-card sreg-register">
+          <h3 class="acva-para-2 fw-600 m-0 mb-1">
+            Register your courses — {{ opts.session }} ·
+            {{ opts.semester | titlecase }}
+          </h3>
+          <p class="acva-caption text-neutral-500 mb-3">
+            @if (opts.deadline) {
+              Register before
+              <strong>{{ opts.deadline | date: 'MMM d, y' }}</strong
+              >. If you have not registered by then, the school will register
+              you automatically.
+            } @else {
+              Choose your electives below and submit.
+            }
+          </p>
+
+          @if (message(); as note) {
+            <div
+              class="sreg-banner"
+              [class.sreg-banner--open]="note.kind === 'ok'"
+              [class.sreg-banner--error]="note.kind === 'error'"
+            >
+              {{ note.text }}
+            </div>
+          }
+
+          <!-- Fixed: not the student's choice -->
+          @if (opts.fixed?.length) {
+            <h4 class="acva-caption fw-600 mt-3 mb-1">
+              Required courses (added for you)
+            </h4>
+            <ul class="sreg-fixed">
+              @for (course of opts.fixed; track course.courseId) {
+                <li>
+                  <span class="fw-600">{{ course.courseCode }}</span>
+                  · {{ course.courseTitle }} ({{ course.units }}u)
+                </li>
+              }
+            </ul>
+          }
+
+          @if (opts.carryOvers?.length || opts.excused?.length) {
+            <h4 class="acva-caption fw-600 mt-3 mb-1">
+              Courses you already owe (added for you)
+            </h4>
+            <ul class="sreg-fixed">
+              @for (course of opts.carryOvers; track course.courseId) {
+                <li>
+                  <span class="fw-600">{{ course.courseCode }}</span>
+                  · {{ course.courseTitle }} ({{ course.units }}u) ·
+                  <span class="sreg-tag">carry-over</span>
+                </li>
+              }
+              @for (course of opts.excused; track course.courseId) {
+                <li>
+                  <span class="fw-600">{{ course.courseCode }}</span>
+                  · {{ course.courseTitle }} ({{ course.units }}u) ·
+                  <span class="sreg-tag">excused earlier</span>
+                </li>
+              }
+            </ul>
+          }
+
+          <!-- The student's actual decisions -->
+          @for (group of opts.electiveGroups; track group.group) {
+            <h4 class="acva-caption fw-600 mt-3 mb-1">
+              Group {{ group.group }} — choose {{ group.minRequired }}
+            </h4>
+            @for (option of group.options; track option.courseId) {
+              <label class="sreg-choice">
+                <input
+                  type="radio"
+                  [name]="'group-' + group.group"
+                  [checked]="isPicked(option.courseId)"
+                  (change)="chooseInGroup(group.group, option.courseId)"
+                />
+                <span>
+                  <span class="fw-600">{{ option.courseCode }}</span>
+                  · {{ option.courseTitle }} ({{ option.units }}u)
+                </span>
+              </label>
+            }
+          }
+
+          @if (opts.optionalElectives?.length) {
+            <h4 class="acva-caption fw-600 mt-3 mb-1">Optional electives</h4>
+            @for (option of opts.optionalElectives; track option.courseId) {
+              <label class="sreg-choice">
+                <input
+                  type="checkbox"
+                  [checked]="isPicked(option.courseId)"
+                  (change)="togglePick(option.courseId)"
+                />
+                <span>
+                  <span class="fw-600">{{ option.courseCode }}</span>
+                  · {{ option.courseTitle }} ({{ option.units }}u)
+                </span>
+              </label>
+            }
+          }
+
+          <div class="sreg-register__footer">
+            <span class="acva-caption text-neutral-500">
+              {{ selectedUnits() }} units selected
+              @if (opts.minUnits && opts.maxUnits) {
+                · {{ opts.minUnits }} minimum · {{ opts.maxUnits }} maximum
+              }
+            </span>
+            <button
+              type="button"
+              class="sreg-btn"
+              [disabled]="registering()"
+              (click)="submitRegistration()"
+            >
+              {{ registering() ? 'Registering…' : 'Register my courses' }}
+            </button>
+          </div>
+        </section>
+      }
+    } @else {
+      <div class="sreg-card sreg-empty">
+        You have not been registered for
+        {{ data()?.settings?.activeSession }} ·
+        {{ data()?.settings?.activeSemester | titlecase }} yet.
+      </div>
+    }
   } @else {
     <!-- Session / status summary -->
     <section class="sreg-card sreg-summary">
@@ -105,6 +230,42 @@
         </table>
       </div>
     </section>
+
+    <!-- Outstanding — excused, still owed -->
+    @if (excusedCourses().length > 0) {
+      <section class="sreg-card sreg-outstanding">
+        <h3 class="acva-para-2 fw-600 m-0 mb-1">
+          Courses you still have to take ({{ excusedCourses().length }})
+        </h3>
+        <p class="acva-caption text-neutral-500 mb-3">
+          You were excused from sitting these, so they did not affect your CGPA
+          and they are <strong>not carry-overs</strong>. You must still take
+          them — each one will be registered for you again in a later session.
+        </p>
+        <div class="sreg-table-wrap">
+          <table class="sreg-table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Title</th>
+                <th>Units</th>
+                <th>Excused in</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of excusedCourses(); track row.courseId) {
+                <tr>
+                  <td class="fw-600">{{ row.courseCode }}</td>
+                  <td>{{ row.courseTitle }}</td>
+                  <td>{{ row.units }}</td>
+                  <td>{{ row.excusedInSession }} · {{ row.excusedInLevel }}L</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
 
     <!-- Elective choices -->
     @if (grace()?.canEdit && electiveGroups().length > 0) {

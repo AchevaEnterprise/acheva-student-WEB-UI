@@ -7,8 +7,15 @@ import {
   signal,
 } from '@angular/core';
 import { TitleCasePipe, DatePipe } from '@angular/common';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { IMyRegistration, IRegistrationEntry, RegistrationService } from './registration.service';
+import {
+  IMyRegistration,
+  IRegistrationEntry,
+  ISelfRegistrationOptions,
+  RegistrationService,
+} from './registration.service';
 
 interface IElectiveGroupView {
   group: string;
@@ -36,6 +43,7 @@ interface IElectiveGroupView {
 })
 export class Registration implements OnInit {
   private readonly registrationService = inject(RegistrationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   acting = signal(false);
@@ -44,6 +52,13 @@ export class Registration implements OnInit {
 
   readonly registration = computed(() => this.data()?.registration ?? null);
   readonly grace = computed(() => this.data()?.grace ?? null);
+
+  /**
+   * Courses excused in an earlier semester. They cost the student nothing on
+   * their CGPA, but they are still owed — shown plainly so the obligation is
+   * never a surprise at graduation.
+   */
+  readonly excusedCourses = computed(() => this.data()?.excusedCourses ?? []);
 
   readonly activeEntries = computed(() =>
     (this.registration()?.entries ?? []).filter((entry) => entry.status === 'REGISTERED')
@@ -101,8 +116,106 @@ export class Registration implements OnInit {
       }));
   });
 
+  // ── Self-registration ────────────────────────────────────────────────────
+
+  options = signal<ISelfRegistrationOptions | null>(null);
+  registering = signal(false);
+  /** courseId → chosen, for the elective pickers. */
+  picks = signal<Record<string, boolean>>({});
+
+  /** Only offer the register flow when they have no registration yet. */
+  readonly canSelfRegister = computed(
+    () => !this.registration() && !!this.options() && !this.options()!.blocked
+  );
+
+  readonly blockedReason = computed(() =>
+    this.options()?.blocked ? (this.options()!.reason ?? null) : null
+  );
+
+  /** Units the student is committing to, so the total is never a surprise. */
+  readonly selectedUnits = computed(() => {
+    const opts = this.options();
+    if (!opts || opts.blocked) return 0;
+    const chosen = this.picks();
+    const fixed = (opts.fixed ?? []).reduce((sum, c) => sum + c.units, 0);
+    const owed = [...(opts.carryOvers ?? []), ...(opts.excused ?? [])].reduce(
+      (sum, c) => sum + c.units,
+      0
+    );
+    const electives = [
+      ...(opts.electiveGroups ?? []).flatMap((g) => g.options),
+      ...(opts.optionalElectives ?? []),
+    ].reduce((sum, c) => sum + (chosen[c.courseId] ? c.units : 0), 0);
+    return fixed + owed + electives;
+  });
+
   ngOnInit(): void {
     this.load();
+    this.loadOptions();
+  }
+
+  private loadOptions(): void {
+    this.registrationService
+      .options()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => this.options.set(resp.data),
+        error: () => {
+          /* registration simply unavailable — the page still shows results */
+        },
+      });
+  }
+
+  togglePick(courseId: string): void {
+    this.picks.update((current) => ({
+      ...current,
+      [courseId]: !current[courseId],
+    }));
+  }
+
+  /** Radio behaviour: one pick per required elective group. */
+  chooseInGroup(group: string, courseId: string): void {
+    const opts = this.options();
+    const groupOptions = opts?.electiveGroups?.find((g) => g.group === group)?.options ?? [];
+    this.picks.update((current) => {
+      const next = { ...current };
+      for (const option of groupOptions) next[option.courseId] = false;
+      next[courseId] = true;
+      return next;
+    });
+  }
+
+  isPicked(courseId: string): boolean {
+    return !!this.picks()[courseId];
+  }
+
+  submitRegistration(): void {
+    const chosen = Object.entries(this.picks())
+      .filter(([, picked]) => picked)
+      .map(([courseId]) => courseId);
+
+    this.registering.set(true);
+    this.message.set(null);
+    this.registrationService
+      .selfRegister(chosen)
+      .pipe(
+        finalize(() => this.registering.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {
+          this.message.set({
+            kind: 'ok',
+            text: 'You are registered for this semester.',
+          });
+          this.load();
+        },
+        error: (err: { error?: { message?: string } }) =>
+          this.message.set({
+            kind: 'error',
+            text: err?.error?.message ?? 'Could not register your courses.',
+          }),
+      });
   }
 
   private load(): void {

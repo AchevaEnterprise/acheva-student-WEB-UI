@@ -4,12 +4,13 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../core/store/app.state';
 import { loadProfile } from '../core/store/profile/profile.action';
 import { AuthenticationService } from '../features/auth/services/auth.service';
+import { AccountStatusBanner } from '../shared/account-status-banner/account-status-banner';
 import { SideBar } from './side-bar/side-bar';
 import { ToolBar } from './tool-bar/tool-bar';
 
 @Component({
   selector: 'app-layout',
-  imports: [SideBar, ToolBar, RouterOutlet],
+  imports: [SideBar, ToolBar, RouterOutlet, AccountStatusBanner],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })

@@ -1,0 +1,34 @@
+@if (isDeactivated()) {
+  <div
+    class="account-banner flex items-start gap-3 mx-6 mt-6 p-4 rounded-lg"
+    role="status"
+    aria-live="polite"
+  >
+    <img
+      src="icons/general/info-icon.svg"
+      width="20"
+      height="20"
+      alt=""
+      aria-hidden="true"
+      class="account-banner__icon shrink-0 mt-[0.125rem]"
+    />
+
+    <div>
+      <p class="acva-para-1 fw-600 account-banner__title">Your account is view-only</p>
+
+      <p class="acva-caption account-banner__body mt-1">
+        @if (deactivatedAt(); as since) {
+          You can still view results published before
+          {{ since | date: 'd MMMM y' }}, but you will not receive results
+          published after that date and cannot take actions on this portal.
+        } @else {
+          You can still view results published before your account was
+          deactivated, but you will not receive results published after that
+          date and cannot take actions on this portal.
+        }
+        Please contact your Course Advisor or department if you believe this is
+        a mistake.
+      </p>
+    </div>
+  </div>
+}

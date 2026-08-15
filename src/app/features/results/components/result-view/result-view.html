@@ -51,13 +51,31 @@
               <td>{{ result.exam }}</td>
               <td>{{ result.total }}</td>
               <td>{{ result.grade }}</td>
-              <td class="flex justify-center">
+              <td class="flex justify-center items-center gap-2">
                 <app-status-badge [status]="result.status" />
+                @if (result.awaitingRegistrationDecision) {
+                  <span
+                    class="pending-registration"
+                    title="You were not registered for this course. Your Course Advisor must confirm the registration before this score counts toward your CGPA."
+                  >
+                    PENDING CA
+                  </span>
+                }
               </td>
             </tr>
           }
         </tbody>
       </table>
+
+      @if (hasPendingRegistration()) {
+        <p class="pending-registration__note acva-caption mt-4">
+          <strong>Pending confirmation from your Course Advisor.</strong>
+          You have a score for a course you were not registered for. It is
+          shown here in full, but does not count toward your CGPA until your
+          Course Advisor confirms the registration. Contact them if this looks
+          wrong.
+        </p>
+      }
 
       <p class="font-medium mt-20">Registration Number: {{ resultData().registrationNumber }}</p>
     } @else {

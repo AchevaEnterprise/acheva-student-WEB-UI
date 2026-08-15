@@ -12,6 +12,13 @@ export interface IStudent {
   level: string;
   accountType: 'STUDENT';
   emailVerified: boolean;
+  /**
+   * Withdrawn/suspended students stay signed in and keep read access to
+   * results published BEFORE `deactivatedAt`, but take no actions and receive
+   * nothing published afterwards. Drives the view-only banner.
+   */
+  isActive: boolean;
+  deactivatedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +47,13 @@ export interface IResult {
   status: string;
   courseLoad: number;
   courseCode: string;
+  /**
+   * The score is published and real, but the student was not registered for
+   * this course, so it does not count toward the GPA until their Course
+   * Advisor confirms the registration. Shown, never hidden — a missing
+   * result reads as a bug; a labelled one reads as a pending step.
+   */
+  awaitingRegistrationDecision?: boolean;
 }
 
 export interface IResultEntry {
@@ -54,6 +68,8 @@ export interface IResultEntry {
   grade: string;
   status: string;
   createdAt: Date;
+  /** See `IResult.awaitingRegistrationDecision`. */
+  awaitingRegistrationDecision?: boolean;
 }
 
 export interface IStudentResult {

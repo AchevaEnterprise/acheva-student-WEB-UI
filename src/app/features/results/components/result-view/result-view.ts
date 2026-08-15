@@ -28,6 +28,11 @@ export class ResultView {
   semester = input<SemesterEnum>();
   loading = input<boolean>();
 
+  /** Drives the footnote explaining why a listed score is not in the GPA. */
+  readonly hasPendingRegistration = computed(() =>
+    this.results().some((result) => result.awaitingRegistrationDecision)
+  );
+
   resultData = computed<ResultViewData>(() => {
     this.results();
     const { fullName, department, faculty, school, registrationNumber } =
