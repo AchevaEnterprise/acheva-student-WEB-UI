@@ -83,6 +83,13 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
+      // Requests tagged with X-Silent-Error skip all toasts — matches the staff
+      // portal's convention. Used by logout, where the user is already signed
+      // out locally and has nothing to act on.
+      if (req.headers.has('X-Silent-Error')) {
+        return throwError(() => error);
+      }
+
       if (error.status === HttpStatusCode.Forbidden) {
         toast.showNotification(
           'error',
