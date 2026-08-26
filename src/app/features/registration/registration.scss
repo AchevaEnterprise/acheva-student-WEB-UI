@@ -1,7 +1,27 @@
+// The layout shell provides no page padding — each feature supplies its own
+// (the dashboard uses p-8). Without this the header and cards sat flush
+// against both edges of the content area.
 .sreg {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 32px;
+
+  // Long tables become unreadable stretched across a wide monitor; cap the
+  // measure and centre it, the way a document would sit.
+  > * {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+  }
+
+  @media (width <= 768px) {
+    padding: 16px;
+  }
+}
+
+.sreg-header {
+  margin-bottom: 0;
 }
 
 .sreg-card {
