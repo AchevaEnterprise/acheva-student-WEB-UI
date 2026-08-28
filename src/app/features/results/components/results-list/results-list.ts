@@ -9,6 +9,7 @@ import { Button } from '../../../../shared/form/button/button';
 import { Skeleton } from '../../../../shared/skeleton/skeleton';
 import { Svg } from '../../../../shared/svg/svg';
 import { AuthenticationService } from '../../../auth/services/auth.service';
+import { TranscriptDownload } from '../../../transcript/components/transcript-download/transcript-download';
 
 export interface IResultSessions {
   level: LevelsEnum;
@@ -20,7 +21,7 @@ export interface IResultSessions {
 
 @Component({
   selector: 'app-results-list',
-  imports: [Svg, NgClass, Skeleton, Button, OverlayModule],
+  imports: [Svg, NgClass, Skeleton, Button, OverlayModule, TranscriptDownload],
   templateUrl: './results-list.html',
   styleUrl: './results-list.scss',
 })
