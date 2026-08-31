@@ -1,0 +1,14 @@
+<div class="border-t border-gray-200 pt-4 mt-4">
+  <app-button
+    label="Download academic record"
+    type="outline"
+    class="btn-sm w-full"
+    [loading]="downloading()"
+    [disabled]="downloading()"
+    (clickEvent)="download()"
+  />
+  <p class="acva-para-2 text-gray-500 mt-2">
+    Every published result, as one PDF. It carries a serial and QR code so
+    whoever you give it to can confirm it is genuine.
+  </p>
+</div>
