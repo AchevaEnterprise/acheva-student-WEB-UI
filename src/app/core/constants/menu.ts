@@ -23,6 +23,13 @@ export const MENU: IMenu[] = [
     isActive: true,
   },
   {
+    label: 'Messages',
+    active_icon: 'icons/menu/messages-active.svg',
+    inactive_icon: 'icons/menu/messages-inactive.svg',
+    route: 'messages',
+    isActive: true,
+  },
+  {
     label: 'Payment History',
     active_icon: 'icons/menu/history-active.svg',
     inactive_icon: 'icons/menu/history-inactive.svg',
@@ -36,13 +43,14 @@ export const MENU: IMenu[] = [
   //   route: 'faq',
   //   isActive: true,
   // },
-  // {
-  //   label: 'Support & Help',
-  //   active_icon: 'icons/menu/support-inactive.svg',
-  //   inactive_icon: 'icons/menu/support-inactive.svg',
-  //   route: 'support',
-  //   isActive: true,
-  // },
+  {
+    label: 'Support',
+    // One glyph in the catalogue; the active state is the highlighted pill.
+    active_icon: 'icons/menu/support-inactive.svg',
+    inactive_icon: 'icons/menu/support-inactive.svg',
+    route: 'support',
+    isActive: true,
+  },
   {
     label: 'User Settings',
     active_icon: 'icons/menu/settings-active.svg',

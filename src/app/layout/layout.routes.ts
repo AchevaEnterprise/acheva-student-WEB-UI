@@ -49,9 +49,19 @@ export const routes: Routes = [
         loadComponent: () => import('../features/faq/faq').then((m) => m.Faq),
       },
       {
+        path: 'messages',
+        data: {
+          title: 'Messages',
+          // A chat owns its viewport and scrolls internally — see `Layout`.
+          fullBleed: true,
+        },
+        loadComponent: () => import('../features/messages/messages').then((m) => m.Messages),
+      },
+      {
         path: 'support',
         data: {
           title: 'Support & Help',
+          fullBleed: true,
         },
         loadComponent: () => import('../features/support/support').then((m) => m.Support),
       },
