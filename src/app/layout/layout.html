@@ -6,8 +6,14 @@
 >
   <app-tool-bar />
 
-  <div class="h-[calc(100vh_-_5rem)] overflow-y-auto">
+  <!-- A column, not a scrolling block: the banner takes the height it needs
+       and the routed page gets the rest. A page that scrolls internally (the
+       chat) can then fill exactly what is left, instead of being pushed past
+       the bottom by whatever the banner happens to be showing today. -->
+  <div class="layout__content" [class.layout__content--full-bleed]="fullBleed()">
     <app-account-status-banner />
-    <router-outlet></router-outlet>
+    <div class="layout__outlet">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

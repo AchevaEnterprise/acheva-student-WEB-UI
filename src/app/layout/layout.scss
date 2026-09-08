@@ -1,0 +1,21 @@
+
+/* The routed area. A flex column so the account banner and the page share the
+   viewport rather than the page assuming it owns all of it. */
+.layout__content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 5rem);
+  overflow: hidden;
+}
+
+.layout__outlet {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* A page that runs its own scrolling — the chat. No outer scrollbar around
+   something already scrolling inside. */
+.layout__content--full-bleed .layout__outlet {
+  overflow: hidden;
+}
