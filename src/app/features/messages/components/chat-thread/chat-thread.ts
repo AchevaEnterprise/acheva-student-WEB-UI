@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   effect,
   input,
   output,
@@ -14,6 +15,8 @@ import { Button } from '../../../../shared/form/button/button';
 import { Skeleton } from '../../../../shared/skeleton/skeleton';
 import { IConversationSummary, IMessage } from '../../models/messaging.model';
 import { MessageTicks, TickState } from '../message-ticks/message-ticks';
+import { groupMessagesByDay } from '../../utils/message-day';
+import { readableText } from '../../utils/readable-text';
 
 /**
  * One open conversation: who it is with, the bubbles, and the box you type in.
@@ -46,6 +49,13 @@ export class ChatThread {
   readonly sendMessage = output<string>();
 
   readonly draft = signal('');
+
+  /**
+   * The thread split into days, so a separator can sit above the first message
+   * of each. Recomputed from `messages()`, so a bubble arriving live lands
+   * under the right heading with no bookkeeping.
+   */
+  readonly days = computed(() => groupMessagesByDay(this.messages()));
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
 
@@ -91,7 +101,17 @@ export class ChatThread {
       .join('');
   }
 
+  /**
+   * A body safe to print. Normally the text unchanged — but an API serving
+   * ciphertext (a stale deploy, a missing key) must never reach the screen as
+   * base64. See `readable-text.ts`.
+   */
+  bodyOf(message: IMessage): string {
+    return readableText(message.body);
+  }
+
   trackById = (_: number, item: { id: string }) => item.id;
+  trackByDay = (_: number, item: { key: string }) => item.key;
 
   private scrollToLatest(): void {
     // After the next paint, or the new bubble is not yet laid out.

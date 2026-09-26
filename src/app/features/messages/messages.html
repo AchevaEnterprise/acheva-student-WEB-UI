@@ -64,7 +64,7 @@
                     <span class="thread__name acva-para-1">{{ item.title }}</span>
                     @if (item.lastMessage?.at) {
                       <span class="thread__time acva-caption">
-                        {{ item.lastMessage?.at | date: 'shortTime' }}
+                        {{ stampFor(item) }}
                       </span>
                     }
                   </span>
@@ -74,7 +74,7 @@
                       @if (item.kind === 'ANNOUNCEMENT') {
                         <span class="thread__tag">{{ item.audienceLabel }}</span>
                       }
-                      {{ item.lastMessage?.preview || 'No messages yet' }}
+                      {{ previewOf(item) }}
                     </span>
                     @if (item.unread > 0) {
                       <span class="pill pill--sm">{{ item.unread }}</span>
