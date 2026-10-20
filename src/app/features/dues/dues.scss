@@ -1,0 +1,307 @@
+/* Departmental dues, as a student sees them.
+   One number dominates — "how much do I still owe?" — and everything else
+   is supporting detail. Brand blue throughout; green is off-palette. */
+
+$border: #e5e7eb;
+$brand: #2793ff;
+$ink: #10243a;
+$muted: #6b7c8d;
+
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.dues {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.dues__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dues__head h1 {
+  color: $ink;
+}
+
+.session {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session__select {
+  padding: 8px 12px;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  color: $ink;
+}
+
+.session__select:focus {
+  outline: 2px solid $brand;
+  outline-offset: 1px;
+}
+
+.notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff8e6;
+  border: 1px solid #f0d79a;
+  color: #7a5b00;
+  line-height: 1.5;
+}
+
+/* ── The balance ─────────────────────────────────────────────────────────── */
+
+.balance {
+  padding: 24px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2793ff, #7bf);
+  color: #fff;
+}
+
+/* Settled loses the gradient: a paid bill is a quiet fact, not a call to
+   action, and keeping it loud would make the page feel unfinished. */
+.balance--settled {
+  background: #f2f8ff;
+  border: 1px solid #bcdcff;
+  color: #12508f;
+}
+
+.balance__label {
+  margin: 0;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.balance__amount {
+  margin: 4px 0 0;
+  font-size: 2.25rem;
+  line-height: 1.15;
+  font-weight: 500;
+}
+
+.balance__of {
+  margin: 4px 0 0;
+  opacity: 0.85;
+}
+
+.balance__bar {
+  margin-top: 16px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 30%);
+  overflow: hidden;
+}
+
+.balance--settled .balance__bar {
+  background: #d7e9ff;
+}
+
+.balance__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 0.25s ease;
+}
+
+.balance--settled .balance__fill {
+  background: $brand;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balance__fill {
+    transition: none;
+  }
+}
+
+.balance__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  background: #fff;
+  color: #12508f;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #f2f8ff;
+}
+
+/* The secondary action still has to be legible on a blue ground, so it is
+   outlined in white rather than greyed. */
+.btn--ghost {
+  background: transparent;
+  border-color: rgb(255 255 255 / 60%);
+  color: #fff;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 12%);
+}
+
+/* ── Panels ──────────────────────────────────────────────────────────────── */
+
+.panel {
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.panel--quiet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+  color: $ink;
+}
+
+.panel__head {
+  padding: 16px;
+  border-bottom: 1px solid $border;
+}
+
+/* ── Schedule ────────────────────────────────────────────────────────────── */
+
+.schedule,
+.receipts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.schedule__row,
+.receipts__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f4f7;
+}
+
+.schedule__row:last-child,
+.receipts__row:last-child {
+  border-bottom: 0;
+}
+
+.schedule__row--next {
+  background: #f5faff;
+}
+
+.schedule__mark {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #eef2f6;
+  color: $muted;
+  font-size: 0.75rem;
+}
+
+.schedule__row--covered .schedule__mark {
+  background: #e8f3ff;
+  color: #12508f;
+}
+
+.schedule__row--next .schedule__mark {
+  background: $brand;
+  color: #fff;
+}
+
+.schedule__mark svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.schedule__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: $ink;
+}
+
+.schedule__state {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: $muted;
+}
+
+.schedule__state--next {
+  background: #e8f3ff;
+  color: #12508f;
+}
+
+.schedule__amount {
+  flex: 0 0 auto;
+  color: $ink;
+}
+
+/* A covered row recedes — it is done, and the eye should pass over it. */
+.schedule__row--covered .schedule__body,
+.schedule__row--covered .schedule__amount {
+  color: $muted;
+}
+
+.receipts__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: $ink;
+}
+
+@media (width <= 640px) {
+  :host {
+    padding: 16px;
+  }
+
+  .balance__amount {
+    font-size: 1.875rem;
+  }
+}

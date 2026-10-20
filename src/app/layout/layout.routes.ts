@@ -34,6 +34,13 @@ export const routes: Routes = [
           import('../features/registration/registration').then((m) => m.Registration),
       },
       {
+        path: 'dues',
+        data: {
+          title: 'Departmental Dues',
+        },
+        loadComponent: () => import('../features/dues/dues').then((m) => m.Dues),
+      },
+      {
         path: 'payment-history',
         data: {
           title: 'Payment History',
