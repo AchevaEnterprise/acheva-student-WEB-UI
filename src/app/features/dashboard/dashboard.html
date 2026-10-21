@@ -220,7 +220,13 @@
 
         <div content class="p-4 h-[35vh] overflow-y-auto">
           @if (sortedActivities().length > 0) {
-            @for (activity of sortedActivities(); track activity.id) {
+            <!-- Tracked by timestamp+title: the student's `INotification` carries no
+                 id, unlike the staff one, and `$index` would re-key every row
+                 whenever the sort flips. -->
+            @for (
+              activity of sortedActivities();
+              track activity.createdAt + activity.title
+            ) {
               <app-activity [activity]="activity" />
             }
           } @else {
