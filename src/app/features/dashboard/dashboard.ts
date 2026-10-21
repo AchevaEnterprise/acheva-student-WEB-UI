@@ -1,5 +1,15 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, inject, model, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  model,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -28,6 +38,9 @@ import { Activity } from './components/activity/activity';
 
 @Component({
   selector: 'app-dashboard',
+  // Mandatory on every component in this app, per the house rules — it was
+  // the only feature page without it.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AnalyticsCard,
     Card,
@@ -54,6 +67,7 @@ export class Dashboard implements OnInit {
   private readonly studentService = inject(StudentService);
   private readonly router = inject(Router);
   private readonly store = inject(Store<AppState>);
+  private readonly destroyRef = inject(DestroyRef);
 
   analtyics = signal<IAnalytics[]>([
     {
@@ -128,6 +142,27 @@ export class Dashboard implements OnInit {
   SemesterEnum = SemesterEnum;
   activities = signal<INotification[]>([]);
 
+  /**
+   * Newest first by default. The dropdown beside "Recent Activity" offered
+   * these two options and was bound to nothing — it changed on screen and
+   * the list never moved. Mirrors the staff dashboard.
+   */
+  activitySort = signal<'newest' | 'oldest'>('newest');
+
+  readonly sortedActivities = computed(() => {
+    const rows = [...this.activities()];
+    const newest = this.activitySort() === 'newest';
+    return rows.sort((a, b) => {
+      const left = new Date(a.createdAt).getTime();
+      const right = new Date(b.createdAt).getTime();
+      return newest ? right - left : left - right;
+    });
+  });
+
+  setActivitySort(order: 'newest' | 'oldest'): void {
+    this.activitySort.set(order);
+  }
+
   /** Drive the dashboard skeletons while the analytics + performance load. */
   loadingAnalytics = signal(true);
   loadingChart = signal(true);
@@ -141,12 +176,24 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.select(selectProfile).subscribe({
-      next: (result) => {
-        const { cgpa } = result.profile as { cgpa: number };
-        this.cgpa.set(cgpa);
-      },
-    });
+    /**
+     * `profile` is NULL until the store has loaded it, and the store emits
+     * immediately on subscribe — so this threw
+     * `Cannot destructure property 'cgpa' of 'result.profile' as it is null`
+     * on every single dashboard load, before any data arrived.
+     *
+     * The `as { cgpa: number }` is what hid it: the assertion told the
+     * compiler the value was always there, so the one check that would have
+     * caught this was switched off by hand. Read it defensively instead.
+     */
+    this.store
+      .select(selectProfile)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.cgpa.set(result?.profile?.cgpa ?? 0);
+        },
+      });
 
     const session = this.activeAccount()?.session;
     this.session.set(session!);
@@ -158,56 +205,65 @@ export class Dashboard implements OnInit {
 
   getAnalytics() {
     this.loadingAnalytics.set(true);
-    this.studentService.getAnalytics().subscribe({
-      next: (resp) => {
-        const { results, departmentalDues, hasPaidDues } = resp.data;
+    this.studentService
+      .getAnalytics()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => {
+          const { results, departmentalDues, hasPaidDues } = resp.data;
 
-        this.hasPaidDues.set(hasPaidDues);
-        const updatedAnalytics = this.analtyics().map((analytics: IAnalytics) => {
-          let count = analytics.count;
+          this.hasPaidDues.set(hasPaidDues);
+          const updatedAnalytics = this.analtyics().map((analytics: IAnalytics) => {
+            let count = analytics.count;
 
-          if (analytics.label === 'Results') {
-            count = results;
-          } else if (analytics.label === 'Departmental Dues') {
-            count = departmentalDues;
-          }
+            if (analytics.label === 'Results') {
+              count = results;
+            } else if (analytics.label === 'Departmental Dues') {
+              count = departmentalDues;
+            }
 
-          return {
-            ...analytics,
-            count,
-          };
-        });
+            return {
+              ...analytics,
+              count,
+            };
+          });
 
-        this.analtyics.set(updatedAnalytics);
-      },
-      complete: () => this.loadingAnalytics.set(false),
-      error: () => this.loadingAnalytics.set(false),
-    });
+          this.analtyics.set(updatedAnalytics);
+        },
+        complete: () => this.loadingAnalytics.set(false),
+        error: () => this.loadingAnalytics.set(false),
+      });
   }
 
   getPerformance(semester?: SemesterEnum) {
     const { session, level } = this.activeAccount()!;
 
     this.loadingChart.set(true);
-    this.studentService.getResults(level!, session!, semester || SemesterEnum.FIRST).subscribe({
-      next: (resp) => {
-        const result = resp.data.results?.map((perf) => ({
-          courseCode: perf.courseCode,
-          total: perf.total,
-        }));
-        this.chart.set(result);
-      },
-      complete: () => this.loadingChart.set(false),
-      error: () => this.loadingChart.set(false),
-    });
+    this.studentService
+      .getResults(level!, session!, semester || SemesterEnum.FIRST)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => {
+          const result = resp.data.results?.map((perf) => ({
+            courseCode: perf.courseCode,
+            total: perf.total,
+          }));
+          this.chart.set(result);
+        },
+        complete: () => this.loadingChart.set(false),
+        error: () => this.loadingChart.set(false),
+      });
   }
 
   getStudentResult(_: LevelsEnum) {
-    this.studentService.getMyResult().subscribe({
-      next: (resp) => {
-        console.warn('Table: ', resp.data);
-      },
-    });
+    this.studentService
+      .getMyResult()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => {
+          console.warn('Table: ', resp.data);
+        },
+      });
   }
 
   payResultFee() {
@@ -215,10 +271,13 @@ export class Dashboard implements OnInit {
   }
 
   getActivities() {
-    this.store.select(notificationSelector).subscribe({
-      next: (notifications) => {
-        this.activities.set(notifications);
-      },
-    });
+    this.store
+      .select(notificationSelector)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (notifications) => {
+          this.activities.set(notifications);
+        },
+      });
   }
 }

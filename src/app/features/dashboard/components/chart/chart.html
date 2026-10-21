@@ -1,5 +1,6 @@
-<highcharts-chart
-  [(update)]="updateFlag"
-  [options]="chartOptions()"
-  class="w-full h-[30rem] block"
-/>
+<!-- No `[(update)]` flag. `highcharts-angular` already re-renders whenever
+     `options` changes identity, and `chartOptions` is a computed that returns
+     a fresh object every time the data does — so the flag was redundant AND
+     it was being written from inside that computed, which is what produced
+     NG0100 on every dashboard load. -->
+<highcharts-chart [options]="chartOptions()" class="w-full h-[30rem] block" />
