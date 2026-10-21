@@ -1,14 +1,22 @@
 <div class="border-t border-gray-200 pt-4 mt-4">
   <app-button
-    label="Download academic record"
+    [label]="label"
     type="outline"
     class="btn-sm w-full"
-    [loading]="downloading()"
-    [disabled]="downloading()"
-    (clickEvent)="download()"
+    [loading]="downloading() || starting()"
+    [disabled]="downloading() || starting() || !ready()"
+    (clickEvent)="act()"
   />
+
   <p class="acva-para-2 text-gray-500 mt-2">
     Every published result, as one PDF. It carries a serial and QR code so
     whoever you give it to can confirm it is genuine.
+    @if (ready() && entitled()) {
+      <!-- They have already paid; the button must not look like it will
+           charge them a second time. -->
+      <span class="block mt-1">You have already paid for one download.</span>
+    } @else if (ready() && feeKobo()) {
+      <span class="block mt-1">Each download is charged separately.</span>
+    }
   </p>
 </div>

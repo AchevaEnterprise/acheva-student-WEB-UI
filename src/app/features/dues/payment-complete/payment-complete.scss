@@ -1,0 +1,89 @@
+/* Where Paystack sends the student back to. One card, one answer. */
+
+$border: #e5e7eb;
+$brand: #2793ff;
+$ink: #10243a;
+
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.complete {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 32px 24px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  color: $ink;
+}
+
+/* Confirmed is brand blue, not green — green is off-palette here. */
+.card--ok {
+  border-color: #bcdcff;
+  background: #f2f8ff;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #12508f;
+}
+
+.amount {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #12508f;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn:focus-visible {
+  outline: 2px solid $brand;
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  background: $brand;
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: #1a84ee;
+}
+
+.btn--ghost {
+  border-color: #c7dcf5;
+  background: #fff;
+  color: #12508f;
+}
+
+.btn--ghost:hover {
+  background: #f2f8ff;
+}
