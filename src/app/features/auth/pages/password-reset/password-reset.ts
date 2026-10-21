@@ -44,10 +44,19 @@ export class PasswordReset implements OnDestroy {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (res) => {
-            this.router.navigate(['/auth/verify-email'], {
+            /**
+             * Straight to the page that actually resets the password.
+             *
+             * This used to route to `/auth/verify-email`, which walks the
+             * SIGN-UP verification flow and ends by calling
+             * `PATCH /auth/verify-email/:id` — so a student asking to reset
+             * their password was never asked for a new one. The reset page
+             * was unreachable.
+             */
+            this.router.navigate(['/auth/create-password'], {
               queryParams: {
                 email: this.emailCtrl.value as string,
-                accountId: (res.data as { user: { id: string } }).user.id,
+                requestId: (res.data as { requestId: string }).requestId,
               },
             });
           },

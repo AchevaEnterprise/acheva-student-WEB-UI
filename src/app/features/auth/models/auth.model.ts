@@ -52,6 +52,8 @@ export interface IStudentRegProfile {
 }
 
 export interface IResetPassword {
+  /** The six-digit code from the reset email. */
+  token: string;
   password: string;
   confirmPassword: string;
 }
