@@ -1,0 +1,124 @@
+<section class="xy">
+  <header class="xy__head">
+    <h1 class="acva-para-3 fw-500 m-0">Register your extra year</h1>
+    <p class="acva-caption text-neutral-500 m-0">
+      Retake what you have outstanding, and borrow final-year courses from
+      your faculty to make up each semester.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <app-skeleton width="100%" height="8rem" />
+    <app-skeleton width="100%" height="14rem" />
+  } @else if (notEligible()) {
+    <!-- Not an error: most students are simply not in extra year. -->
+    <div class="panel panel--quiet">
+      <p class="acva-para-2 fw-500 m-0">This page is for extra-year students</p>
+      <p class="acva-para-1 text-neutral-500 m-0">
+        Your record does not show you in an extra year. If you think that is
+        wrong, speak to your Course Advisor.
+      </p>
+    </div>
+  } @else {
+    <!-- What they MUST retake. Settled, not a choice. -->
+    <div class="panel">
+      <p class="panel__head acva-caption">YOU MUST RETAKE THESE</p>
+      @if (mustRetake().length === 0) {
+        <p class="acva-para-1 text-neutral-500 m-0">
+          You have nothing outstanding.
+        </p>
+      } @else {
+        <ul class="fixed">
+          @for (course of mustRetake(); track course.courseId) {
+            <li>
+              <span class="code fw-500">{{ course.courseCode }}</span>
+              <span class="title">{{ course.courseTitle }}</span>
+              <span class="acva-caption text-neutral-500">
+                {{ course.units }}u · {{ course.courseSemester }}
+              </span>
+            </li>
+          }
+        </ul>
+        <p class="panel__foot acva-caption">
+          These are why the extra year exists, so they are not optional.
+        </p>
+      }
+    </div>
+
+    <!-- The running total, per semester, because that is how it is counted. -->
+    <div class="tally">
+      @for (p of plan(); track p.semester) {
+        <div
+          class="tally__card"
+          [class.tally__card--ok]="p.short === 0 && p.over === 0"
+          [class.tally__card--bad]="p.over > 0"
+        >
+          <p class="acva-caption text-neutral-500 m-0">{{ p.semester }}</p>
+          <p class="tally__units">{{ p.units }}<span>units</span></p>
+          @if (p.short > 0) {
+            <p class="acva-caption">Need {{ p.short }} more to reach {{ p.min }}</p>
+          } @else if (p.over > 0) {
+            <p class="acva-caption">{{ p.over }} over the {{ p.max }} limit</p>
+          } @else {
+            <p class="acva-caption">Within {{ p.min }}–{{ p.max }}</p>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- What they may borrow. -->
+    @for (group of borrowBySemester(); track group.semester) {
+      <div class="panel">
+        <p class="panel__head acva-caption">
+          BORROW FOR {{ group.semester }} — {{ group.courses.length }} available
+        </p>
+        <ul class="pick">
+          @for (course of group.courses; track course.courseId) {
+            <li>
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="isPicked(course)"
+                  (change)="toggle(course)"
+                />
+                <span class="code fw-500">{{ course.courseCode }}</span>
+                <span class="title">{{ course.courseTitle }}</span>
+                <span class="acva-caption text-neutral-500">
+                  {{ course.units }}u · {{ course.departmentName }}
+                </span>
+              </label>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div class="submit">
+      <label class="field">
+        <span class="acva-caption text-neutral-500">Session</span>
+        <input
+          class="field__input acva-para-1"
+          placeholder="e.g. 2025/2026"
+          aria-label="The session this extra year is for"
+          [value]="session()"
+          (input)="session.set($any($event.target).value)"
+        />
+      </label>
+
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!canSubmit()"
+        (click)="submit()"
+      >
+        {{ submitting() ? 'Sending…' : 'Send to my Course Advisor' }}
+      </button>
+    </div>
+
+    <!-- Said before the click, not after. -->
+    <p class="acva-caption text-neutral-500">
+      This is a proposal. Your Course Advisor approves it before you are
+      registered — the courses you borrow belong to other departments.
+    </p>
+  }
+</section>

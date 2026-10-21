@@ -34,6 +34,19 @@ export const routes: Routes = [
           import('../features/registration/registration').then((m) => m.Registration),
       },
       {
+        /**
+         * Extra year. A sibling of `registration` rather than a tab inside
+         * it: the two are different acts with different rules, and an
+         * ordinary student should never meet this screen.
+         */
+        path: 'registration/extra-year',
+        data: {
+          title: 'Extra Year',
+        },
+        loadComponent: () =>
+          import('../features/registration/extra-year/extra-year').then((m) => m.ExtraYear),
+      },
+      {
         path: 'dues',
         data: {
           title: 'Departmental Dues',

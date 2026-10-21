@@ -1,0 +1,202 @@
+/* Extra-year registration. Brand blue only; green is off-palette. */
+
+$border: #e5e7eb;
+$brand: #2793ff;
+$ink: #10243a;
+
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.xy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.xy__head h1 {
+  color: $ink;
+}
+
+.panel {
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+  color: $ink;
+}
+
+.panel--quiet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+}
+
+.panel__head {
+  margin: 0 0 10px;
+  letter-spacing: 0.06em;
+  color: #12508f;
+}
+
+.panel__foot {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid $border;
+  color: #5b6472;
+}
+
+/* `margin: 0` on the list left the footnote sitting on the last row's
+   descenders — the panel's own padding does not separate siblings. */
+.fixed,
+.pick {
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fixed li {
+  padding: 4px 0;
+}
+
+.pick {
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.fixed li,
+.pick label {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.875rem;
+}
+
+.pick label {
+  grid-template-columns: 1.25rem 6rem 1fr auto;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.pick label:hover {
+  background: #f6faff;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── The per-semester tally ──────────────────────────────────────────────── */
+
+.tally {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 12px;
+}
+
+.tally__card {
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+  color: $ink;
+}
+
+/* Legal is brand blue, never green. */
+.tally__card--ok {
+  border-color: #bcdcff;
+  background: #f2f8ff;
+  color: #12508f;
+}
+
+.tally__card--bad {
+  border-color: #f0b4b4;
+  background: #fdecec;
+  color: #8f1d1d;
+}
+
+.tally__units {
+  margin: 4px 0 2px;
+  font-size: 1.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tally__units span {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.tally__card p:last-child {
+  margin: 0;
+}
+
+/* ── Submit ──────────────────────────────────────────────────────────────── */
+
+.submit {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field__input {
+  padding: 10px 12px;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  color: $ink;
+  min-width: 12rem;
+}
+
+.field__input:focus {
+  outline: 2px solid $brand;
+  outline-offset: 1px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn--primary {
+  background: $brand;
+  color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #1a84ee;
+}
+
+.btn:focus-visible {
+  outline: 2px solid $brand;
+  outline-offset: 2px;
+}
