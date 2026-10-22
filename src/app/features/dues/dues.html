@@ -1,0 +1,193 @@
+<section class="dues">
+  <header class="dues__head">
+    <div>
+      <h1 class="acva-para-3 fw-500 m-0">Departmental Dues</h1>
+      <p class="acva-caption text-neutral-500 m-0">
+        What your department charges for the session, and what you have paid.
+      </p>
+    </div>
+
+    @if (sessions().length > 1) {
+      <label class="session">
+        <span class="acva-caption text-neutral-500">Session</span>
+        <select
+          class="session__select acva-para-1"
+          aria-label="Choose a session"
+          [value]="selectedSession()"
+          (change)="changeSession($any($event.target).value)"
+        >
+          @for (session of sessions(); track session) {
+            <option [value]="session">{{ session }}</option>
+          }
+        </select>
+      </label>
+    }
+  </header>
+
+  @if (loading()) {
+    <app-skeleton width="100%" height="12rem" />
+    <app-skeleton width="100%" height="9rem" />
+  } @else if (!hasPlan()) {
+    <!-- No plan is a legitimate answer, not an error. -->
+    <div class="panel panel--quiet">
+      <p class="acva-para-2 fw-500 m-0">Nothing to pay for {{ selectedSession() }}</p>
+      <p class="acva-para-1 text-neutral-500 m-0">
+        Your department has not published dues for this session. If you think
+        that is wrong, ask your Course Advisor or Head of Department.
+      </p>
+    </div>
+  } @else {
+    @if (isPastSession()) {
+      <p class="notice acva-caption">
+        You are looking at <strong>{{ selectedSession() }}</strong>, not the
+        current session. Paying late is not encouraged, but it is possible
+        here.
+      </p>
+    }
+
+    <!-- The one question most students open this page to ask. -->
+    <div class="balance" [class.balance--settled]="isSettled()">
+      <p class="balance__label acva-caption">
+        {{ isSettled() ? 'Fully paid' : 'Still outstanding' }}
+      </p>
+      <p class="balance__amount">
+        {{ money(isSettled() ? standing()!.totalKobo : standing()!.outstandingKobo) }}
+      </p>
+      <p class="balance__of acva-caption">
+        @if (isSettled()) {
+          Settled in
+          {{ standing()!.paymentsMade }}
+          {{ standing()!.paymentsMade === 1 ? 'payment' : 'payments' }}
+        } @else {
+          of {{ money(standing()!.totalKobo) }} ·
+          {{ money(standing()!.paidKobo) }} paid
+        }
+      </p>
+
+      <div
+        class="balance__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="paidPercent()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-label]="'Dues paid: ' + paidPercent() + '%'"
+      >
+        <span class="balance__fill" [style.width.%]="paidPercent()"></span>
+      </div>
+
+      @if (!isSettled()) {
+        <div class="balance__actions">
+          @if (standing()!.nextInstalment; as next) {
+            <button
+              type="button"
+              class="btn btn--primary acva-para-1"
+              [disabled]="!canPay()"
+              (click)="pay('NEXT_INSTALMENT')"
+            >
+              {{
+                starting() === 'NEXT_INSTALMENT'
+                  ? 'Opening…'
+                  : 'Pay instalment ' + next.position + ' · ' + money(next.amount)
+              }}
+            </button>
+          }
+          <button
+            type="button"
+            class="btn btn--ghost acva-para-1"
+            [disabled]="!canPay()"
+            (click)="pay('FULL')"
+          >
+            {{
+              starting() === 'FULL'
+                ? 'Opening…'
+                : 'Pay the balance · ' + money(standing()!.outstandingKobo)
+            }}
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- The schedule -->
+    <div class="panel">
+      <div class="panel__head">
+        <p class="acva-para-2 fw-500 m-0">{{ plan()!.title }}</p>
+        @if (plan()!.description) {
+          <p class="acva-caption text-neutral-500 m-0">
+            {{ plan()!.description }}
+          </p>
+        }
+      </div>
+
+      <ul class="schedule">
+        @for (row of plan()!.instalments; track trackByPosition($index, row)) {
+          <li
+            class="schedule__row"
+            [class.schedule__row--covered]="isCovered(row)"
+            [class.schedule__row--next]="isNext(row)"
+          >
+            <span class="schedule__mark" aria-hidden="true">
+              @if (isCovered(row)) {
+                <svg viewBox="0 0 24 24">
+                  <polyline points="4 12.5 9.5 18 20 6.5" />
+                </svg>
+              } @else {
+                {{ row.position }}
+              }
+            </span>
+
+            <span class="schedule__body">
+              <span class="acva-para-1">
+                Instalment {{ row.position }}
+                @if (isCovered(row)) {
+                  <span class="schedule__state acva-caption">paid</span>
+                } @else if (isNext(row)) {
+                  <span class="schedule__state schedule__state--next acva-caption">
+                    next
+                  </span>
+                }
+              </span>
+              <span class="acva-caption text-neutral-500">
+                due {{ row.dueDate | date: 'd MMM y' }}
+                @if (row.note) {
+                  · {{ row.note }}
+                }
+              </span>
+            </span>
+
+            <span class="schedule__amount acva-para-1 fw-500">
+              {{ money(row.amount) }}
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- What they have already paid -->
+    @if (payments().length > 0) {
+      <div class="panel">
+        <div class="panel__head">
+          <p class="acva-para-2 fw-500 m-0">Your payments</p>
+          <p class="acva-caption text-neutral-500 m-0">
+            {{ payments().length }}
+            {{ payments().length === 1 ? 'payment' : 'payments' }}
+            for {{ selectedSession() }}
+          </p>
+        </div>
+
+        <ul class="receipts">
+          @for (payment of payments(); track trackByReference($index, payment)) {
+            <li class="receipts__row">
+              <span class="receipts__body">
+                <span class="acva-para-1 fw-500">{{ money(payment.amount) }}</span>
+                <span class="acva-caption text-neutral-500">
+                  {{ payment.paidAt | date: 'd MMM y, h:mm a' }} ·
+                  {{ payment.reference }}
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>

@@ -34,6 +34,41 @@ export const routes: Routes = [
           import('../features/registration/registration').then((m) => m.Registration),
       },
       {
+        /**
+         * Extra year. A sibling of `registration` rather than a tab inside
+         * it: the two are different acts with different rules, and an
+         * ordinary student should never meet this screen.
+         */
+        path: 'registration/extra-year',
+        data: {
+          title: 'Extra Year',
+        },
+        loadComponent: () =>
+          import('../features/registration/extra-year/extra-year').then((m) => m.ExtraYear),
+      },
+      {
+        path: 'dues',
+        data: {
+          title: 'Departmental Dues',
+        },
+        loadComponent: () => import('../features/dues/dues').then((m) => m.Dues),
+      },
+      {
+        /**
+         * Paystack's `callback_url` lands here. It used to land nowhere —
+         * the path fell through the `**` wildcard to the dashboard, so a
+         * student paid real money and the app said nothing about it.
+         */
+        path: 'dues/complete',
+        data: {
+          title: 'Payment',
+        },
+        loadComponent: () =>
+          import('../features/dues/payment-complete/payment-complete').then(
+            (m) => m.PaymentComplete
+          ),
+      },
+      {
         path: 'payment-history',
         data: {
           title: 'Payment History',

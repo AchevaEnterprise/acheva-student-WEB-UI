@@ -113,10 +113,76 @@ export interface ISelfRegistrationOptions {
   readonly optionalElectives?: readonly ISelfRegistrationCourse[];
 }
 
+/* ── Extra year ─────────────────────────────────────────────────────────── */
+
+/** A course the student failed and must retake. Not optional. */
+export interface IExtraYearRetake {
+  readonly courseId: string;
+  readonly courseCode: string;
+  readonly courseTitle: string;
+  readonly units: number;
+  /** It can only be retaken in the semester it runs in. */
+  readonly courseSemester: string;
+  readonly failedInSession: string;
+  readonly failedInLevel: string;
+  readonly attempts: number;
+}
+
+/** A final-year course from somewhere in the faculty, available to borrow. */
+export interface IBorrowableCourse {
+  readonly courseId: string;
+  readonly courseCode: string;
+  readonly courseTitle: string;
+  readonly units: number;
+  readonly semester: string;
+  readonly departmentId: string;
+  /** Whose programme it belongs to — often not the student's own. */
+  readonly departmentName: string | null;
+  readonly level: string;
+}
+
+/** The shortfall, per semester, because that is how the load is counted. */
+export interface IExtraYearSemesterNeed {
+  readonly semester: string;
+  readonly carryOverUnits: number;
+  readonly unitsStillNeeded: number;
+}
+
+export interface IExtraYearOptions {
+  readonly student: { id: string; name: string; registrationNumber: string };
+  readonly mustRetake: IExtraYearRetake[];
+  readonly canBorrow: IBorrowableCourse[];
+  readonly load: {
+    readonly min: number;
+    readonly max: number;
+    readonly perSemester: IExtraYearSemesterNeed[];
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class RegistrationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.BASE_URL}/registrations`;
+
+  /** What an extra-year student must retake, may borrow, and has to reach. */
+  extraYearOptions(): Observable<IAPIResponse<IExtraYearOptions>> {
+    return this.http.get<IAPIResponse<IExtraYearOptions>>(`${this.baseUrl}/me/extra-year`);
+  }
+
+  /**
+   * Propose the year's load.
+   *
+   * A proposal, not a registration — it lands awaiting the Course
+   * Advisor. One flat list of course ids: which are retakes and which are
+   * borrowed is decided by the SERVER from the student's own carry-over
+   * ledger, never claimed by the client.
+   */
+  proposeExtraYear(session: string, courseIds: string[]): Observable<IAPIResponse<unknown>> {
+    return this.http.post<IAPIResponse<unknown>>(`${this.baseUrl}/me/extra-year`, {
+      session,
+      courseIds,
+    });
+  }
 
   me(): Observable<IAPIResponse<IMyRegistration>> {
     return this.http.get<IAPIResponse<IMyRegistration>>(`${this.baseUrl}/me`);

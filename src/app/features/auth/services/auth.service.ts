@@ -134,8 +134,20 @@ export class AuthenticationService {
     );
   }
 
-  resetPassword(payload: IResetPassword): Observable<IAPIResponse<unknown>> {
-    return this.http.patch<IAPIResponse<unknown>>(`${this.authUrl}/reset-password`, { payload });
+  /**
+   * Complete a password reset.
+   *
+   * The body was `{ payload }` — the fields nested one level deeper than
+   * the DTO expects — and carried no token, against a path that did not
+   * exist (`/reset-password/:id` at the time). A student could not reset
+   * their password at all. It is flat now, and carries both halves: the
+   * opaque `requestId` and the code from the email.
+   */
+  resetPassword(payload: IResetPassword, requestId: string): Observable<IAPIResponse<unknown>> {
+    return this.http.patch<IAPIResponse<unknown>>(`${this.authUrl}/reset-password`, {
+      ...payload,
+      requestId,
+    });
   }
 
   refreshToken(refreshToken: string): Observable<IAPIResponse<IAccessRefreshToken>> {

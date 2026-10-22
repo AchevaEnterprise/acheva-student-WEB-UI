@@ -30,6 +30,13 @@ export const MENU: IMenu[] = [
     isActive: true,
   },
   {
+    label: 'Departmental Dues',
+    active_icon: 'icons/menu/dues-management-active.svg',
+    inactive_icon: 'icons/menu/dues-management-inactive.svg',
+    route: 'dues',
+    isActive: true,
+  },
+  {
     label: 'Payment History',
     active_icon: 'icons/menu/history-active.svg',
     inactive_icon: 'icons/menu/history-inactive.svg',

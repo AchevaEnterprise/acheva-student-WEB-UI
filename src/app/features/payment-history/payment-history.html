@@ -1,4 +1,117 @@
-<div class="grid grid-cols-[22%_1fr] gap-4 h-full">
-    <app-payment-list />
-    <app-payment-channel />
-</div>
+<section class="payments">
+  <header class="payments__head">
+    <h1 class="acva-para-3 fw-500 m-0">Payments</h1>
+    <p class="acva-caption text-neutral-500 m-0">
+      Every payment you have made through Acheva, and the receipt for each one.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <div class="payments__body">
+      <div class="list">
+        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+          <app-skeleton width="100%" height="4.5rem" />
+        }
+      </div>
+      <app-skeleton width="100%" height="100%" />
+    </div>
+  } @else if (isEmpty()) {
+    <div class="panel panel--quiet">
+      <app-empty-state
+        description="You have not made any payments yet. Departmental dues and
+          transcript fees will appear here, each with a receipt you can download."
+      />
+    </div>
+  } @else {
+    <div class="payments__body">
+      <!-- The list. Failed and pending attempts are here on purpose. -->
+      <ul class="list" role="list">
+        @for (row of rows(); track row.reference) {
+          <li>
+            <button
+              type="button"
+              class="row"
+              [class.row--active]="selected()?.reference === row.reference"
+              [attr.aria-current]="selected()?.reference === row.reference"
+              (click)="select(row)"
+            >
+              <span class="row__main">
+                <span class="row__title acva-para-1 fw-500">{{ purposeLabel(row) }}</span>
+                <span class="row__meta acva-caption text-neutral-500">
+                  {{ shortDate(row.paidAt ?? row.createdAt) }}
+                  @if (row.item.session) {
+                    · {{ row.item.session }}
+                  }
+                </span>
+              </span>
+
+              <span class="row__side">
+                <span class="row__amount acva-para-1 fw-600">{{ money(row.amount) }}</span>
+                <span class="chip" [class]="'chip--' + statusTone(row.status)">
+                  {{ statusLabel(row.status) }}
+                </span>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+
+      <!-- The receipt. -->
+      <div class="detail">
+        @if (!selected()) {
+          <p class="detail__hint acva-para-1 text-neutral-500">
+            Choose a payment to see its receipt.
+          </p>
+        } @else if (!selected()!.receiptAvailable) {
+          <!-- Not an error state: an attempt that never completed is a real
+               thing that happened, and the student needs to know it did. -->
+          <div class="detail__notice">
+            <p class="acva-para-2 fw-500 m-0">No receipt for this attempt</p>
+            <p class="acva-para-1 text-neutral-500">
+              This payment is marked
+              <strong>{{ statusLabel(selected()!.status) }}</strong>, so there
+              is nothing to certify yet. If money did leave your account for
+              it, quote reference
+              <strong>{{ selected()!.reference }}</strong> to support rather
+              than paying again.
+            </p>
+          </div>
+        } @else if (receiptLoading()) {
+          <app-skeleton width="100%" height="100%" />
+        } @else if (receipt()) {
+          <div class="detail__bar">
+            <div>
+              <p class="acva-para-1 fw-500 m-0">{{ receipt()!.item.name }}</p>
+              <p class="acva-caption text-neutral-500 m-0">
+                {{ money(receipt()!.amount) }} ·
+                {{ shortDate(receipt()!.paidAt) }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="downloading()"
+              (click)="download()"
+            >
+              {{ downloading() ? 'Preparing…' : 'Download receipt' }}
+            </button>
+          </div>
+
+          @if (previewUrl()) {
+            <iframe
+              class="detail__preview"
+              title="Receipt preview"
+              [src]="previewUrl()"
+            ></iframe>
+          } @else {
+            <p class="detail__hint acva-para-1 text-neutral-500">
+              The preview could not be shown here, but the receipt will still
+              download.
+            </p>
+          }
+        }
+      </div>
+    </div>
+  }
+</section>

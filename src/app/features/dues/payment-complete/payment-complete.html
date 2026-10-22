@@ -1,0 +1,62 @@
+<section class="complete">
+  @if (checking()) {
+    <div class="card">
+      <app-skeleton width="60%" height="1.75rem" />
+      <app-skeleton width="100%" height="1rem" />
+      <app-skeleton width="80%" height="1rem" />
+    </div>
+  } @else if (failed()) {
+    <!-- The server would not confirm it. Saying "paid" here on the strength
+         of a redirect would be the one lie this page must not tell. -->
+    <div class="card">
+      <h1 class="acva-para-3 fw-500 m-0">We could not confirm that payment</h1>
+      <p class="acva-para-1 text-neutral-500">
+        Your bank may still have taken the money. Do not pay again — check
+        your payments first, and quote
+        <strong>{{ reference() }}</strong> to support if it is missing.
+      </p>
+      <div class="actions">
+        <button type="button" class="btn btn--primary" (click)="verify()">
+          Check again
+        </button>
+        <a class="btn btn--ghost" routerLink="/payment-history">My payments</a>
+      </div>
+    </div>
+  } @else if (settled()) {
+    <div class="card card--ok">
+      <p class="eyebrow acva-caption">Payment confirmed</p>
+      <h1 class="amount">{{ money(payment()?.amount) }}</h1>
+      <p class="acva-para-1 text-neutral-500">
+        Reference <strong>{{ payment()!.reference }}</strong>
+      </p>
+
+      <div class="actions">
+        @if (isTranscript()) {
+          <a class="btn btn--primary" routerLink="/results">
+            Download your academic record
+          </a>
+        } @else {
+          <a class="btn btn--primary" routerLink="/dues">Back to my dues</a>
+        }
+        <a class="btn btn--ghost" routerLink="/payment-history">Get a receipt</a>
+      </div>
+    </div>
+  } @else {
+    <!-- Paystack has the payment but our webhook has not landed yet. This is
+         normal and brief; telling the student it failed would be wrong. -->
+    <div class="card">
+      <h1 class="acva-para-3 fw-500 m-0">Still confirming your payment</h1>
+      <p class="acva-para-1 text-neutral-500">
+        Your bank has been contacted and we are waiting for confirmation.
+        This usually takes a few seconds. Do not pay again — reference
+        <strong>{{ reference() }}</strong>.
+      </p>
+      <div class="actions">
+        <button type="button" class="btn btn--primary" (click)="verify()">
+          Check again
+        </button>
+        <a class="btn btn--ghost" routerLink="/payment-history">My payments</a>
+      </div>
+    </div>
+  }
+</section>
