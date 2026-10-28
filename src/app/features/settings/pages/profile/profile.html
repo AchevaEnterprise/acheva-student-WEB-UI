@@ -21,8 +21,8 @@
 
 @if (loading()) {
   <div class="bg-gray-200 rounded-lg p-4 mt-8">
-    <div class="grid grid-cols-3 gap-4">
-      @for (card of [1, 2, 3, 4, 5, 6]; track card) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      @for (card of [1, 2]; track card) {
         <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
           <div class="flex-1">
             <app-skeleton width="70%" height="0.8rem" />
@@ -35,7 +35,7 @@
   </div>
 } @else {
   <div class="bg-gray-200 rounded-lg p-4 mt-8">
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
         <div>
           <p class="text-[.8rem]">Courses Enrolled</p>
@@ -47,7 +47,7 @@
 
       <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
         <div>
-          <p class="text-[.8rem]">Cummulative Grade Point Average (CGPA)</p>
+          <p class="text-[.8rem]">Cumulative Grade Point Average (CGPA)</p>
           <h3 class="font-semibold acva-heading-4">
             {{ (profile()?.cgpa | number: '1.2-2') || 0.0 }}
           </h3>
@@ -60,46 +60,36 @@
         />
       </div>
 
-      <div class="flex items-center justify-between gap-4 bg-white rounded-[12px] p-4">
-        <div>
-          <p class="text-[.8rem]">Departmental Dues</p>
-          <h3 class="font-semibold acva-heading-4">{{ profile()?.departmentalDues || 0 }}</h3>
-        </div>
-
-        <app-svg
-          src="icons/general/departmental-due-icon.svg"
-          [svgWidth]="'2rem'"
-          [svgHeight]="'3rem'"
-        />
-      </div>
+      <!-- No "Departmental Dues" card: the profile API hard-codes 0, so it
+           read "0" for a student owing ₦37,500. The Dues page is the source. -->
     </div>
 
     <div class="mt-4 grid gap-4 bg-white rounded-[12px] p-4">
-      <p class="acva-para-1 flex justify-between">
+      <p class="acva-para-1 flex justify-between gap-4">
         <span>Full name</span>
         <span class="font-medium">{{ profile()?.student?.fullName | titlecase }}</span>
       </p>
-      <p class="acva-para-1 flex justify-between">
+      <p class="acva-para-1 flex justify-between gap-4">
         <span>Registration Number</span>
         <span class="font-medium">{{ profile()?.student?.registrationNumber }}</span>
       </p>
-      <p class="acva-para-1 flex justify-between">
+      <p class="acva-para-1 flex justify-between gap-4">
         <span>Course Adviser</span>
-        <span class="font-medium">{{ profile()?.courseAdviserName | titlecase }}</span>
+        <span class="font-medium">{{
+          (profile()?.courseAdviserName | titlecase) || 'Not assigned yet'
+        }}</span>
       </p>
-      <p class="acva-para-1 flex justify-between">
+      <p class="acva-para-1 flex justify-between gap-4">
         <span>Current Level</span>
         <span class="font-medium">{{ profile()?.student?.level }}</span>
       </p>
-      <p class="acva-para-1 flex justify-between">
-        <span>Current Session</span>
-        <span class="font-medium">{{ profile()?.student?.session }}</span>
+      <p class="acva-para-1 flex justify-between gap-4">
+        <!-- This is the session they were admitted in, not the current one;
+             the hard-coded "Current Semester: 1st Semester" row is gone. -->
+        <span>Admission Session</span>
+        <span class="font-medium">{{ profile()?.student?.session || '—' }}</span>
       </p>
-      <p class="acva-para-1 flex justify-between">
-        <span>Current Semester</span>
-        <span class="font-medium">1st Semester</span>
-      </p>
-      <p class="acva-para-1 flex justify-between">
+      <p class="acva-para-1 flex justify-between gap-4">
         <span>Joined Date</span>
         <span class="font-medium">{{ profile()?.student?.createdAt | date: 'mediumDate' }}</span>
       </p>

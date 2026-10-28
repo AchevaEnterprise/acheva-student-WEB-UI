@@ -1,3 +1,4 @@
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -26,7 +27,10 @@ import { UtilityService } from '../../../../core/utility/utility.service';
 import { Button } from '../../../../shared/form/button/button';
 import { Svg } from '../../../../shared/svg/svg';
 import { AuthBanner } from '../../components/auth-banner/auth-banner';
-import { PasswordValidity } from '../../components/password-validity/password-validity';
+import {
+  PasswordValidity,
+  STRONG_PASSWORD,
+} from '../../components/password-validity/password-validity';
 import { ISignUp } from '../../models/auth.model';
 import { AuthenticationService } from '../../services/auth.service';
 
@@ -114,7 +118,7 @@ export class SignUp implements OnInit, OnDestroy {
     department: new FormControl(null, Validators.required),
     admissionYear: new FormControl(null, Validators.required),
     level: new FormControl(null, Validators.required),
-    password: new FormControl(null, Validators.required),
+    password: new FormControl(null, [Validators.required, Validators.pattern(STRONG_PASSWORD)]),
     confirm_password: new FormControl(null, Validators.required),
   });
 
@@ -236,6 +240,8 @@ export class SignUp implements OnInit, OnDestroy {
   }
 
   submitForm() {
+    // A double-click lands both clicks before the button re-renders disabled.
+    if (this.isLoading()) return;
     const {
       fullname,
       email,
@@ -290,14 +296,20 @@ export class SignUp implements OnInit, OnDestroy {
               this.toast.showNotification(
                 'success',
                 'Account Created',
-                'Your account was created successfully'
+                'Enter the code we sent to your email to finish.'
               );
+              // `email` too: the confirm page's "Resend" needs it, and
+              // without it the resend request was sent with no address.
               this.router.navigate(['/auth/confirm-email'], {
-                queryParams: { accountId: (res.data as { _id: string })._id },
+                queryParams: { accountId: (res.data as { _id: string })._id, email },
               });
             }
           },
-          error: (err) => {
+          error: (err: HttpErrorResponse) => {
+            // 400/403/404/429/5xx already raise a toast in the error
+            // interceptor; repeating it here replaced that one with raw
+            // server text ("ThrottlerException: Too Many Requests").
+            if (err.status !== HttpStatusCode.Conflict) return;
             this.toast.showNotification(
               'error',
               'Account Creation Failed',

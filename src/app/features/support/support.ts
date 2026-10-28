@@ -12,6 +12,7 @@ import { ToastService } from '../../core/utility/toast.service';
 import { ChatThread } from '../messages/components/chat-thread/chat-thread';
 import { IConversationSummary, IMessage, IStreamEvent } from '../messages/models/messaging.model';
 import { MessagingService } from '../messages/services/messaging.service';
+import { sendFailureText } from '../messages/utils/send-failure';
 
 /**
  * Support — one thread with the Acheva desk.
@@ -139,15 +140,11 @@ export class Support implements OnInit {
       .subscribe({
         next: (resp) =>
           this.messages.update((rows) => rows.map((row) => (row.id === localId ? resp.data : row))),
-        error: () => {
+        error: (err: unknown) => {
           this.messages.update((rows) =>
             rows.map((row) => (row.id === localId ? { ...row, pending: false, failed: true } : row))
           );
-          this.toast.showNotification(
-            'error',
-            'Not sent',
-            'That message did not go through. Check your connection and try again.'
-          );
+          this.toast.showNotification('error', 'Not sent', sendFailureText(err));
         },
       });
   }

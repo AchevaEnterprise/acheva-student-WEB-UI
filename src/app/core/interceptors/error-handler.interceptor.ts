@@ -99,7 +99,17 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === HttpStatusCode.BadRequest) {
-        toast.showNotification('error', 'Error Occured', error.error.message);
+        toast.showNotification('error', 'Error Occurred', error.error.message);
+      }
+
+      // Sign-in, sign-up and reset are rate-limited. Without this the button
+      // simply stopped spinning and nothing said why.
+      if (error.status === HttpStatusCode.TooManyRequests) {
+        toast.showNotification(
+          'warning',
+          'Too many attempts',
+          'Please wait a minute, then try again.'
+        );
       }
 
       if (error.status === HttpStatusCode.NotFound) {
@@ -110,12 +120,13 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
+      // Never echo a 500's text: the server answers "Internal Server Error",
+      // which tells a student nothing they can act on.
       if (error.status === HttpStatusCode.InternalServerError) {
         toast.showNotification(
           'error',
-          'Internal Server Error',
-          error.error.message ||
-            'An error occurred while processing your request. Please try again later.'
+          'Something went wrong',
+          'We could not complete that. Please try again in a moment.'
         );
       }
 

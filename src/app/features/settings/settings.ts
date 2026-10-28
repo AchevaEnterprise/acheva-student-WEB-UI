@@ -27,14 +27,14 @@ export class Settings {
     //   inactive_icon: 'icons/general/inactive-bell-settings-icon.svg',
     //   isActive: false,
     // },
-    // {
-    //   label: 'Security',
-    //   description: 'Change password',
-    //   route: 'security',
-    //   active_icon: 'icons/general/inactive-security-settings-icon.svg',
-    //   inactive_icon: 'icons/general/inactive-security-settings-icon.svg',
-    //   isActive: false,
-    // },
+    {
+      label: 'Security',
+      description: 'Reset your password',
+      route: 'security',
+      active_icon: 'icons/general/inactive-security-settings-icon.svg',
+      inactive_icon: 'icons/general/inactive-security-settings-icon.svg',
+      isActive: false,
+    },
     // {
     //   label: 'Signature',
     //   description: 'Change password',

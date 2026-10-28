@@ -17,7 +17,7 @@
     @if (results().length > 0) {
       <header class="text-center">
         <h2 class="font-semibold text-[1.5rem]">
-          DEPARTMENT OF {{ resultData().department | uppercase }}
+          {{ resultData().department | uppercase }}
         </h2>
         <h4 class="font-medium text-[1rem]">{{ resultData().faculty | uppercase }}</h4>
         <h5 class="font-medium text-[1rem]">{{ resultData().school | uppercase }}</h5>
@@ -30,50 +30,60 @@
         <p>{{ semester() }}</p>
       </div>
 
-      <table class="w-full text-center">
-        <thead class="border-t-[1px] border-b-[1px] border-gray-400">
-          <tr>
-            <th>COURSE CODE</th>
-            <th>TEST</th>
-            <th>LAB</th>
-            <th>EXAM</th>
-            <th>TOTAL</th>
-            <th>FINAL GRADE</th>
-            <th>STATUS</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (result of results(); track result) {
+      <!-- Seven columns do not fit a phone: scroll the table, not the page. -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-center">
+          <thead class="border-t-[1px] border-b-[1px] border-gray-400">
             <tr>
-              <td>{{ result.courseCode }}</td>
-              <td>{{ result.test }}</td>
-              <td>{{ result.lab }}</td>
-              <td>{{ result.exam }}</td>
-              <td>{{ result.total }}</td>
-              <td>{{ result.grade }}</td>
-              <td class="flex justify-center items-center gap-2">
-                <app-status-badge [status]="result.status" />
-                @if (result.awaitingRegistrationDecision) {
-                  <span
-                    class="pending-registration"
-                    title="You were not registered for this course. Your Course Advisor must confirm the registration before this score counts toward your CGPA."
-                  >
-                    PENDING CA
-                  </span>
-                }
-              </td>
+              <th>COURSE CODE</th>
+              <th>TEST</th>
+              <th>LAB</th>
+              <th>EXAM</th>
+              <th>TOTAL</th>
+              <th>FINAL GRADE</th>
+              <th>STATUS</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (result of results(); track result) {
+              <tr>
+                <td>{{ result.courseCode }}</td>
+                <td>{{ result.test }}</td>
+                <td>{{ result.lab }}</td>
+                <td>{{ result.exam }}</td>
+                <td>{{ result.total }}</td>
+                <td>{{ result.grade }}</td>
+                <td class="flex flex-wrap justify-center items-center gap-2">
+                  <app-status-badge [status]="result.status" />
+                  @if (result.moderated) {
+                    <span
+                      class="moderated-chip"
+                      title="This score was replaced through the moderation workflow"
+                    >
+                      MODERATED
+                    </span>
+                  }
+                  @if (result.awaitingRegistrationDecision) {
+                    <span
+                      class="pending-registration"
+                      title="You were not registered for this course. Your Course Advisor must confirm the registration before this score counts toward your CGPA."
+                    >
+                      PENDING CA
+                    </span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
       @if (hasPendingRegistration()) {
         <p class="pending-registration__note acva-caption mt-4">
           <strong>Pending confirmation from your Course Advisor.</strong>
-          You have a score for a course you were not registered for. It is
-          shown here in full, but does not count toward your CGPA until your
-          Course Advisor confirms the registration. Contact them if this looks
-          wrong.
+          You have a score for a course you were not registered for. It is shown here in full, but
+          does not count toward your CGPA until your Course Advisor confirms the registration.
+          Contact them if this looks wrong.
         </p>
       }
 

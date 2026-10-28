@@ -19,27 +19,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
       },
       {
-        path: 'notifications',
-        data: {
-          title: 'Settings',
-        },
-        loadComponent: () =>
-          import('./pages/notifications/notifications').then((m) => m.Notifications),
-      },
-      {
         path: 'security',
         data: {
           title: 'Settings',
         },
         loadComponent: () => import('./pages/security/security').then((m) => m.Security),
       },
-      {
-        path: 'signature',
-        data: {
-          title: 'Settings',
-        },
-        loadComponent: () => import('./pages/signature/signature').then((m) => m.Signature),
-      },
+      // notifications / signature are unbuilt stubs and absent from the menu,
+      // so they are not routed. A deep link falls through to the dashboard.
     ],
   },
 ];

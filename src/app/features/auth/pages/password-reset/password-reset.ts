@@ -8,6 +8,7 @@ import { Button } from '../../../../shared/form/button/button';
 import { Svg } from '../../../../shared/svg/svg';
 import { SvgBackground } from '../../components/svg-background/svg-background';
 import { AuthenticationService } from '../../services/auth.service';
+import { ToastService } from '../../../../core/utility/toast.service';
 
 @Component({
   selector: 'app-password-reset',
@@ -26,6 +27,7 @@ import { AuthenticationService } from '../../services/auth.service';
 export class PasswordReset implements OnDestroy {
   private readonly authService = inject(AuthenticationService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   isLoading = signal(false);
   private readonly sub: Subscription = new Subscription();
@@ -44,6 +46,13 @@ export class PasswordReset implements OnDestroy {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (res) => {
+            // It used to move on in silence, leaving the student to guess
+            // that a code had been emailed.
+            this.toast.showNotification(
+              'success',
+              'Check your email',
+              'If that address has an account, a 6-digit code is on its way. Enter it below.'
+            );
             /**
              * Straight to the page that actually resets the password.
              *

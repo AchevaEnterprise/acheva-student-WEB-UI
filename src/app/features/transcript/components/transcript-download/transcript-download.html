@@ -2,7 +2,7 @@
   <app-button
     [label]="label"
     type="outline"
-    class="btn-sm w-full"
+    class="btn-sm btn-wrap w-full"
     [loading]="downloading() || starting()"
     [disabled]="downloading() || starting() || !ready()"
     (clickEvent)="act()"

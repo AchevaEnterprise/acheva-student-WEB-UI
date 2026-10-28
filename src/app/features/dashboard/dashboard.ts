@@ -33,6 +33,8 @@ import { AppState } from '../../core/store/app.state';
 import { notificationSelector } from '../../core/store/notification/notification.selector';
 import { selectProfile } from '../../core/store/profile/profile.selector';
 import { Button } from '../../shared/form/button/button';
+import { formatNaira } from '../../core/naira';
+import { DuesService } from '../dues/services/dues.service';
 import { ISegmentSwitcher } from '../../shared/segment-switcher/segment-switcher';
 import { Activity } from './components/activity/activity';
 
@@ -68,6 +70,7 @@ export class Dashboard implements OnInit {
   private readonly router = inject(Router);
   private readonly store = inject(Store<AppState>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly duesService = inject(DuesService);
 
   analtyics = signal<IAnalytics[]>([
     {
@@ -78,9 +81,9 @@ export class Dashboard implements OnInit {
     },
     {
       label: 'Departmental Dues',
-      count: 0,
+      count: '—',
       iconSrc: 'icons/general/departmental-due-icon.svg',
-      infoLabel: 'Results published by the CA',
+      infoLabel: 'Still outstanding this session',
     },
   ]);
 
@@ -95,8 +98,10 @@ export class Dashboard implements OnInit {
     'actions',
   ];
   dataSource = signal<unknown[]>([]);
-  hasPaidDues = signal<boolean>(false);
+  /** Formatted outstanding dues for the active session; null when nothing is owed. */
+  duesOutstanding = signal<string | null>(null);
   session = signal<string>('');
+  duesSession = signal<string>('');
   cgpa = signal<number>(0);
 
   semesterOptions = signal<{ label: string; value: string }[]>([
@@ -210,29 +215,35 @@ export class Dashboard implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resp) => {
-          const { results, departmentalDues, hasPaidDues } = resp.data;
-
-          this.hasPaidDues.set(hasPaidDues);
-          const updatedAnalytics = this.analtyics().map((analytics: IAnalytics) => {
-            let count = analytics.count;
-
-            if (analytics.label === 'Results') {
-              count = results;
-            } else if (analytics.label === 'Departmental Dues') {
-              count = departmentalDues;
-            }
-
-            return {
-              ...analytics,
-              count,
-            };
-          });
-
-          this.analtyics.set(updatedAnalytics);
+          const { results } = resp.data;
+          this.setCard('Results', results);
         },
         complete: () => this.loadingAnalytics.set(false),
         error: () => this.loadingAnalytics.set(false),
       });
+
+    // Dues come from the dues ledger itself. `/students/analytics` hard-codes
+    // `departmentalDues: 0, hasPaidDues: false`, so every student — paid or
+    // not — saw "₦0" and a red "pay your dues to access your results" (results
+    // are not gated by dues at all).
+    this.duesService
+      .standing()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => {
+          const outstanding = resp.data.standing?.outstandingKobo ?? 0;
+          this.setCard('Departmental Dues', resp.data.standing ? formatNaira(outstanding) : '—');
+          this.duesSession.set(resp.data.activeSession);
+          this.duesOutstanding.set(outstanding > 0 ? formatNaira(outstanding) : null);
+        },
+        error: () => undefined,
+      });
+  }
+
+  private setCard(label: string, count: number | string) {
+    this.analtyics.update((cards: IAnalytics[]) =>
+      cards.map((card) => (card.label === label ? { ...card, count } : card))
+    );
   }
 
   getPerformance(semester?: SemesterEnum) {
@@ -267,7 +278,7 @@ export class Dashboard implements OnInit {
   }
 
   payResultFee() {
-    this.router.navigate(['/payment-history']);
+    this.router.navigate(['/dues']);
   }
 
   getActivities() {

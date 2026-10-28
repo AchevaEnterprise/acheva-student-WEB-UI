@@ -9,10 +9,10 @@
     <p class="acva-para- text-neutral-500">CGPA: {{ cgpa() }}</p>
   </div>
 
-  @if (!hasPaidDues()) {
+  @if (duesOutstanding()) {
     <div class="flex gap-4 flex-wrap justify-between items-center mt-8 mb-4">
       <p class="text-red-400">
-        Kindly pay departmental dues of {{ session() }} to access your results
+        You have {{ duesOutstanding() }} of departmental dues outstanding for {{ duesSession() }}.
       </p>
       <app-button label="Pay Now" class="btn-sm" (clickEvent)="payResultFee()" />
     </div>

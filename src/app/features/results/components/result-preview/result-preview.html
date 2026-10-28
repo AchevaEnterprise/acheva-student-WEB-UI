@@ -1,48 +1,43 @@
 <div class="grid place-content-center h-full w-full bg-white overflow-hidden">
   <div class="min-w-[22vw] px-4 overflow-y-auto h-[85vh]">
     <header class="text-center grid place-content-center mb-10">
-      {{
-        studentResults()?.firstSemsterResult && studentResults()?.secondSemesterResult
-          ? 2
-          : studentResults()?.firstSemsterResult
-            ? 1
-            : 0
-      }}
-      Pages
+      {{ pageCount() }} {{ pageCount() === 1 ? 'Page' : 'Pages' }}
     </header>
 
-    @if (studentResults()?.firstSemsterResult) {
+    @if (hasFirst()) {
       <div
         (click)="viewResult(studentResults()?.firstSemsterResult!, SemesterEnum.FIRST)"
         (keydown)="viewResult(studentResults()?.firstSemsterResult!, SemesterEnum.FIRST)"
         tabindex="0"
         class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
-        [class.inactive]="currentSemester !== SemesterEnum.FIRST"
-        [class.bg-blue-200]="currentSemester === SemesterEnum.FIRST"
+        [class.inactive]="semester() !== SemesterEnum.FIRST"
+        [class.bg-blue-200]="semester() === SemesterEnum.FIRST"
       >
-        <img src="images/general/result-preview.png" alt="Result Preview" />
+        <img src="images/general/result-preview.png" alt="1st semester result" />
       </div>
+      <p class="acva-caption text-center text-neutral-500 mt-2">1st Semester</p>
 
       <mat-divider class="!my-4" />
     }
 
-    @if (studentResults()?.secondSemesterResult) {
+    @if (hasSecond()) {
       <div
         (click)="viewResult(studentResults()?.secondSemesterResult!, SemesterEnum.SECOND)"
         (keydown)="viewResult(studentResults()?.secondSemesterResult!, SemesterEnum.SECOND)"
         tabindex="0"
         class="border-[1px] border-gray-200 w-[50%] mx-auto hover:bg-blue-100 p-4 cursor-pointer"
-        [class.inactive]="currentSemester !== SemesterEnum.SECOND"
-        [class.bg-blue-200]="currentSemester === SemesterEnum.SECOND"
+        [class.inactive]="semester() !== SemesterEnum.SECOND"
+        [class.bg-blue-200]="semester() === SemesterEnum.SECOND"
       >
-        <img src="images/general/result-preview.png" alt="Result Preview" />
+        <img src="images/general/result-preview.png" alt="2nd semester result" />
       </div>
+      <p class="acva-caption text-center text-neutral-500 mt-2">2nd Semester</p>
 
       <mat-divider class="!my-4" />
     }
   </div>
 
-  @if (!studentResults()?.firstSemsterResult && !studentResults()?.secondSemesterResult) {
+  @if (pageCount() === 0) {
     <app-empty-state description="Note: Your semester result previews would appear here" />
   }
 </div>

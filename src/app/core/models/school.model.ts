@@ -35,7 +35,8 @@ export enum SemesterEnum {
 
 export interface IAnalytics {
   label: string;
-  count: number;
+  /** A count, or a pre-formatted amount such as "₦12,500.00". */
+  count: number | string;
   iconSrc: string;
   infoLabel: string;
 }

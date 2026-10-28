@@ -8,7 +8,10 @@ import { debounceTime, finalize, Subscription } from 'rxjs';
 import { ToastService } from '../../../../core/utility/toast.service';
 import { Button } from '../../../../shared/form/button/button';
 import { Svg } from '../../../../shared/svg/svg';
-import { PasswordValidity } from '../../components/password-validity/password-validity';
+import {
+  PasswordValidity,
+  STRONG_PASSWORD,
+} from '../../components/password-validity/password-validity';
 import { SvgBackground } from '../../components/svg-background/svg-background';
 import { IResetPassword } from '../../models/auth.model';
 import { AuthenticationService } from '../../services/auth.service';
@@ -45,7 +48,7 @@ export class CreateNewPassword implements OnInit, OnDestroy {
     // The six-digit code from the email. It was missing entirely, so the
     // request had nothing to prove the person owns the mailbox.
     token: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required),
+    password: new FormControl('', [Validators.required, Validators.pattern(STRONG_PASSWORD)]),
     confirm_password: new FormControl('', Validators.required),
   });
 
@@ -121,6 +124,16 @@ export class CreateNewPassword implements OnInit, OnDestroy {
 
               this.router.navigate(['/auth/login']);
             }
+          },
+          error: (err: { status?: number }) => {
+            // The server's wording ("email token is invalid…", under an
+            // "Unauthorized" title) means nothing to a student holding a code.
+            if (err.status !== 403) return;
+            this.toast.showNotification(
+              'error',
+              'Code not accepted',
+              'That code is wrong or has expired. Check the latest email, or request a new code.'
+            );
           },
         })
     );

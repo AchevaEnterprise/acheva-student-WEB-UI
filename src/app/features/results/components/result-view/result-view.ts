@@ -15,6 +15,17 @@ interface ResultViewData {
   faculty: string;
   registrationNumber: string;
 }
+/**
+ * "Mathematics Department" → "Department of Mathematics". The template used
+ * to prefix "DEPARTMENT OF" to a name that already ends in "Department",
+ * printing "DEPARTMENT OF MATHEMATICS DEPARTMENT".
+ */
+function departmentHeading(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed || /^department\b/i.test(trimmed)) return trimmed;
+  return `Department of ${trimmed.replace(/\s+department$/i, '')}`;
+}
+
 @Component({
   selector: 'app-result-view',
   imports: [StatusBadge, EmptyState, UppercasePipe, CommonModule, Skeleton],
@@ -40,7 +51,7 @@ export class ResultView {
 
     return {
       fullName: fullName ?? '',
-      department: department?.name ?? '',
+      department: departmentHeading(department?.name ?? ''),
       faculty: faculty?.name ?? '',
       registrationNumber: registrationNumber ?? '',
       school: school?.name ?? '',
