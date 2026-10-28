@@ -31,3 +31,18 @@ th {
     text-align: left;
   }
 }
+
+// Same meaning as the staff portal's MODERATED chip, in brand blue.
+.moderated-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: #2793ff;
+  border: 1px solid #7bf;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: help;
+}

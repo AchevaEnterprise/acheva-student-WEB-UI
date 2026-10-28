@@ -1,1 +1,14 @@
-<p>security works!</p>
+<section class="security">
+  <h2 class="acva-heading-6 fw-500">Password</h2>
+  <p class="acva-para-1 text-neutral-500">
+    We will email a 6-digit code to <span class="fw-500">{{ email }}</span>. Enter it with your
+    new password to finish. You will be signed out on your other devices.
+  </p>
+  <app-button
+    class="btn-md"
+    label="Reset my password"
+    [loading]="sending()"
+    [disabled]="!email"
+    (clickEvent)="startReset()"
+  />
+</section>

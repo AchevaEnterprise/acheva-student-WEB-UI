@@ -41,6 +41,23 @@
         <a class="btn btn--ghost" routerLink="/payment-history">Get a receipt</a>
       </div>
     </div>
+  } @else if (notCompleted()) {
+    <div class="card">
+      <h1 class="acva-para-3 fw-500 m-0">This payment did not go through</h1>
+      <p class="acva-para-1 text-neutral-500">
+        Paystack reports that payment <strong>{{ reference() }}</strong> was not
+        completed, so you can try again. If your bank shows a debit for it,
+        contact support with that reference before paying again.
+      </p>
+      <div class="actions">
+        @if (isTranscript()) {
+          <a class="btn btn--primary" routerLink="/results">Try again</a>
+        } @else {
+          <a class="btn btn--primary" routerLink="/dues">Try again</a>
+        }
+        <a class="btn btn--ghost" routerLink="/payment-history">My payments</a>
+      </div>
+    </div>
   } @else {
     <!-- Paystack has the payment but our webhook has not landed yet. This is
          normal and brief; telling the student it failed would be wrong. -->

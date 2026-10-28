@@ -6,9 +6,10 @@ p {
   width: fit-content;
   background-color: #dcdcdc33;
 
+  // Brand blue, not green (green is off-brand across Acheva).
   &.pass {
-    color: #06a561;
-    background-color: #34c75933;
+    color: #1f74d1;
+    background-color: #2793ff1f;
   }
 
   &.fail {

@@ -54,6 +54,8 @@ export interface IResult {
    * result reads as a bug; a labelled one reads as a pending step.
    */
   awaitingRegistrationDecision?: boolean;
+  /** The score was replaced through the moderation workflow (always a pass at E). */
+  moderated?: boolean;
 }
 
 export interface IResultEntry {

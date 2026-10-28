@@ -22,6 +22,7 @@ import {
 import { MessagingService } from './services/messaging.service';
 import { listTimestamp } from './utils/message-day';
 import { readablePreview } from './utils/readable-text';
+import { sendFailureText } from './utils/send-failure';
 
 /**
  * Messages, as a student sees them.
@@ -237,17 +238,13 @@ export class Messages implements OnInit {
           this.messages.update((rows) => rows.map((row) => (row.id === localId ? resp.data : row)));
           this.bumpConversation(conversation.id, body);
         },
-        error: () => {
+        error: (err: unknown) => {
           // Kept and marked, never dropped: losing what somebody typed is
           // worse than showing them it did not send.
           this.messages.update((rows) =>
             rows.map((row) => (row.id === localId ? { ...row, pending: false, failed: true } : row))
           );
-          this.toast.showNotification(
-            'error',
-            'Not sent',
-            'That message did not go through. Check your connection and try again.'
-          );
+          this.toast.showNotification('error', 'Not sent', sendFailureText(err));
         },
       });
   }

@@ -1,4 +1,4 @@
-<div class="h-[5rem] border-b-[1px] border-b-[#D2D1D1] flex justify-between items-center px-[2rem]">
+<div class="h-[5rem] border-b-[1px] border-b-[#D2D1D1] flex justify-between items-center gap-4 px-4 sm:px-[2rem]">
   <div>
     @if (breadcrumbs().length > 0) {
       <div class="flex items-center gap-2 text-sm mb-1">
@@ -36,7 +36,9 @@
         class="w-8 h-8 aspect-square object-cover rounded-full"
       />
 
-      <div>
+      <!-- Hidden on phones: the name and department wrapped to four lines
+           and spilled out of the fixed-height bar. -->
+      <div class="hidden sm:block">
         <p class="font-medium">
           {{ activeAccount()?.fullName | titlecase }}
         </p>

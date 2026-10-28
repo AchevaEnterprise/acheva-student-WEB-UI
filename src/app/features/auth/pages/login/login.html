@@ -1,10 +1,9 @@
 <div id="container">
   <app-auth-banner
     class="banner-section"
-    title="Effortless Grading, Accurate Reporting"
-    description="Enhance educational outcomes by leveraging Acheva's
-    innovative features for accurate grading, detailed analytics,
-    and streamlined reporting."
+    title="Your Results, Wherever You Are"
+    description="See your results, GPA and CGPA the moment they are published,
+    register your courses and pay your departmental dues, all in one place."
   />
 
   <form [formGroup]="form" class="login-wrapper md:w-full">
@@ -19,11 +18,10 @@
     </div>
 
     <div class="form-section-wrapper">
-      <div class="text-center">
-        <p class="acva-para-1 text-neutral-500">Welcome Back</p>
-        <p class="acva-heading-3 fw-600">Login</p>
+      <div class="login-header text-center">
+        <p class="acva-heading-3 fw-400">Student Login</p>
         <p class="acva-para-1 text-neutral-500">
-          Access your dashboard by logging in below
+          Sign in to see your results, register courses and pay dues
         </p>
       </div>
 
@@ -101,6 +99,11 @@
       <p class="acva-para-1 place-self-center">
         Don’t have an Account?
         <a class="text-blue-400" routerLink="../create-account">Sign Up</a>
+      </p>
+
+      <p class="other-portal acva-para-1 text-neutral-500">
+        Lecturer or staff member? Sign in on the Acheva staff portal
+        instead.
       </p>
     </div>
   </form>

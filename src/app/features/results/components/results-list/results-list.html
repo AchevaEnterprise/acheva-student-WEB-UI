@@ -40,7 +40,13 @@
 
             <div>
               <h5 class="font-semibold">{{ session.level }}</h5>
-              <p class="text-[.9rem]">{{ session.session }} Academic Session</p>
+              <!-- A level with no results has no session of its own; it used to
+                   borrow the student's admission session ("400 · 2022/2023"). -->
+              @if (session.active) {
+                <p class="text-[.9rem]">{{ session.session }} Academic Session</p>
+              } @else {
+                <p class="text-[.9rem]">No results yet</p>
+              }
             </div>
           </li>
         }

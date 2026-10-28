@@ -76,13 +76,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('../features/payment-history/payment-history').then((m) => m.PaymentHistory),
       },
-      {
-        path: 'faq',
-        data: {
-          title: 'FAQs',
-        },
-        loadComponent: () => import('../features/faq/faq').then((m) => m.Faq),
-      },
+      // `/faq` is not routed: the page is an unbuilt stub ("faq works!") and is
+      // not in the menu. A deep link now falls through to the dashboard.
       {
         path: 'messages',
         data: {

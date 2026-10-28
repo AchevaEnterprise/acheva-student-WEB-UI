@@ -143,10 +143,13 @@ export class Dues implements OnInit {
         },
         error: (err) => {
           this.starting.set(null);
+          // A 5xx carries "Internal Server Error" — not something to show.
+          const serverFault = (err?.status ?? 0) >= 500;
           this.toast.showNotification(
             'error',
             'Could not start the payment',
-            err?.error?.message ?? 'Please try again in a moment.'
+            (!serverFault && err?.error?.message) ||
+              'The payment page could not be opened. Nothing was charged — please try again in a moment.'
           );
         },
       });

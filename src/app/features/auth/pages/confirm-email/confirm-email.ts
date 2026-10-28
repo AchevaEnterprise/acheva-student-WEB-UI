@@ -56,6 +56,17 @@ export class ConfirmEmail implements OnDestroy {
               this.toast.showNotification('error', 'Code Verification Failed', res.message);
             }
           },
+          // Without a handler the error also surfaced as an uncaught console
+          // error; and the server's wording ("email token is invalid…",
+          // titled "Unauthorized") means nothing to a student holding a code.
+          error: (err: { status?: number }) => {
+            if (err.status !== 403) return;
+            this.toast.showNotification(
+              'error',
+              'Code not accepted',
+              'That code is wrong or has expired. Check the latest email, or tap Resend.'
+            );
+          },
         })
     );
   }

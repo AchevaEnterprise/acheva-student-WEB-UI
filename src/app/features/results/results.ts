@@ -50,15 +50,22 @@ export class Results {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: ([firstSemesterResult, secondSemesterResult]) => {
-          const { gpa, results } = firstSemesterResult.data;
-          this.GPA.set(gpa);
-          this.preview.set(results);
+          // Open on the semester that has results: a level published only
+          // for the 2nd semester used to open on an empty 1st-semester sheet
+          // ("No records exist…"), and the semester label kept whatever the
+          // previous level had shown.
+          const openSecond =
+            !firstSemesterResult.data.results?.length &&
+            !!secondSemesterResult.data.results?.length;
+          const shown = openSecond ? secondSemesterResult.data : firstSemesterResult.data;
+          this.GPA.set(shown.gpa);
+          this.preview.set(shown.results);
+          this.semester.set(openSecond ? SemesterEnum.SECOND : SemesterEnum.FIRST);
 
-          this.results.update((results) => {
-            results.firstSemsterResult = firstSemesterResult.data;
-            results.secondSemesterResult = secondSemesterResult.data;
-
-            return results;
+          // A new object, so the preview panel (an input) sees the change.
+          this.results.set({
+            firstSemsterResult: firstSemesterResult.data,
+            secondSemesterResult: secondSemesterResult.data,
           });
         },
       });

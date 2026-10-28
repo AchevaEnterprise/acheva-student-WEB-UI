@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.security {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 36rem;
+}

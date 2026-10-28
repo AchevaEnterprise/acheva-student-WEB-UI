@@ -59,6 +59,14 @@ export class PaymentComplete implements OnInit {
   readonly reference = computed(() => this.route.snapshot.queryParamMap.get('reference') ?? '');
 
   readonly settled = computed(() => this.payment()?.status === 'COMPLETED');
+  /**
+   * Paystack said no (declined, abandoned, cancelled). These fell into the
+   * "Still confirming… do not pay again" branch, telling a student whose
+   * payment had failed to wait for it and not retry.
+   */
+  readonly notCompleted = computed(() =>
+    ['FAILED', 'CANCELLED', 'REJECTED'].includes(this.payment()?.status ?? '')
+  );
   readonly isTranscript = computed(() => this.payment()?.purpose === 'TRANSCRIPT');
 
   ngOnInit(): void {

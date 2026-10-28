@@ -48,8 +48,16 @@ export class AuthenticationService {
   public get isAuthenticated(): boolean {
     const token = this.getToken;
 
-    if (token && !this.jwtHelper.isTokenExpired(token)) return true;
-    return false;
+    if (!token) return false;
+
+    // A token that is not a JWT at all (edited, truncated) makes the helper
+    // THROW, failing the route guard mid-navigation on a blank page.
+    // Unreadable means signed out.
+    try {
+      return !this.jwtHelper.isTokenExpired(token);
+    } catch {
+      return false;
+    }
   }
 
   public signIn(payload: ILogIn): Observable<IAPIResponse<IAuthProfile>> {
@@ -123,7 +131,9 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(
       `${this.authUrl}/resend-email-verification`,
       { email },
-      { params: { accountType: 'LECTURER' } }
+      // STUDENT: with LECTURER the server looked the address up among staff,
+      // so a student's "Resend" always failed with "user not found".
+      { params: { accountType: 'STUDENT' } }
     );
   }
 
