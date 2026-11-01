@@ -80,6 +80,42 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(`${this.authUrl}/students/register`, payload);
   }
 
+  /**
+   * Fold the student's LIVE placement into the stored account.
+   *
+   * The account in local storage is a sign-in snapshot, and the dashboard,
+   * the toolbar and the results queries all read department and level from
+   * it. A department transfer takes effect at the close of a session — very
+   * likely while the student is signed in — so without this they went on
+   * seeing, and querying as, the department they had left until they signed
+   * out. `/students/profile` reads the database, so its student is the truth.
+   *
+   * Returns true when something actually moved.
+   */
+  adoptLivePlacement(student: {
+    department?: IAccount['department'];
+    faculty?: IAccount['faculty'];
+    level?: string;
+    session?: string;
+  }): boolean {
+    const current = this.activeAccount();
+    if (!current || !student?.department) return false;
+
+    const moved =
+      current.department?._id !== student.department._id ||
+      String(current.level ?? '') !== String(student.level ?? '');
+    if (!moved) return false;
+
+    this.activeAccount.set({
+      ...current,
+      department: student.department,
+      faculty: student.faculty ?? current.faculty,
+      level: (student.level ?? current.level) as IAccount['level'],
+    });
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
+    return true;
+  }
+
   loadInitialSession() {
     const account = localStorage.getItem(STORAGE_KEYS.ACTIVE_ACCOUNT);
     if (account) this.activeAccount.set(JSON.parse(account));

@@ -83,6 +83,15 @@ export interface IInboxPage {
 }
 
 /** What the live stream pushes down. */
+/**
+ * Pushed when the student's placement changes underneath a live session —
+ * a department transfer taking effect at the close of a session. See
+ * `MessagingService.accountChanged$`.
+ */
+export interface IAccountChangedEvent {
+  readonly reason: string;
+}
+
 export interface IStreamEvent {
   readonly type: 'message:new' | 'message:read' | 'conversation:new';
   readonly payload: {

@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { IAPIResponse } from '../../../core/models/api-response.model';
 import { AuthenticationService } from '../../auth/services/auth.service';
 import {
+  IAccountChangedEvent,
   IConversationPage,
   IDirectory,
   IInboxPage,
@@ -36,6 +37,14 @@ export class MessagingService {
    */
   private readonly events = new Subject<IStreamEvent>();
   readonly stream$ = this.events.asObservable();
+
+  /**
+   * `account:changed` — the student's department or level changed while they
+   * were signed in (a transfer took effect). Not chat: kept off `stream$`,
+   * never counted towards a badge. `Layout` listens and re-reads the profile.
+   */
+  private readonly accountChanges = new Subject<IAccountChangedEvent>();
+  readonly accountChanged$ = this.accountChanges.asObservable();
 
   /** Unread across every conversation except support. Sidebar: Messages. */
   readonly unreadTotal = signal(0);
@@ -315,6 +324,15 @@ export class MessagingService {
       };
 
       const type = (body?.type ?? lineType) as IStreamEvent['type'];
+
+      // Not chat: hand it to its own channel before the conversation check
+      // below would throw it away.
+      if ((type as string) === 'account:changed') {
+        const reason = (body?.payload as { reason?: unknown } | undefined)?.reason;
+        this.accountChanges.next({ reason: typeof reason === 'string' ? reason : 'unknown' });
+        return null;
+      }
+
       // Self-describing body (`{ type, payload }`), or a bare payload beside
       // an `event:` line. Nothing else is a frame this app sent.
       const payload = (body?.payload ??
