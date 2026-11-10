@@ -219,6 +219,7 @@ export class PaymentHistory implements OnInit, OnDestroy {
   purposeLabel(row: IPaymentRow): string {
     if (row.purpose === 'TRANSCRIPT') return 'Transcript fee';
     if (row.purpose === 'DUES') return row.item.name || 'Departmental dues';
+    if (row.purpose === 'SCHOOL_FEES') return row.item.name || 'School fees';
     return row.description || 'Payment';
   }
 

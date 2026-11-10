@@ -1,0 +1,218 @@
+<div id="container">
+  <app-auth-banner
+    class="banner-section"
+    title="One Last Step"
+    description="Your academic record prints these details at the top of every page.
+    Fill them in once and the rest of Acheva is yours."
+  />
+
+  <form [formGroup]="form" class="details-wrapper" (ngSubmit)="save()">
+    <div class="acheva-logo-container logo-md">
+      <app-svg src="icons/logos/acheva-letter.svg" [svgWidth]="'3rem'"></app-svg>
+      <app-svg class="company-logo-name" src="icons/logos/company-name-logo.svg"></app-svg>
+    </div>
+
+    <header class="details-header text-center">
+      @if (editing()) {
+        <h1 class="acva-heading-3 fw-400 m-0">Your Details</h1>
+        <p class="acva-para-1 text-neutral-500 m-0">
+          Correct anything that is wrong. Your academic record prints these exactly.
+        </p>
+      } @else {
+        <h1 class="acva-heading-3 fw-400 m-0">Complete Your Details</h1>
+        <p class="acva-para-1 text-neutral-500 m-0">
+          @if (firstName()) {
+            Welcome, {{ firstName() }}.
+          }
+          Tell us a few things about yourself before you continue.
+        </p>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="form-wrap" aria-busy="true">
+        @for (row of [1, 2, 3, 4, 5]; track row) {
+          <div class="w-full">
+            <app-skeleton width="30%" height="0.875rem" />
+            <app-skeleton width="100%" height="3rem" class="mt-2" />
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="form-wrap">
+        <div class="field-row">
+          <div class="field acheva-input">
+            <label class="acva-para-2 fw-400 label-text" for="details-sex">Sex</label>
+            <mat-form-field appearance="outline">
+              <mat-select id="details-sex" formControlName="sex" placeholder="Choose">
+                @for (option of sexOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (showError('sex')) {
+              <p class="field-error acva-caption">Choose one.</p>
+            }
+          </div>
+
+          <div class="field acheva-input">
+            <label class="acva-para-2 fw-400 label-text" for="details-dob">Date of birth</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                id="details-dob"
+                type="date"
+                formControlName="dateOfBirth"
+                [min]="minDateOfBirth"
+                [max]="maxDateOfBirth"
+              />
+            </mat-form-field>
+            @if (showError('dateOfBirth')) {
+              <p class="field-error acva-caption">Enter your date of birth.</p>
+            }
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field acheva-input">
+            <label class="acva-para-2 fw-400 label-text" for="details-nationality">
+              Nationality
+            </label>
+            <mat-form-field appearance="outline">
+              <mat-select id="details-nationality" formControlName="nationality">
+                <mat-option value="NIGERIAN">Nigerian</mat-option>
+                <mat-option value="OTHER">Another country</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="field acheva-input">
+            <label class="acva-para-2 fw-400 label-text" for="details-state">
+              {{
+                nationalityChoice() === 'NIGERIAN' ? 'State of origin' : 'State or region of origin'
+              }}
+            </label>
+            <mat-form-field appearance="outline">
+              @if (nationalityChoice() === 'NIGERIAN') {
+                <mat-select
+                  id="details-state"
+                  formControlName="stateOfOrigin"
+                  placeholder="Choose your state"
+                >
+                  @for (state of states; track state) {
+                    <mat-option [value]="state">{{ state }}</mat-option>
+                  }
+                </mat-select>
+              } @else {
+                <input
+                  matInput
+                  id="details-state"
+                  formControlName="stateOfOrigin"
+                  placeholder="e.g. Greater Accra"
+                  autocomplete="off"
+                />
+              }
+            </mat-form-field>
+            @if (showError('stateOfOrigin')) {
+              <p class="field-error acva-caption">Enter your state of origin.</p>
+            }
+          </div>
+        </div>
+
+        @if (nationalityChoice() === 'OTHER') {
+          <div class="field-row">
+            <div class="field acheva-input">
+              <label class="acva-para-2 fw-400 label-text" for="details-other-nationality">
+                Your nationality
+              </label>
+              <mat-form-field appearance="outline">
+                <input
+                  matInput
+                  id="details-other-nationality"
+                  formControlName="otherNationality"
+                  placeholder="e.g. Ghanaian"
+                  autocomplete="off"
+                />
+              </mat-form-field>
+              @if (showError('otherNationality')) {
+                <p class="field-error acva-caption">Enter your nationality.</p>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="field-row">
+          <div class="field acheva-input">
+            <label class="acva-para-2 fw-400 label-text" for="details-entry">Mode of entry</label>
+            <mat-form-field appearance="outline">
+              <mat-select
+                id="details-entry"
+                formControlName="modeOfEntry"
+                placeholder="How were you admitted?"
+              >
+                @for (option of modeOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (showError('modeOfEntry')) {
+              <p class="field-error acva-caption">Choose how you were admitted.</p>
+            }
+          </div>
+          @if (programmeOptions().length || optionLocked()) {
+            <div class="field acheva-input">
+              <label class="acva-para-2 fw-400 label-text" for="details-option">Option</label>
+              @if (optionLocked()) {
+                <p class="locked-option acva-para-1 m-0" id="details-option">
+                  {{ lockedOptionName() }}
+                </p>
+                <p class="acva-caption text-neutral-500 m-0">
+                  Recorded. School fees differ by option, so to change it, message
+                  Acheva from the Support page.
+                </p>
+              } @else {
+                <mat-form-field appearance="outline">
+                  <mat-select
+                    id="details-option"
+                    formControlName="programmeOptionId"
+                    placeholder="Choose your option"
+                  >
+                    @for (option of programmeOptions(); track option.id) {
+                      <mat-option [value]="option.id">{{ option.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (showError('programmeOptionId')) {
+                  <p class="field-error acva-caption">Choose your option.</p>
+                } @else {
+                  <p class="acva-caption text-neutral-500 m-0">
+                    Your department’s options. You choose once — your school fees depend on it.
+                  </p>
+                }
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="submit-section">
+      <app-button
+        class="w-96"
+        [label]="editing() ? 'Save changes' : 'Save and continue'"
+        [disabled]="loading()"
+        [loading]="saving()"
+        (clickEvent)="save()"
+      />
+
+      @if (editing()) {
+        <button type="button" class="text-link acva-para-1" (click)="cancel()">Cancel</button>
+      } @else {
+        <p class="acva-para-1 text-neutral-500 m-0">
+          Not you?
+          <button type="button" class="text-link" (click)="signOut()">Sign out</button>
+        </p>
+      }
+    </div>
+  </form>
+</div>

@@ -22,8 +22,18 @@ export class DuesService {
     return this.http.get<IAPIResponse<IDuesStandingPage>>(`${this.base}/dues/my-standing${query}`);
   }
 
-  /** Start a payment. Returns the provider link to send the student to. */
-  pay(dueId: string, choice: PaymentChoice): Observable<IAPIResponse<IPaymentStarted>> {
-    return this.http.post<IAPIResponse<IPaymentStarted>>(`${this.base}/dues/${dueId}`, { choice });
+  /**
+   * Start a payment. Returns the provider link to send the student to.
+   * `amountKobo` goes with `AMOUNT` only; the server re-checks it.
+   */
+  pay(
+    dueId: string,
+    choice: PaymentChoice,
+    amountKobo?: number
+  ): Observable<IAPIResponse<IPaymentStarted>> {
+    return this.http.post<IAPIResponse<IPaymentStarted>>(`${this.base}/dues/${dueId}`, {
+      choice,
+      ...(choice === 'AMOUNT' ? { amountKobo } : {}),
+    });
   }
 }

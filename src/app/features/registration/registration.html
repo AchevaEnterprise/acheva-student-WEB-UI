@@ -15,7 +15,12 @@
   } @else if (!registration()) {
     <!-- Registration is the student's own act. -->
     @if (blockedReason(); as reason) {
-      <div class="sreg-card sreg-empty">{{ reason }}</div>
+      <div class="sreg-card sreg-empty">
+        {{ reason }}
+        @if (blockedByFees()) {
+          <a class="sreg-fees-link" routerLink="/school-fees">Pay your school fees</a>
+        }
+      </div>
     } @else if (canSelfRegister(); as ready) {
       @if (options(); as opts) {
         <section class="sreg-card sreg-register">

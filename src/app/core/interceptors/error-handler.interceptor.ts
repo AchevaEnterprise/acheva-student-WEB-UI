@@ -112,7 +112,10 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      if (error.status === HttpStatusCode.NotFound) {
+      // A page LOADING something that is not there yet is not an error the
+      // student did — the page shows its own empty state (2026-11-10). Only
+      // an action that hits a missing record is worth a toast.
+      if (error.status === HttpStatusCode.NotFound && req.method !== 'GET') {
         toast.showNotification(
           'error',
           'Resource Not Found',

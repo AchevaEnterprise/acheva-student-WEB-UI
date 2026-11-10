@@ -35,6 +35,8 @@
           <a class="btn btn--primary" routerLink="/results">
             Download your academic record
           </a>
+        } @else if (isSchoolFees()) {
+          <a class="btn btn--primary" routerLink="/school-fees">Back to my school fees</a>
         } @else {
           <a class="btn btn--primary" routerLink="/dues">Back to my dues</a>
         }
@@ -52,6 +54,8 @@
       <div class="actions">
         @if (isTranscript()) {
           <a class="btn btn--primary" routerLink="/results">Try again</a>
+        } @else if (isSchoolFees()) {
+          <a class="btn btn--primary" routerLink="/school-fees">Try again</a>
         } @else {
           <a class="btn btn--primary" routerLink="/dues">Try again</a>
         }

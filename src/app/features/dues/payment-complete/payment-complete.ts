@@ -68,6 +68,7 @@ export class PaymentComplete implements OnInit {
     ['FAILED', 'CANCELLED', 'REJECTED'].includes(this.payment()?.status ?? '')
   );
   readonly isTranscript = computed(() => this.payment()?.purpose === 'TRANSCRIPT');
+  readonly isSchoolFees = computed(() => this.payment()?.purpose === 'SCHOOL_FEES');
 
   ngOnInit(): void {
     const reference = this.reference();

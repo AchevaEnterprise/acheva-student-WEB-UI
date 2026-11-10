@@ -149,6 +149,19 @@ function amountBlock(receipt: IPaymentReceipt): Record<string, unknown> {
     stack: [
       { text: 'AMOUNT PAID', style: 'amountLabel' },
       { text: formatNaira(receipt.amount), style: 'amount', margin: [0, 4, 0, 0] },
+      // A school-fee payment online carries Paystack's charge on top; the
+      // card statement shows the total, so the receipt must too.
+      ...((receipt.processingFeeKobo ?? 0) > 0
+        ? [
+            {
+              text:
+                `+ ${formatNaira(receipt.processingFeeKobo ?? 0)} Paystack charge · ` +
+                `${formatNaira(receipt.amount + (receipt.processingFeeKobo ?? 0))} charged`,
+              style: 'paidOn',
+              margin: [0, 4, 0, 0],
+            },
+          ]
+        : []),
       {
         text: `Paid ${longDate(receipt.paidAt)}`,
         style: 'paidOn',
@@ -226,7 +239,14 @@ function standingBlock(receipt: IPaymentReceipt): Record<string, unknown> {
   return {
     stack: [
       {
-        text: standing.settled ? 'DUES SETTLED IN FULL' : 'DUES STANDING AFTER THIS PAYMENT',
+        text:
+          receipt.purpose === 'SCHOOL_FEES'
+            ? standing.settled
+              ? 'SCHOOL FEES SETTLED IN FULL'
+              : 'SCHOOL FEES STANDING AFTER THIS PAYMENT'
+            : standing.settled
+              ? 'DUES SETTLED IN FULL'
+              : 'DUES STANDING AFTER THIS PAYMENT',
         style: 'sectionLabel',
         margin: [0, 0, 0, 8],
       },

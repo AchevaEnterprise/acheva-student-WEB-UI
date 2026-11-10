@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAPIResponse } from '../models/api-response.model';
 import { LevelsEnum, SemesterEnum } from '../models/school.model';
+import { IStudentDetails, IUpdateStudentDetails } from '../models/student-details.model';
 import {
   IStudentAnalytics,
   IStudentPerformance,
@@ -21,6 +22,20 @@ export class StudentService {
 
   getProfile(): Observable<IAPIResponse<IStudentProfile>> {
     return this.http.get<IAPIResponse<IStudentProfile>>(`${this.studentUrl}/profile`);
+  }
+
+  /**
+   * Silent: the route guard asks this on the way into the portal, and a
+   * failure there lets the student through rather than toasting at them.
+   */
+  getMyDetails(): Observable<IAPIResponse<IStudentDetails>> {
+    return this.http.get<IAPIResponse<IStudentDetails>>(`${this.studentUrl}/me/details`, {
+      headers: { 'X-Silent-Error': 'true' },
+    });
+  }
+
+  updateMyDetails(body: IUpdateStudentDetails): Observable<IAPIResponse<IStudentDetails>> {
+    return this.http.patch<IAPIResponse<IStudentDetails>>(`${this.studentUrl}/me/details`, body);
   }
 
   getAnalytics(): Observable<IAPIResponse<IStudentAnalytics>> {

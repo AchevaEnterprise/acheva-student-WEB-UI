@@ -1,0 +1,231 @@
+/* Uploading a school-fees receipt. Brand blue and its #77BBFF tint only;
+   nothing heavier than 500. */
+
+$border: #e5e7eb;
+$brand: #2793ff;
+$tint: rgb(119 187 255 / 18%);
+$ink: #10243a;
+
+:host {
+  display: block;
+  padding: 24px;
+}
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.upload__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: $ink;
+}
+
+.upload__back {
+  align-self: flex-start;
+  color: $brand;
+  text-decoration: none;
+}
+
+.owed {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: $tint;
+  color: $ink;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.card--quiet {
+  gap: 8px;
+}
+
+.files {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file__label {
+  color: $ink;
+}
+
+.file__drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px dashed #7bf;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: $brand;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover,
+  &:focus-within {
+    background: $tint;
+  }
+}
+
+.file__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file__chosen {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid $border;
+  border-radius: 12px;
+}
+
+.file__thumb {
+  width: 88px;
+  height: 88px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.file__pdf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 8px;
+  background: $tint;
+  color: $brand;
+  font-weight: 500;
+}
+
+.file__name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: $ink;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: $ink;
+}
+
+.field__input,
+.field__money {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d2d1d1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.field__money {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  input {
+    width: 100%;
+    min-height: 42px;
+    border: 0;
+    outline: none;
+    background: transparent;
+  }
+}
+
+.field__input:focus,
+.field__money:focus-within {
+  outline: none;
+  border-color: $brand;
+  box-shadow: 0 0 0 3px rgb(39 147 255 / 15%);
+}
+
+.declare {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: $ink;
+  cursor: pointer;
+
+  input {
+    margin-top: 3px;
+    accent-color: $brand;
+  }
+}
+
+.field-error {
+  color: #b91c1c;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.submit {
+  padding: 10px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: $brand;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    background: #1d7fe0;
+  }
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $brand;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

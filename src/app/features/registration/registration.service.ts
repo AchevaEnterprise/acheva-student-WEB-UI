@@ -86,6 +86,8 @@ export interface ISelfRegistrationOptions {
   readonly blocked: boolean;
   /** Present only when `blocked` — why they cannot register right now. */
   readonly reason?: string;
+  /** `SCHOOL_FEES` when it is the fees holding them back (2026-11-09). */
+  readonly blockedBy?: 'SCHOOL_FEES';
   readonly session?: string;
   readonly semester?: string;
   readonly level?: string;

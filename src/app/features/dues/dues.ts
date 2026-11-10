@@ -10,10 +10,23 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 
-import { formatNaira } from '../../core/naira';
+import { formatNaira, toKobo, toNaira } from '../../core/naira';
 import { ToastService } from '../../core/utility/toast.service';
 import { Skeleton } from '../../shared/skeleton/skeleton';
-import { IDuesInstalment, IDuesStandingPage, PaymentChoice } from './models/dues.model';
+import { IDuesStandingPage, PaymentChoice } from './models/dues.model';
+
+/** The least share of the total one payment may be — the server's rule too. */
+const MIN_PAYMENT_PERCENT = 30;
+
+/** One allowed payment, as the schedule lists it. */
+interface IPaymentRow {
+  readonly position: number;
+  readonly dueDate: string;
+  readonly note: string | null;
+  readonly state: 'paid' | 'next' | 'later';
+  /** What they paid, for a payment already made. */
+  readonly paidKobo: number | null;
+}
 import { DuesService } from './services/dues.service';
 
 /**
@@ -26,11 +39,13 @@ import { DuesService } from './services/dues.service';
  * schedule, the history and the session picker are all secondary to that
  * number.
  *
- * ## Paying is a CHOICE, never an amount
+ * ## The student chooses how much to pay (2026-11-09)
  *
- * The two buttons send `FULL` or `NEXT_INSTALMENT`; the server works out the
- * figure from the plan and what has already been paid. A page that posted an
- * amount would be a page where the price is whatever the browser says.
+ * Within the department's plan: at least 30% of the total each time (or
+ * whatever is left), never more than is owed, and the last allowed payment
+ * clears the balance. The page checks as they type so the button only lights
+ * for an amount that will be accepted — but the server decides, and says why
+ * if it refuses.
  *
  * ## Older sessions stay payable
  *
@@ -60,6 +75,8 @@ export class Dues implements OnInit {
   readonly standing = computed(() => this.page()?.standing ?? null);
   readonly payments = computed(() => this.page()?.payments ?? []);
   readonly sessions = computed(() => this.page()?.selectableSessions ?? []);
+  readonly graduatedSession = computed(() => this.page()?.graduatedSession ?? null);
+  readonly awaitingResultsFor = computed(() => this.page()?.awaitingResultsFor ?? null);
 
   readonly hasPlan = computed(() => this.plan() !== null);
   readonly isSettled = computed(() => this.standing()?.status === 'PAID');
@@ -80,6 +97,48 @@ export class Dues implements OnInit {
 
   readonly canPay = computed(() => this.hasPlan() && !this.isSettled() && this.starting() === null);
 
+  readonly next = computed(() => this.standing()?.nextPayment ?? null);
+  readonly minimumPercent = MIN_PAYMENT_PERCENT;
+
+  /** The amount field, as typed, in naira. Prefilled with the suggestion. */
+  readonly amountNaira = signal('');
+  readonly amountKobo = computed(() => toKobo(this.amountNaira()));
+
+  /** Why the typed amount would be refused, or null when it is fine. */
+  readonly amountProblem = computed(() => {
+    const next = this.next();
+    if (!next) return null;
+    const kobo = this.amountKobo();
+    if (!Number.isInteger(kobo) || kobo <= 0) return 'Enter an amount.';
+    if (kobo > next.maximumKobo) return `You owe ${this.money(next.maximumKobo)}.`;
+    if (next.mustClear && kobo !== next.maximumKobo) {
+      return `Your last allowed payment must clear the balance of ${this.money(next.maximumKobo)}.`;
+    }
+    if (kobo < next.minimumKobo) return `Pay at least ${this.money(next.minimumKobo)}.`;
+    return null;
+  });
+
+  /**
+   * Payment by payment: what they paid for those made, and which is next.
+   * Matched by count — the second payment they made is payment 2, whatever
+   * its size.
+   */
+  readonly paymentRows = computed<IPaymentRow[]>(() => {
+    const plan = this.plan();
+    const made = this.standing()?.paymentsMade ?? 0;
+    if (!plan) return [];
+    const paidInOrder = [...this.payments()]
+      .sort((a, b) => new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime())
+      .map((payment) => payment.amount);
+    return plan.instalments.map((row, index) => ({
+      position: row.position,
+      dueDate: row.dueDate,
+      note: row.note,
+      state: index < made ? 'paid' : index === made && !this.isSettled() ? 'next' : 'later',
+      paidKobo: index < made ? (paidInOrder[index] ?? null) : null,
+    }));
+  });
+
   ngOnInit(): void {
     this.load();
   }
@@ -93,6 +152,8 @@ export class Dues implements OnInit {
         next: (resp) => {
           this.page.set(resp.data);
           this.selectedSession.set(resp.data.session);
+          const suggested = resp.data.standing?.nextPayment?.suggestedKobo;
+          this.amountNaira.set(suggested ? String(toNaira(suggested)) : '');
           this.loading.set(false);
         },
         error: (err) => {
@@ -122,10 +183,11 @@ export class Dues implements OnInit {
   pay(choice: PaymentChoice): void {
     const plan = this.plan();
     if (!plan || !this.canPay()) return;
+    if (choice === 'AMOUNT' && this.amountProblem()) return;
 
     this.starting.set(choice);
     this.api
-      .pay(plan.id, choice)
+      .pay(plan.id, choice, choice === 'AMOUNT' ? this.amountKobo() : undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resp) => {
@@ -155,34 +217,13 @@ export class Dues implements OnInit {
       });
   }
 
-  /**
-   * Has this instalment been covered by what is already paid?
-   *
-   * Compared on the running total, not instalment by instalment, because a
-   * student who paid a lump sum has covered several at once.
-   */
-  isCovered(instalment: IDuesInstalment): boolean {
-    const paid = this.standing()?.paidKobo ?? 0;
-    const plan = this.plan();
-    if (!plan) return false;
-
-    let cumulative = 0;
-    for (const row of plan.instalments) {
-      cumulative += row.amount;
-      if (row.position === instalment.position) break;
-    }
-    return paid >= cumulative;
-  }
-
-  /** The instalment the student is being asked for next, if any. */
-  isNext(instalment: IDuesInstalment): boolean {
-    return this.standing()?.nextInstalment?.position === instalment.position;
+  onAmountInput(event: Event): void {
+    this.amountNaira.set((event.target as HTMLInputElement).value);
   }
 
   money(kobo: number): string {
     return formatNaira(kobo);
   }
 
-  trackByPosition = (_: number, item: IDuesInstalment) => item.position;
   trackByReference = (_: number, item: { reference: string }) => item.reference;
 }

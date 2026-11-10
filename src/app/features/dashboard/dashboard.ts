@@ -1,3 +1,4 @@
+import { standingLabel } from '../../core/utility/standing-label';
 import { TitleCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -145,6 +146,8 @@ export class Dashboard implements OnInit {
   segmentCardIconSrc = signal<string>('icons/general/draft-icon.svg');
 
   activeAccount = this.authService.activeAccount;
+  /** "300 Level", "Extra Year 1" or "Graduated". */
+  readonly standing = computed(() => standingLabel(this.activeAccount()));
   chart = signal<{ courseCode: string; total: number }[]>([]);
   SemesterEnum = SemesterEnum;
   activities = signal<INotification[]>([]);

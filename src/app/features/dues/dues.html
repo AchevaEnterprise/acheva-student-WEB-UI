@@ -31,17 +31,28 @@
     <!-- No plan is a legitimate answer, not an error. -->
     <div class="panel panel--quiet">
       <p class="acva-para-2 fw-500 m-0">Nothing to pay for {{ selectedSession() }}</p>
-      <p class="acva-para-1 text-neutral-500 m-0">
-        Your department has not published dues for this session. If you think
-        that is wrong, ask your Course Advisor or Head of Department.
-      </p>
+      @if (graduatedSession(); as finished) {
+        <p class="acva-para-1 text-neutral-500 m-0">
+          You graduated in {{ finished }}, so there are no dues after that session. Choose
+          {{ finished }} or earlier above if you still owe for a year you studied.
+        </p>
+      } @else if (awaitingResultsFor(); as last) {
+        <p class="acva-para-1 text-neutral-500 m-0">
+          Your results for {{ last }} are not all out yet. Until they are, nothing is charged for a
+          later session. Choose {{ last }} or earlier above if you still owe for a year you studied.
+        </p>
+      } @else {
+        <p class="acva-para-1 text-neutral-500 m-0">
+          Your department has not published dues for this session. If you think that is wrong, ask
+          your Course Advisor or Head of Department.
+        </p>
+      }
     </div>
   } @else {
     @if (isPastSession()) {
       <p class="notice acva-caption">
-        You are looking at <strong>{{ selectedSession() }}</strong>, not the
-        current session. Paying late is not encouraged, but it is possible
-        here.
+        You are looking at <strong>{{ selectedSession() }}</strong
+        >, not the current session. Paying late is not encouraged, but it is possible here.
       </p>
     }
 
@@ -59,8 +70,7 @@
           {{ standing()!.paymentsMade }}
           {{ standing()!.paymentsMade === 1 ? 'payment' : 'payments' }}
         } @else {
-          of {{ money(standing()!.totalKobo) }} ·
-          {{ money(standing()!.paidKobo) }} paid
+          of {{ money(standing()!.totalKobo) }} · {{ money(standing()!.paidKobo) }} paid
         }
       </p>
 
@@ -75,34 +85,68 @@
         <span class="balance__fill" [style.width.%]="paidPercent()"></span>
       </div>
 
-      @if (!isSettled()) {
-        <div class="balance__actions">
-          @if (standing()!.nextInstalment; as next) {
+      @if (!isSettled() && next(); as next) {
+        <!-- The student picks the amount, inside the department's rules. -->
+        <div class="pay">
+          <label class="pay__label acva-caption" for="dues-amount">
+            Payment {{ next.number }} of {{ next.of }}
+            @if (next.dueDate) {
+              · due by {{ next.dueDate | date: 'dd/MM/yyyy' }}
+            }
+          </label>
+          <div class="pay__row">
+            <span class="pay__field">
+              <span class="pay__currency" aria-hidden="true">₦</span>
+              <input
+                id="dues-amount"
+                class="pay__input acva-para-1"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="0.01"
+                [value]="amountNaira()"
+                [readonly]="next.mustClear"
+                [attr.aria-describedby]="'dues-amount-rule'"
+                (input)="onAmountInput($event)"
+              />
+            </span>
             <button
               type="button"
               class="btn btn--primary acva-para-1"
-              [disabled]="!canPay()"
-              (click)="pay('NEXT_INSTALMENT')"
+              [disabled]="!canPay() || !!amountProblem()"
+              (click)="pay('AMOUNT')"
             >
-              {{
-                starting() === 'NEXT_INSTALMENT'
-                  ? 'Opening…'
-                  : 'Pay instalment ' + next.position + ' · ' + money(next.amount)
-              }}
+              {{ starting() === 'AMOUNT' ? 'Opening…' : 'Pay ' + money(amountKobo()) }}
             </button>
-          }
-          <button
-            type="button"
-            class="btn btn--ghost acva-para-1"
-            [disabled]="!canPay()"
-            (click)="pay('FULL')"
-          >
-            {{
-              starting() === 'FULL'
-                ? 'Opening…'
-                : 'Pay the balance · ' + money(standing()!.outstandingKobo)
-            }}
-          </button>
+            @if (!next.mustClear) {
+              <button
+                type="button"
+                class="btn btn--ghost acva-para-1"
+                [disabled]="!canPay()"
+                (click)="pay('FULL')"
+              >
+                {{
+                  starting() === 'FULL'
+                    ? 'Opening…'
+                    : 'Pay the balance · ' + money(standing()!.outstandingKobo)
+                }}
+              </button>
+            }
+          </div>
+          <p id="dues-amount-rule" class="pay__rule acva-caption">
+            @if (amountProblem(); as problem) {
+              {{ problem }}
+            } @else if (next.mustClear) {
+              {{
+                next.of === 1
+                  ? 'This due is paid in one payment.'
+                  : 'This is your last allowed payment, so it clears the balance.'
+              }}
+            } @else {
+              Choose any amount from {{ money(next.minimumKobo) }} ({{ minimumPercent }}% of the
+              total) up to {{ money(next.maximumKobo) }}.
+            }
+          </p>
         </div>
       }
     </div>
@@ -119,14 +163,14 @@
       </div>
 
       <ul class="schedule">
-        @for (row of plan()!.instalments; track trackByPosition($index, row)) {
+        @for (row of paymentRows(); track row.position) {
           <li
             class="schedule__row"
-            [class.schedule__row--covered]="isCovered(row)"
-            [class.schedule__row--next]="isNext(row)"
+            [class.schedule__row--covered]="row.state === 'paid'"
+            [class.schedule__row--next]="row.state === 'next'"
           >
             <span class="schedule__mark" aria-hidden="true">
-              @if (isCovered(row)) {
+              @if (row.state === 'paid') {
                 <svg viewBox="0 0 24 24">
                   <polyline points="4 12.5 9.5 18 20 6.5" />
                 </svg>
@@ -137,17 +181,15 @@
 
             <span class="schedule__body">
               <span class="acva-para-1">
-                Instalment {{ row.position }}
-                @if (isCovered(row)) {
+                Payment {{ row.position }}
+                @if (row.state === 'paid') {
                   <span class="schedule__state acva-caption">paid</span>
-                } @else if (isNext(row)) {
-                  <span class="schedule__state schedule__state--next acva-caption">
-                    next
-                  </span>
+                } @else if (row.state === 'next') {
+                  <span class="schedule__state schedule__state--next acva-caption"> next </span>
                 }
               </span>
               <span class="acva-caption text-neutral-500">
-                due {{ row.dueDate | date: 'd MMM y' }}
+                due by {{ row.dueDate | date: 'dd/MM/yyyy' }}
                 @if (row.note) {
                   · {{ row.note }}
                 }
@@ -155,7 +197,13 @@
             </span>
 
             <span class="schedule__amount acva-para-1 fw-500">
-              {{ money(row.amount) }}
+              {{
+                row.paidKobo !== null
+                  ? money(row.paidKobo)
+                  : row.state === 'later'
+                    ? '—'
+                    : 'your choice'
+              }}
             </span>
           </li>
         }

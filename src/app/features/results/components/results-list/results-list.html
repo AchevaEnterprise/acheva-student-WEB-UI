@@ -39,7 +39,7 @@
             }
 
             <div>
-              <h5 class="font-semibold">{{ session.level }}</h5>
+              <h5 class="font-semibold">{{ levelLabel(session.level) }}</h5>
               <!-- A level with no results has no session of its own; it used to
                    borrow the student's admission session ("400 · 2022/2023"). -->
               @if (session.active) {

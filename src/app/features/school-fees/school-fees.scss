@@ -1,0 +1,143 @@
+/* School fees share the dues page's stylesheet (see the component); these are
+   the pieces only this page has. Brand blue and its #77BBFF tint only. */
+
+$brand: #2793ff;
+$tint: rgb(119 187 255 / 18%);
+
+.fees-for {
+  opacity: 0.9;
+}
+
+.fees-link {
+  align-self: flex-start;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.fees-inline-link {
+  color: $brand;
+}
+
+.reg {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 24px;
+}
+
+.reg__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reg__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reg__chip {
+  padding: 2px 12px;
+  border: 1px solid #7bf;
+  border-radius: 999px;
+  color: $brand;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.reg__chip--open {
+  border-color: transparent;
+  background: $tint;
+}
+
+.upload-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 24px;
+
+  .fees-link {
+    margin-top: 0;
+  }
+}
+
+.receipt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.receipt-chip {
+  margin-left: 8px;
+  padding: 1px 10px;
+  border: 1px solid #7bf;
+  border-radius: 999px;
+  color: $brand;
+  font-weight: 500;
+}
+
+.receipt-chip--ok {
+  border-color: transparent;
+  background: $tint;
+}
+
+.receipt-chip--off {
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
+.receipt-reason {
+  color: #6b7280;
+}
+
+.receipt-links {
+  display: flex;
+  gap: 12px;
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $brand;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* On a white panel — the dues buttons are made for the blue balance card. */
+.fees-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 1px solid #7bf;
+  border-radius: 999px;
+  background: #fff;
+  color: $brand;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    background: #f2f8ff;
+  }
+}
+
+.fees-btn--solid {
+  border-color: $brand;
+  background: $brand;
+  color: #fff;
+
+  &:hover {
+    background: #1d7fe0;
+  }
+}
