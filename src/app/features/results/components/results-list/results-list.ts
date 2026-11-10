@@ -3,6 +3,7 @@ import { NgClass } from '@angular/common';
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { LevelsEnum } from '../../../../core/models/school.model';
+import { levelLabel } from '../../../../core/utility/standing-label';
 import { IResultEntry } from '../../../../core/models/student.model';
 import { StudentService } from '../../../../core/services/student';
 import { Button } from '../../../../shared/form/button/button';
@@ -26,6 +27,9 @@ export interface IResultSessions {
   styleUrl: './results-list.scss',
 })
 export class ResultsList implements OnInit {
+  /** "300 Level", or "Extra Year" for a year sat as EXCEPTION. */
+  readonly levelLabel = levelLabel;
+
   private readonly authService = inject(AuthenticationService);
   private readonly studentService = inject(StudentService);
   viewSessionResultEvent = output<IResultSessions>();

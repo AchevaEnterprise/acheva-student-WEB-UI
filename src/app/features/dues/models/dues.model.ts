@@ -28,13 +28,30 @@ export interface IDuesPlan {
   readonly status: DuesStatus;
 }
 
+/**
+ * What the next payment may be. The student chooses the amount (2026-11-09):
+ * at least `minimumKobo` (30% of the total, or what is left), at most what is
+ * owed, and exactly the balance when `mustClear` — the last allowed payment.
+ */
+export interface INextPayment {
+  readonly number: number;
+  readonly of: number;
+  readonly minimumKobo: number;
+  readonly maximumKobo: number;
+  readonly suggestedKobo: number;
+  readonly mustClear: boolean;
+  readonly dueDate: string | null;
+}
+
 export interface IDuesStanding {
   readonly totalKobo: number;
   readonly paidKobo: number;
   readonly outstandingKobo: number;
   /** How many payments were made. Paying everything at once is 1. */
   readonly paymentsMade: number;
+  readonly paymentsAllowed: number;
   readonly status: DuesPaymentStatus;
+  readonly nextPayment: INextPayment | null;
   readonly nextInstalment: {
     readonly position: number;
     readonly amount: number;
@@ -54,18 +71,20 @@ export interface IDuesStandingPage {
   readonly activeSession: string;
   /** Newest first, back to the first session Acheva ran. */
   readonly selectableSessions: readonly string[];
+  /** Set once the student has graduated: nothing is owed after this session. */
+  readonly graduatedSession?: string | null;
+  /** Set while their final results are not all out: nothing is owed after this session. */
+  readonly awaitingResultsFor?: string | null;
   readonly config: IDuesPlan | null;
   readonly standing: IDuesStanding | null;
   readonly payments: readonly IDuesPayment[];
 }
 
 /**
- * What a student chose to pay — a CHOICE, never an amount.
- *
- * The server derives the figure from the plan and what is already paid.
- * Sending an amount would be sending a price a student picked themselves.
+ * What a student chose to pay. `AMOUNT` carries their own figure, which the
+ * server checks against the same rules this page shows.
  */
-export type PaymentChoice = 'FULL' | 'NEXT_INSTALMENT';
+export type PaymentChoice = 'FULL' | 'NEXT_INSTALMENT' | 'AMOUNT';
 
 export interface IPaymentStarted {
   readonly paymentLink: string;

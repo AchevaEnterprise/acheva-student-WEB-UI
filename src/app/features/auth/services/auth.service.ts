@@ -80,6 +80,60 @@ export class AuthenticationService {
     return this.http.post<IAPIResponse<unknown>>(`${this.authUrl}/students/register`, payload);
   }
 
+  /**
+   * Fold the student's LIVE placement into the stored account.
+   *
+   * The account in local storage is a sign-in snapshot, and the dashboard,
+   * the toolbar and the results queries all read department and level from
+   * it. A department transfer takes effect at the close of a session — very
+   * likely while the student is signed in — so without this they went on
+   * seeing, and querying as, the department they had left until they signed
+   * out. `/students/profile` reads the database, so its student is the truth.
+   *
+   * Returns true when something actually moved.
+   */
+  adoptLivePlacement(student: {
+    department?: IAccount['department'];
+    faculty?: IAccount['faculty'];
+    level?: string;
+    session?: string;
+    academicStanding?: IAccount['academicStanding'];
+    extraYear?: number;
+    graduatedSession?: string | null;
+  }): boolean {
+    const current = this.activeAccount();
+    if (!current || !student?.department) return false;
+
+    // A standing change (into extra year, or graduating) is a move too.
+    const moved =
+      current.department?._id !== student.department._id ||
+      String(current.level ?? '') !== String(student.level ?? '') ||
+      (current.academicStanding ?? 'IN_PROGRAMME') !==
+        (student.academicStanding ?? 'IN_PROGRAMME') ||
+      (current.extraYear ?? 0) !== (student.extraYear ?? 0);
+    if (!moved) return false;
+
+    this.activeAccount.set({
+      ...current,
+      department: student.department,
+      faculty: student.faculty ?? current.faculty,
+      level: (student.level ?? current.level) as IAccount['level'],
+      academicStanding: student.academicStanding ?? current.academicStanding,
+      extraYear: student.extraYear ?? current.extraYear,
+      graduatedSession: student.graduatedSession ?? current.graduatedSession ?? null,
+    });
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
+    return true;
+  }
+
+  /** Record whether the student still owes their details, in memory and storage. */
+  setDetailsRequired(required: boolean): void {
+    const current = this.activeAccount();
+    if (!current) return;
+    this.activeAccount.set({ ...current, detailsRequired: required });
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_ACCOUNT, JSON.stringify(this.activeAccount()));
+  }
+
   loadInitialSession() {
     const account = localStorage.getItem(STORAGE_KEYS.ACTIVE_ACCOUNT);
     if (account) this.activeAccount.set(JSON.parse(account));

@@ -47,6 +47,25 @@ export const routes: Routes = [
           import('../features/registration/extra-year/extra-year').then((m) => m.ExtraYear),
       },
       {
+        // A payment made at the bank, on Remita or by a parent (2026-11-10).
+        path: 'school-fees/receipt',
+        data: {
+          title: 'Upload a Receipt',
+        },
+        loadComponent: () =>
+          import('../features/school-fees/receipt-upload/receipt-upload').then(
+            (m) => m.ReceiptUpload
+          ),
+      },
+      {
+        path: 'school-fees',
+        data: {
+          title: 'School Fees',
+        },
+        loadComponent: () =>
+          import('../features/school-fees/school-fees').then((m) => m.SchoolFees),
+      },
+      {
         path: 'dues',
         data: {
           title: 'Departmental Dues',

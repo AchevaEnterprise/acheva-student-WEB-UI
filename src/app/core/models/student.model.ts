@@ -1,3 +1,4 @@
+import { ModeOfEntryEnum, StudentSexEnum } from './student-details.model';
 import { IDepartment, IFaculty, ISchool, LevelsEnum } from './school.model';
 
 export interface IStudent {
@@ -19,6 +20,18 @@ export interface IStudent {
    */
   isActive: boolean;
   deactivatedAt: Date | null;
+  /** The transcript header's personal rows — see `student-details.model.ts`. */
+  sex?: StudentSexEnum | null;
+  dateOfBirth?: string | null;
+  nationality?: string | null;
+  stateOfOrigin?: string | null;
+  modeOfEntry?: ModeOfEntryEnum | null;
+  programmeOption?: string | null;
+  academicStanding?: 'IN_PROGRAMME' | 'AWAITING_RESULTS' | 'EXTRA_YEAR' | 'GRADUATED';
+  extraYear?: number;
+  graduatedSession?: string | null;
+  /** The session whose results an AWAITING_RESULTS student is waiting on. */
+  pendingSession?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

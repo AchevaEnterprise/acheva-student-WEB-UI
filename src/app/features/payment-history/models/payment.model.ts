@@ -7,7 +7,7 @@
  */
 
 /** What the money was for. Dues run against a plan; a transcript fee does not. */
-export type PaymentPurpose = 'DUES' | 'TRANSCRIPT' | 'PAYMENT';
+export type PaymentPurpose = 'DUES' | 'SCHOOL_FEES' | 'TRANSCRIPT' | 'PAYMENT';
 
 export type PaymentStatus =
   | 'PENDING'
@@ -92,6 +92,8 @@ export interface IPaymentReceipt {
   readonly purpose: PaymentPurpose;
   /** KOBO. */
   readonly amount: number;
+  /** Paystack's charge paid on top of `amount` (school fees). KOBO. */
+  readonly processingFeeKobo?: number;
   readonly currency: string;
   readonly status: PaymentStatus;
   readonly paymentMethod: string | null;

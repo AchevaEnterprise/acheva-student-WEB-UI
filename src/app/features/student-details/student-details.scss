@@ -1,0 +1,131 @@
+@use '../../../../public/styles/abstracts/media-query' as *;
+
+// The same split as the sign-in pages: banner left, form right. This page
+// sits outside the shell on purpose, so it should feel like the last step of
+// signing up rather than a page inside the app.
+#container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+
+  .banner-section {
+    flex: 1;
+
+    @include acva-media-query-max(acva-lg) {
+      display: none;
+    }
+  }
+
+  .details-wrapper {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 4rem 3.5rem;
+
+    @include acva-media-query-max(acva-lg) {
+      width: 100%;
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  .details-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 32rem;
+  }
+
+  .form-wrap {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    @include acva-media-query-max(acva-sm) {
+      width: 100%;
+    }
+  }
+
+  // Two short fields side by side; one column on a phone.
+  .field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+
+    @include acva-media-query-max(acva-sm) {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .label-text {
+    color: #696765;
+    margin-bottom: 0.3rem;
+  }
+
+  .field-error {
+    margin: -0.75rem 0 0.5rem;
+    color: #b91c1c;
+  }
+
+  .submit-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .text-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #2793ff;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // The shared logo is absolutely placed for the sign-in pages, where the
+  // form never scrolls. This one does, so the logo takes its place in the
+  // flow above the heading instead of sitting on top of it.
+  .logo-md {
+    position: static;
+    flex-shrink: 0;
+    height: auto;
+
+    @include acva-media-query-min(acva-lg) {
+      display: none;
+    }
+  }
+}
+
+// A recorded option reads like a filled field, not a control.
+.locked-option {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid rgb(119 187 255 / 60%);
+  border-radius: 8px;
+  background: rgb(119 187 255 / 10%);
+  color: #2793ff;
+}

@@ -1,0 +1,179 @@
+<section class="upload">
+  <header class="upload__head">
+    <a class="upload__back acva-caption" routerLink="/school-fees">← School Fees</a>
+    <h1 class="acva-para-3 fw-500 m-0">Upload a school fees receipt</h1>
+    <p class="acva-caption text-neutral-500 m-0">
+      For school fees paid at the bank, on Remita, or by a parent or guardian.
+      @if (session(); as session) {
+        It counts toward your {{ session }} fees as soon as it is uploaded, and is checked
+        afterwards.
+      }
+    </p>
+  </header>
+
+  @if (loading()) {
+    <app-skeleton width="100%" height="24rem" />
+  } @else if (!canUpload()) {
+    <div class="card card--quiet">
+      <p class="acva-para-2 fw-500 m-0">There is nothing to upload a receipt for</p>
+      <p class="acva-para-1 text-neutral-500 m-0">
+        {{ page()?.reason ?? 'Your school fees for this session are already paid in full.' }}
+      </p>
+    </div>
+  } @else {
+    @if (outstanding(); as owed) {
+      <p class="owed acva-para-1 m-0">
+        You still owe <span class="fw-500">{{ money(owed) }}</span> for {{ session() }}.
+      </p>
+    }
+
+    <div class="card">
+      <div class="files">
+        <!-- The school's own fee receipt -->
+        <div class="file">
+          <p class="file__label acva-para-1 fw-500 m-0">School fees receipt</p>
+          <p class="acva-caption text-neutral-500 m-0">The receipt your university issued for the payment.</p>
+          @if (files().schoolFeeReceipt; as chosen) {
+            <div class="file__chosen">
+              @if (chosen.preview) {
+                <img class="file__thumb" [src]="chosen.preview" alt="School fees receipt" />
+              } @else {
+                <span class="file__pdf acva-caption" aria-hidden="true">PDF</span>
+              }
+              <span class="file__name acva-caption">
+                {{ chosen.file.name }} · {{ size(chosen.file) }}
+              </span>
+              <button type="button" class="link-btn acva-caption" (click)="remove('schoolFeeReceipt')">
+                Remove
+              </button>
+            </div>
+          } @else {
+            <label class="file__drop acva-para-1" for="upload-school-fee-receipt">
+              Choose a photo or PDF
+              <input
+                id="upload-school-fee-receipt"
+                class="file__input"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png,image/webp"
+                (change)="choose('schoolFeeReceipt', $event)"
+              />
+            </label>
+          }
+          @if (fileErrors().schoolFeeReceipt; as error) {
+            <p class="field-error acva-caption m-0">{{ error }}</p>
+          } @else if (touched() && !files().schoolFeeReceipt) {
+            <p class="field-error acva-caption m-0">Upload your school fees receipt.</p>
+          }
+        </div>
+
+        <!-- Remita's receipt, with the QR code the check reads -->
+        <div class="file">
+          <p class="file__label acva-para-1 fw-500 m-0">Remita receipt</p>
+          <p class="acva-caption text-neutral-500 m-0">
+            The one with the QR code — make sure the QR code is sharp and whole in the photo.
+          </p>
+          @if (files().remitaReceipt; as chosen) {
+            <div class="file__chosen">
+              @if (chosen.preview) {
+                <img class="file__thumb" [src]="chosen.preview" alt="Remita receipt" />
+              } @else {
+                <span class="file__pdf acva-caption" aria-hidden="true">PDF</span>
+              }
+              <span class="file__name acva-caption">
+                {{ chosen.file.name }} · {{ size(chosen.file) }}
+              </span>
+              <button type="button" class="link-btn acva-caption" (click)="remove('remitaReceipt')">
+                Remove
+              </button>
+            </div>
+          } @else {
+            <label class="file__drop acva-para-1" for="upload-remita-receipt">
+              Choose a photo or PDF
+              <input
+                id="upload-remita-receipt"
+                class="file__input"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png,image/webp"
+                (change)="choose('remitaReceipt', $event)"
+              />
+            </label>
+          }
+          @if (fileErrors().remitaReceipt; as error) {
+            <p class="field-error acva-caption m-0">{{ error }}</p>
+          } @else if (touched() && !files().remitaReceipt) {
+            <p class="field-error acva-caption m-0">Upload your Remita receipt.</p>
+          }
+        </div>
+      </div>
+
+      <div class="fields">
+        <label class="field" for="upload-rrr">
+          <span class="acva-para-1 fw-500">RRR</span>
+          <input
+            id="upload-rrr"
+            class="field__input acva-para-1"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="e.g. 2805-1234-5678"
+            [value]="rrr()"
+            (input)="onRrr($event)"
+          />
+          <span class="acva-caption text-neutral-500">The 12-digit reference on your Remita receipt.</span>
+          @if ((touched() || rrrDigits().length === 12) && rrrProblem(); as problem) {
+            <span class="field-error acva-caption">{{ problem }}</span>
+          }
+        </label>
+
+        <label class="field" for="upload-amount">
+          <span class="acva-para-1 fw-500">Amount paid</span>
+          <span class="field__money">
+            <span class="acva-para-1" aria-hidden="true">₦</span>
+            <input
+              id="upload-amount"
+              class="acva-para-1"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.01"
+              [value]="amountNaira()"
+              (input)="onAmount($event)"
+            />
+          </span>
+          <span class="acva-caption text-neutral-500">
+            As printed on the receipt — only the school-fees part, if it covers more.
+          </span>
+          @if ((touched() || amountNaira()) && amountProblem(); as problem) {
+            <span class="field-error acva-caption">{{ problem }}</span>
+          }
+        </label>
+      </div>
+
+      <label class="declare acva-para-1" for="upload-declaration">
+        <input
+          id="upload-declaration"
+          type="checkbox"
+          [checked]="declared()"
+          (change)="onDeclared($event)"
+        />
+        <span>
+          These are my own, genuine receipts. A false receipt is reported to the university.
+        </span>
+      </label>
+      @if (touched() && !declared()) {
+        <p class="field-error acva-caption m-0">Confirm that these are your own, genuine receipts.</p>
+      }
+
+      <div class="actions">
+        <button
+          type="button"
+          class="submit acva-para-1"
+          [disabled]="saving()"
+          (click)="submit()"
+        >
+          {{ saving() ? 'Uploading…' : 'Upload receipt' }}
+        </button>
+        <a class="link-btn acva-para-1" routerLink="/school-fees">Cancel</a>
+      </div>
+    </div>
+  }
+</section>

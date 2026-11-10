@@ -128,11 +128,58 @@ $muted: #6b7c8d;
   }
 }
 
-.balance__actions {
+/* The amount a student chooses — on the blue ground, so the field is white
+   and the rule beneath it is a softened white rather than a new colour. */
+.pay {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pay__label {
+  color: rgb(255 255 255 / 85%);
+}
+
+.pay__row {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  align-items: center;
+}
+
+.pay__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: #12508f;
+}
+
+.pay__input {
+  width: 9rem;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  outline: none;
+}
+
+.pay__input[readonly] {
+  cursor: default;
+}
+
+.pay__field:focus-within {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.pay__rule {
+  margin: 0;
+  color: rgb(255 255 255 / 85%);
 }
 
 .btn {

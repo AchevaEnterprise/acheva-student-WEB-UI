@@ -1,13 +1,16 @@
+import { standingLabel } from '../../core/utility/standing-label';
 import { TitleCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   model,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -143,6 +146,8 @@ export class Dashboard implements OnInit {
   segmentCardIconSrc = signal<string>('icons/general/draft-icon.svg');
 
   activeAccount = this.authService.activeAccount;
+  /** "300 Level", "Extra Year 1" or "Graduated". */
+  readonly standing = computed(() => standingLabel(this.activeAccount()));
   chart = signal<{ courseCode: string; total: number }[]>([]);
   SemesterEnum = SemesterEnum;
   activities = signal<INotification[]>([]);
@@ -171,6 +176,31 @@ export class Dashboard implements OnInit {
   /** Drive the dashboard skeletons while the analytics + performance load. */
   loadingAnalytics = signal(true);
   loadingChart = signal(true);
+
+  /** The department + level the figures on screen were loaded for. */
+  private loadedFor: string | null = null;
+
+  constructor() {
+    /**
+     * Reload the figures when the student's department or level changes
+     * under them — a transfer taking effect while the dashboard is open.
+     * The header follows `activeAccount` on its own; the dues and the chart
+     * were fetched once, for the department they had just left.
+     *
+     * `untracked` so the reload's own signal writes cannot re-trigger this.
+     */
+    effect(() => {
+      const account = this.activeAccount();
+      const placement = `${account?.department?._id ?? ''}|${account?.level ?? ''}`;
+      untracked(() => {
+        if (this.loadedFor !== null && this.loadedFor !== placement) {
+          this.getAnalytics();
+          this.getPerformance();
+        }
+        this.loadedFor = placement;
+      });
+    });
+  }
 
   switchSegment(switchValue: ISegmentSwitcher['value']) {
     this.activeSegment.update(

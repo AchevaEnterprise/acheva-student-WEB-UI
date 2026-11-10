@@ -30,6 +30,16 @@ export interface IAuthProfile {
   level: LevelsEnum;
   accountType: 'STUDENT';
   emailVerified: true;
+  /**
+   * True until the student has given the details the transcript prints —
+   * the portal holds them on `/details` until then. Absent on a session
+   * signed in before this existed, which the guard settles with the server.
+   */
+  detailsRequired?: boolean;
+  /** IN_PROGRAMME · AWAITING_RESULTS · EXTRA_YEAR · GRADUATED — see `standing-label.ts`. */
+  academicStanding?: 'IN_PROGRAMME' | 'AWAITING_RESULTS' | 'EXTRA_YEAR' | 'GRADUATED';
+  extraYear?: number;
+  graduatedSession?: string | null;
   accessToken: string;
   refreshToken: string;
 }

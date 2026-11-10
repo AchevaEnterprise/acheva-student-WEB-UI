@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -37,7 +38,7 @@ interface IElectiveGroupView {
 @Component({
   selector: 'app-registration',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TitleCasePipe, DatePipe],
+  imports: [TitleCasePipe, DatePipe, RouterLink],
   templateUrl: './registration.html',
   styleUrl: './registration.scss',
 })
@@ -128,6 +129,7 @@ export class Registration implements OnInit {
     () => !this.registration() && !!this.options() && !this.options()!.blocked
   );
 
+  readonly blockedByFees = computed(() => this.options()?.blockedBy === 'SCHOOL_FEES');
   readonly blockedReason = computed(() =>
     this.options()?.blocked ? (this.options()!.reason ?? null) : null
   );

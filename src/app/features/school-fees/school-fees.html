@@ -1,0 +1,319 @@
+<section class="dues">
+  <header class="dues__head">
+    <div>
+      <h1 class="acva-para-3 fw-500 m-0">School Fees</h1>
+      <p class="acva-caption text-neutral-500 m-0">{{ subtitle() }}</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <app-skeleton width="100%" height="12rem" />
+    <app-skeleton width="100%" height="9rem" />
+  } @else if (!fee()) {
+    <!-- No fee is a legitimate answer, not an error. -->
+    <div class="panel panel--quiet">
+      <p class="acva-para-2 fw-500 m-0">Nothing to pay right now</p>
+      <p class="acva-para-1 text-neutral-500 m-0">
+        {{ page()?.reason ?? 'There are no school fees for you this session.' }}
+      </p>
+      @if (optionMissing()) {
+        <a class="fees-btn acva-para-1 fees-link" routerLink="/details">Choose your option</a>
+      }
+    </div>
+    @if (canUploadReceipt()) {
+      <ng-container *ngTemplateOutlet="uploadCard" />
+    }
+    <ng-container *ngTemplateOutlet="receiptList" />
+  } @else {
+    <!-- Whether the fees let them register — the reason most open this page mid-session. -->
+    @if (clearance(); as gate) {
+      <div class="panel reg">
+        <p class="acva-para-2 fw-500 m-0">Course registration</p>
+        <ul class="reg__list">
+          <li class="reg__row">
+            <span class="acva-para-1">First semester</span>
+            <span class="reg__chip acva-caption" [class.reg__chip--open]="gate.firstSemester.cleared">
+              {{ gate.firstSemester.cleared ? 'Open to you' : 'Pay something first' }}
+            </span>
+          </li>
+          <li class="reg__row">
+            <span class="acva-para-1">Second semester</span>
+            <span class="reg__chip acva-caption" [class.reg__chip--open]="gate.secondSemester.cleared">
+              {{ gate.secondSemester.cleared ? 'Open to you' : 'Needs the full fee' }}
+            </span>
+          </li>
+        </ul>
+        <p class="acva-caption text-neutral-500 m-0">
+          One payment opens first-semester registration; second semester needs your fees in full.
+        </p>
+      </div>
+    }
+
+    <div class="balance" [class.balance--settled]="isSettled()">
+      <p class="balance__label acva-caption">
+        {{ isSettled() ? 'Fully paid' : 'Still outstanding' }}
+      </p>
+      <p class="balance__amount">
+        {{ money(isSettled() ? standing()!.totalKobo : standing()!.outstandingKobo) }}
+      </p>
+      <p class="balance__of acva-caption">
+        @if (isSettled()) {
+          Settled in
+          {{ standing()!.paymentsMade }}
+          {{ standing()!.paymentsMade === 1 ? 'payment' : 'payments' }}
+        } @else {
+          of {{ money(standing()!.totalKobo) }} · {{ money(standing()!.paidKobo) }} paid
+        }
+      </p>
+      <p class="balance__of acva-caption fees-for">{{ feeFor() }}</p>
+
+      <div
+        class="balance__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="paidPercent()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-label]="'School fees paid: ' + paidPercent() + '%'"
+      >
+        <span class="balance__fill" [style.width.%]="paidPercent()"></span>
+      </div>
+
+      @if (!isSettled() && next(); as next) {
+        @if (!payable()) {
+          <p class="pay__rule acva-caption">
+            The university cannot receive school fees through Acheva yet. Please check back soon.
+          </p>
+        } @else {
+          <div class="pay">
+            <label class="pay__label acva-caption" for="fees-amount">
+              @if (paymentsUsedUp()) {
+                The rest of your fees
+              } @else {
+                Payment {{ next.number }} of {{ next.of }}
+              }
+              @if (next.dueDate) {
+                · due by {{ next.dueDate | date: 'dd/MM/yyyy' }}
+              }
+            </label>
+            <div class="pay__row">
+              <span class="pay__field">
+                <span class="pay__currency" aria-hidden="true">₦</span>
+                <input
+                  id="fees-amount"
+                  class="pay__input acva-para-1"
+                  type="number"
+                  inputmode="decimal"
+                  min="0"
+                  step="0.01"
+                  [value]="amountNaira()"
+                  [readonly]="next.mustClear"
+                  [attr.aria-describedby]="'fees-amount-rule'"
+                  (input)="onAmountInput($event)"
+                />
+              </span>
+              <button
+                type="button"
+                class="btn btn--primary acva-para-1"
+                [disabled]="!canPay() || !!amountProblem()"
+                (click)="pay('AMOUNT')"
+              >
+                {{
+                  starting() === 'AMOUNT'
+                    ? 'Opening…'
+                    : 'Pay ' + money(onlineCharge()?.totalKobo ?? amountKobo())
+                }}
+              </button>
+              @if (!next.mustClear) {
+                <button
+                  type="button"
+                  class="btn btn--ghost acva-para-1"
+                  [disabled]="!canPay()"
+                  (click)="pay('FULL')"
+                >
+                  {{
+                    starting() === 'FULL'
+                      ? 'Opening…'
+                      : 'Pay the balance · ' +
+                        money(balanceCharge()?.totalKobo ?? standing()!.outstandingKobo)
+                  }}
+                </button>
+              }
+            </div>
+            @if (!amountProblem() && onlineCharge(); as charge) {
+              <p class="pay__rule acva-caption" id="fees-amount-charge">
+                {{ money(amountKobo()) }} goes to your fees; {{ money(charge.chargeKobo) }} is
+                Paystack's charge, paid on top.
+              </p>
+            }
+            <p id="fees-amount-rule" class="pay__rule acva-caption">
+              @if (amountProblem(); as problem) {
+                {{ problem }}
+              } @else if (next.mustClear) {
+                {{
+                  paymentsUsedUp()
+                    ? 'You have made every payment allowed, so this one clears the balance.'
+                    : next.of === 1
+                      ? 'Your school fees are paid in one payment.'
+                      : 'This is your last allowed payment, so it clears the balance.'
+                }}
+              } @else {
+                Choose any amount from {{ money(next.minimumKobo) }} ({{ minimumPercent }}% of
+                your fees) up to {{ money(next.maximumKobo) }}.
+              }
+            </p>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- The schedule -->
+    <div class="panel">
+      <div class="panel__head">
+        <p class="acva-para-2 fw-500 m-0">When payments are due</p>
+        <p class="acva-caption text-neutral-500 m-0">
+          You choose each amount: at least {{ minimumPercent }}% of your fees, and your last
+          payment clears them.
+        </p>
+      </div>
+
+      <ul class="schedule">
+        @for (row of paymentRows(); track row.position) {
+          <li
+            class="schedule__row"
+            [class.schedule__row--covered]="row.state === 'paid'"
+            [class.schedule__row--next]="row.state === 'next'"
+          >
+            <span class="schedule__mark" aria-hidden="true">
+              @if (row.state === 'paid') {
+                <svg viewBox="0 0 24 24">
+                  <polyline points="4 12.5 9.5 18 20 6.5" />
+                </svg>
+              } @else {
+                {{ row.position }}
+              }
+            </span>
+
+            <span class="schedule__body">
+              <span class="acva-para-1">
+                Payment {{ row.position }}
+                @if (row.state === 'paid') {
+                  <span class="schedule__state acva-caption">paid</span>
+                } @else if (row.state === 'next') {
+                  <span class="schedule__state schedule__state--next acva-caption"> next </span>
+                }
+              </span>
+              <span class="acva-caption text-neutral-500">
+                due by {{ row.dueDate | date: 'dd/MM/yyyy' }}
+                @if (row.note) {
+                  · {{ row.note }}
+                }
+              </span>
+            </span>
+
+            <span class="schedule__amount acva-para-1 fw-500">
+              {{
+                row.paidKobo !== null
+                  ? money(row.paidKobo)
+                  : row.state === 'later'
+                    ? '—'
+                    : next()?.mustClear
+                      ? money(next()!.maximumKobo)
+                      : 'your choice'
+              }}
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    @if (canUploadReceipt()) {
+      <ng-container *ngTemplateOutlet="uploadCard" />
+    }
+    <ng-container *ngTemplateOutlet="receiptList" />
+
+    @if (completed().length > 0) {
+      <div class="panel">
+        <div class="panel__head">
+          <p class="acva-para-2 fw-500 m-0">Your payments</p>
+          <p class="acva-caption text-neutral-500 m-0">
+            Receipts are in
+            <a class="fees-inline-link" routerLink="/payment-history">Payment History</a>.
+          </p>
+        </div>
+        <ul class="receipts">
+          @for (payment of completed(); track payment.reference) {
+            <li class="receipts__row">
+              <span class="receipts__body">
+                <span class="acva-para-1 fw-500">{{ money(payment.amount) }}</span>
+                <span class="acva-caption text-neutral-500">
+                  {{ payment.paidAt | date: 'd MMM y, h:mm a' }} · {{ payment.reference }}
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>
+
+<!-- Paid at the bank, on Remita or by a parent: the receipts prove it. -->
+<ng-template #uploadCard>
+  <div class="panel upload-card">
+    <div>
+      <p class="acva-para-2 fw-500 m-0">Paid at the bank or on Remita?</p>
+      <p class="acva-caption text-neutral-500 m-0">
+        Upload your school fees receipt and your Remita receipt. It counts toward your fees
+        straight away and is checked afterwards.
+      </p>
+    </div>
+    <a class="fees-btn fees-btn--solid acva-para-1" routerLink="/school-fees/receipt">
+      Upload a receipt
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #receiptList>
+  @if (receipts().length > 0) {
+    <div class="panel">
+      <div class="panel__head">
+        <p class="acva-para-2 fw-500 m-0">Your receipts</p>
+        <p class="acva-caption text-neutral-500 m-0">
+          Payments made outside Acheva. A receipt that is not accepted stops counting.
+        </p>
+      </div>
+      <ul class="receipts">
+        @for (receipt of receipts(); track receipt._id) {
+          <li class="receipts__row receipt-row">
+            <span class="receipts__body">
+              <span class="acva-para-1 fw-500">
+                {{ money(receipt.amount) }}
+                <span
+                  class="receipt-chip acva-caption"
+                  [class.receipt-chip--ok]="receipt.status === 'VERIFIED'"
+                  [class.receipt-chip--off]="receipt.status === 'REJECTED'"
+                  >{{ receiptStatus(receipt) }}</span
+                >
+              </span>
+              <span class="acva-caption text-neutral-500">
+                RRR {{ receipt.rrr }} · {{ receipt.session }} ·
+                {{ receipt.uploadedAt | date: 'd MMM y' }}
+              </span>
+              @if (receipt.reason) {
+                <span class="acva-caption receipt-reason">{{ receipt.reason }}</span>
+              }
+            </span>
+            <span class="receipt-links">
+              <button type="button" class="link-btn acva-caption" (click)="openReceipt(receipt, 'remitaReceipt')">
+                Remita receipt
+              </button>
+              <button type="button" class="link-btn acva-caption" (click)="openReceipt(receipt, 'schoolFeeReceipt')">
+                School fees receipt
+              </button>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</ng-template>
