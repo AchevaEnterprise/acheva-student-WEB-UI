@@ -1,4 +1,39 @@
 <section class="upload">
+  @if (uploaded(); as receipt) {
+    <!-- The receipt is in: the same success page an online payment ends on. -->
+    <app-payment-success
+      [eyebrow]="'School fees · ' + receipt.session"
+      title="Receipt uploaded"
+      [lead]="
+        money(receipt.amount) +
+        ' now counts toward your school fees. Acheva will check your receipts against Remita and tell you if anything is wrong.'
+      "
+      [amountKobo]="receipt.amount"
+      amountNote="Counted now · being checked by Acheva"
+      [details]="successDetails()"
+      [standing]="successStanding()"
+      [unlocks]="successUnlocks()"
+    >
+      <ng-container actions>
+        @if (registrationOpen()) {
+          <a class="submit acva-para-1" routerLink="/registration">Register your courses</a>
+        }
+        <a
+          class="acva-para-1"
+          [class.submit]="!registrationOpen()"
+          [class.link-btn]="registrationOpen()"
+          routerLink="/school-fees"
+        >
+          Back to school fees
+        </a>
+        @if (stillOwing()) {
+          <button type="button" class="link-btn acva-para-1" (click)="uploadAnother()">
+            Upload another receipt
+          </button>
+        }
+      </ng-container>
+    </app-payment-success>
+  } @else {
   <header class="upload__head">
     <a class="upload__back acva-caption" routerLink="/school-fees">← School Fees</a>
     <h1 class="acva-para-3 fw-500 m-0">Upload a school fees receipt</h1>
@@ -175,5 +210,6 @@
         <a class="link-btn acva-para-1" routerLink="/school-fees">Cancel</a>
       </div>
     </div>
+  }
   }
 </section>

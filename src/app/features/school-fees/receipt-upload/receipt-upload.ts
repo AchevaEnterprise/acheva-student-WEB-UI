@@ -9,12 +9,19 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { formatNaira, toKobo } from '../../../core/naira';
 import { ToastService } from '../../../core/utility/toast.service';
+import { PaymentHoldsService } from '../../../core/services/payment-holds';
+import {
+  IPaymentSuccessDetail,
+  IPaymentSuccessStanding,
+  IPaymentSuccessUnlock,
+  PaymentSuccess,
+} from '../../../shared/payment-success/payment-success';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
-import { ISchoolFeesPage } from '../models/school-fees.model';
+import { ISchoolFeeReceipt, ISchoolFeesPage } from '../models/school-fees.model';
 import { SchoolFeesService } from '../services/school-fees.service';
 
 type ReceiptField = 'schoolFeeReceipt' | 'remitaReceipt';
@@ -43,14 +50,14 @@ interface IChosenFile {
 @Component({
   selector: 'app-receipt-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Skeleton],
+  imports: [RouterLink, Skeleton, PaymentSuccess],
   templateUrl: './receipt-upload.html',
   styleUrl: './receipt-upload.scss',
 })
 export class ReceiptUpload implements OnInit, OnDestroy {
   private readonly api = inject(SchoolFeesService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
+  private readonly holds = inject(PaymentHoldsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
@@ -63,6 +70,60 @@ export class ReceiptUpload implements OnInit, OnDestroy {
   readonly amountNaira = signal('');
   readonly declared = signal(false);
   readonly touched = signal(false);
+
+  /**
+   * Set once the upload is in — the page turns into its success page
+   * (2026-11-11), the same one an online payment ends on.
+   */
+  readonly uploaded = signal<ISchoolFeeReceipt | null>(null);
+  /** The fees as they stand with the receipt counted. */
+  readonly after = signal<ISchoolFeesPage | null>(null);
+
+  readonly successDetails = computed<IPaymentSuccessDetail[]>(() => {
+    const receipt = this.uploaded();
+    if (!receipt) return [];
+    return [
+      { label: 'Paid for', value: `School fees ${receipt.session}` },
+      { label: 'Paid', value: 'At the bank or on Remita' },
+      { label: 'RRR', value: groupRrr(receipt.rrr), copyable: true },
+      { label: 'Status', value: 'Counted — being checked by Acheva' },
+    ];
+  });
+
+  readonly successStanding = computed<IPaymentSuccessStanding | null>(() => {
+    const standing = this.after()?.standing;
+    if (!standing) return null;
+    return {
+      totalKobo: standing.totalKobo,
+      paidKobo: standing.paidKobo,
+      outstandingKobo: standing.outstandingKobo,
+      settled: standing.status === 'PAID',
+    };
+  });
+
+  readonly successUnlocks = computed<IPaymentSuccessUnlock[]>(() => {
+    const clearance = this.after()?.clearance;
+    if (!clearance) return [];
+    return [
+      {
+        label: 'First semester',
+        open: clearance.firstSemester.cleared,
+        note: clearance.firstSemester.cleared
+          ? 'Open — you can register your courses.'
+          : clearance.firstSemester.reason,
+      },
+      {
+        label: 'Second semester',
+        open: clearance.secondSemester.cleared,
+        note: clearance.secondSemester.cleared
+          ? 'Open — your fees are paid in full.'
+          : clearance.secondSemester.reason,
+      },
+    ];
+  });
+
+  readonly registrationOpen = computed(() => this.successUnlocks().some((unlock) => unlock.open));
+  readonly stillOwing = computed(() => (this.after()?.standing?.outstandingKobo ?? 0) > 0);
 
   readonly outstanding = computed(() => this.page()?.standing?.outstandingKobo ?? null);
   readonly session = computed(() => this.page()?.session ?? null);
@@ -104,6 +165,22 @@ export class ReceiptUpload implements OnInit, OnDestroy {
         },
         error: () => this.loading.set(false),
       });
+  }
+
+  /** Another receipt for the same fees — a clean form, the fees as they now stand. */
+  uploadAnother(): void {
+    for (const chosen of Object.values(this.files())) {
+      if (chosen?.preview) URL.revokeObjectURL(chosen.preview);
+    }
+    this.files.set({});
+    this.fileErrors.set({});
+    this.rrr.set('');
+    this.amountNaira.set('');
+    this.declared.set(false);
+    this.touched.set(false);
+    if (this.after()) this.page.set(this.after());
+    this.uploaded.set(null);
+    this.after.set(null);
   }
 
   ngOnDestroy(): void {
@@ -181,12 +258,18 @@ export class ReceiptUpload implements OnInit, OnDestroy {
       .subscribe({
         next: (resp) => {
           this.saving.set(false);
-          this.toast.showNotification(
-            'success',
-            'Receipt uploaded',
-            `${formatNaira(resp.data.amount)} now counts toward your school fees. It will be checked shortly.`
-          );
-          void this.router.navigateByUrl('/school-fees');
+          this.uploaded.set(resp.data);
+          window.scrollTo({ top: 0 });
+          // A receipt that clears an overdue deadline opens a locked portal now.
+          this.holds
+            .refresh()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({ error: () => undefined });
+          // Where the fees stand now, and what the receipt opened.
+          this.api
+            .mine()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({ next: (page) => this.after.set(page.data), error: () => undefined });
         },
         error: (err) => {
           this.saving.set(false);
@@ -203,4 +286,9 @@ export class ReceiptUpload implements OnInit, OnDestroy {
         },
       });
   }
+}
+
+/** `123456789012` → `1234-5678-9012`, as Remita prints it. */
+function groupRrr(rrr: string): string {
+  return rrr.replace(/(\d{4})(?=\d)/g, '$1-');
 }

@@ -1,0 +1,121 @@
+<article class="success" aria-labelledby="success-title">
+  <header class="success__head">
+    <span class="success__badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7" /></svg>
+    </span>
+    @if (eyebrow()) {
+      <p class="success__eyebrow acva-caption">{{ eyebrow() }}</p>
+    }
+    <h1 id="success-title" class="success__title acva-heading-5 fw-500">{{ title() }}</h1>
+    @if (lead()) {
+      <p class="success__lead acva-para-1">{{ lead() }}</p>
+    }
+  </header>
+
+  <section class="success__amount" aria-label="Amount">
+    <p class="success__figure">{{ money(amountKobo()) }}</p>
+    @if (amountNote()) {
+      <p class="success__note acva-caption">{{ amountNote() }}</p>
+    }
+  </section>
+
+  @if (details().length) {
+    <dl class="success__details">
+      @for (detail of details(); track detail.label) {
+        <div class="success__row">
+          <dt class="acva-para-1">{{ detail.label }}</dt>
+          <dd class="acva-para-1">
+            <span [class.success__ref]="detail.copyable">{{ detail.value }}</span>
+            @if (detail.copyable) {
+              <button
+                type="button"
+                class="success__copy acva-caption"
+                [attr.aria-label]="'Copy ' + detail.label"
+                (click)="copy(detail.value)"
+              >
+                {{ copied() ? 'Copied' : 'Copy' }}
+              </button>
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+  }
+
+  @if (standing(); as standing) {
+    <section class="success__panel" aria-label="Where you stand">
+      <div class="success__panel-head">
+        <p class="acva-para-1 fw-500 m-0">Where you stand</p>
+        @if (standing.settled) {
+          <span class="success__chip acva-caption">Paid in full</span>
+        }
+      </div>
+      <div
+        class="success__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="paidPercent()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-label]="paidPercent() + '% paid'"
+      >
+        <span class="success__fill" [style.width.%]="paidPercent()"></span>
+      </div>
+      <dl class="success__totals">
+        <div>
+          <dt class="acva-caption">Paid to date</dt>
+          <dd class="acva-para-1 fw-500">{{ money(standing.paidKobo) }}</dd>
+        </div>
+        <div>
+          <dt class="acva-caption">Total</dt>
+          <dd class="acva-para-1 fw-500">{{ money(standing.totalKobo) }}</dd>
+        </div>
+        <div>
+          <dt class="acva-caption">Still to pay</dt>
+          <dd class="acva-para-1 fw-500">{{ money(standing.outstandingKobo) }}</dd>
+        </div>
+      </dl>
+      @if (standing.countLine) {
+        <p class="acva-caption text-neutral-500 m-0">{{ standing.countLine }}</p>
+      }
+    </section>
+  }
+
+  @if (unlocks().length) {
+    <section class="success__panel" aria-label="What this opens">
+      <p class="acva-para-1 fw-500 m-0">Course registration</p>
+      <ul class="success__unlocks">
+        @for (unlock of unlocks(); track unlock.label) {
+          <li class="success__unlock" [class.success__unlock--open]="unlock.open">
+            <span class="success__unlock-mark" aria-hidden="true">
+              @if (unlock.open) {
+                <svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7" /></svg>
+              } @else {
+                <svg viewBox="0 0 24 24">
+                  <rect x="5" y="11" width="14" height="9" rx="2" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                </svg>
+              }
+            </span>
+            <span class="success__unlock-text">
+              <span class="acva-para-1">{{ unlock.label }}</span>
+              @if (unlock.note) {
+                <span class="acva-caption text-neutral-500">{{ unlock.note }}</span>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @if (serial()) {
+    <p class="success__verify acva-caption">
+      Your receipt carries serial <span class="success__ref">{{ serial() }}</span>. Anyone can
+      check it is genuine at verify.acheva.app.
+    </p>
+  }
+
+  <div class="success__actions">
+    <ng-content select="[actions]" />
+  </div>
+</article>
