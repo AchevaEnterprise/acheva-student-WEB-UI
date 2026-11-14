@@ -15,12 +15,14 @@
  * states is exactly what Acheva can vouch for: this person paid this amount,
  * on this date, against this charge, through this platform.
  *
- * ## There is no QR
+ * ## The QR (2026-11-11)
  *
- * The transcript carries one because it mints a `DocumentIssuance` serial
- * that resolves at verify.acheva.app. A payment has no such serial — its
- * identity is the provider reference. Printing a QR to a URL that does not
- * resolve would look like verification while providing none.
+ * Each payment has a `DocumentIssuance` serial (kind RECEIPT), issued the
+ * first time its receipt is opened and the same on every copy after. The QR
+ * resolves at verify.acheva.app, which shows what this receipt said — the
+ * same block the transcript ends with. A receipt whose serial could not be
+ * registered prints without one rather than with a code that resolves to
+ * nothing.
  */
 import { formatNaira } from '../../../core/naira';
 import { IPaymentReceipt } from '../models/payment.model';
@@ -42,7 +44,22 @@ const MUTED = '#5B6472';
 /** Label column width, in points. The value column takes what is left. */
 const LABEL_WIDTH = 150;
 
-export function buildReceiptPdf(receipt: IPaymentReceipt, institution?: string): ReceiptDocument {
+/**
+ * The serial and QR printed on the receipt. The QR image is made by the
+ * caller, which owns the lazy `qrcode` import — this module stays free of
+ * runtime dependencies.
+ */
+export interface ReceiptProvenance {
+  readonly serial: string;
+  readonly verifyUrl: string;
+  readonly qrDataUrl: string;
+}
+
+export function buildReceiptPdf(
+  receipt: IPaymentReceipt,
+  institution?: string,
+  provenance?: ReceiptProvenance
+): ReceiptDocument {
   return {
     pageSize: 'A4',
     pageMargins: [48, 48, 48, 54],
@@ -65,6 +82,7 @@ export function buildReceiptPdf(receipt: IPaymentReceipt, institution?: string):
       amountBlock(receipt),
       detailTable(receipt),
       ...(receipt.standing ? [standingBlock(receipt)] : []),
+      ...(provenance ? [verificationBlock(provenance)] : []),
     ],
 
     styles: {
@@ -293,6 +311,49 @@ function paymentCountLine(made: number, allowed: number): string {
     return made === 1 ? 'Paid in a single payment.' : `This was payment ${made}.`;
   }
   return `This was payment ${made} of up to ${allowed} allowed for this plan.`;
+}
+
+/**
+ * How to check this receipt is real: the QR, the serial beside it for when a
+ * scan fails, and what to do on arrival — compare, because "a receipt with
+ * this serial exists" alone would not catch an altered amount.
+ */
+function verificationBlock(provenance: ReceiptProvenance): Record<string, unknown> {
+  return {
+    unbreakable: true,
+    margin: [0, 28, 0, 0],
+    columns: [
+      { image: provenance.qrDataUrl, width: 72, height: 72 },
+      {
+        width: '*',
+        margin: [14, 4, 0, 0],
+        stack: [
+          { text: 'VERIFY THIS RECEIPT', style: 'sectionLabel' },
+          {
+            text: provenance.serial,
+            style: 'reference',
+            margin: [0, 4, 0, 4],
+          },
+          {
+            text:
+              `Scan the code, or enter the serial at ${verifyHost(provenance.verifyUrl)}. ` +
+              'Check that the name, amount and reference it shows match this receipt — ' +
+              'an altered copy will not match.',
+            style: 'paidOn',
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/** `verify.acheva.app` from the full URL — shorter to read off paper. */
+function verifyHost(verifyUrl: string): string {
+  try {
+    return new URL(verifyUrl).host;
+  } catch {
+    return verifyUrl;
+  }
 }
 
 function disclaimer(receipt: IPaymentReceipt, institution?: string): string {

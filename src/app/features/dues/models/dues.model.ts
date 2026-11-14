@@ -88,4 +88,10 @@ export type PaymentChoice = 'FULL' | 'NEXT_INSTALMENT' | 'AMOUNT';
 
 export interface IPaymentStarted {
   readonly paymentLink: string;
+  /** An earlier checkout was still open — this link goes back to it (2026-11-11). */
+  readonly resumed?: boolean;
+  /** …and Paystack says it went through: the link is its success page. */
+  readonly alreadyPaid?: boolean;
+  /** KOBO — the resumed payment's amount. */
+  readonly amount?: number;
 }

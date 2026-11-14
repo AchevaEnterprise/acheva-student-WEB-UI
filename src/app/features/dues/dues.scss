@@ -148,14 +148,17 @@ $muted: #6b7c8d;
   align-items: center;
 }
 
+/* The amount box is a FIELD, not a second button: translucent and outlined,
+   so the solid white Pay button beside it is the one thing to press. */
 .pay__field {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 0 14px;
-  border-radius: 999px;
-  background: #fff;
-  color: #12508f;
+  border: 1px solid #fff9;
+  border-radius: 12px;
+  background: #ffffff24;
+  color: #fff;
 }
 
 .pay__input {
@@ -201,8 +204,18 @@ $muted: #6b7c8d;
 }
 
 .btn--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #fff;
   color: #12508f;
+}
+
+
+
+/* A deadline that passed with the payment still unmade. */
+.schedule__late {
+  color: #d8315b;
 }
 
 .btn--primary:hover:not(:disabled) {

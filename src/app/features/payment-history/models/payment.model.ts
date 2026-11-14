@@ -84,6 +84,17 @@ export interface IReceiptPayer {
   readonly email: string | null;
 }
 
+/**
+ * The receipt's serial on verify.acheva.app (2026-11-11). One per payment —
+ * every copy of a receipt carries the same one. Null when it could not be
+ * registered; the receipt then prints without a QR rather than not at all.
+ */
+export interface IReceiptVerification {
+  readonly serial: string;
+  readonly verifyUrl: string;
+  readonly issuedAt: string;
+}
+
 export interface IPaymentReceipt {
   readonly reference: string;
   readonly issuedAt: string;
@@ -101,4 +112,5 @@ export interface IPaymentReceipt {
   readonly department: IPaymentDepartment;
   readonly item: IPaymentItem;
   readonly standing: IReceiptStanding | null;
+  readonly verification?: IReceiptVerification | null;
 }

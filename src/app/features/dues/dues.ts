@@ -28,6 +28,7 @@ interface IPaymentRow {
   readonly paidKobo: number | null;
 }
 import { DuesService } from './services/dues.service';
+import { deadlinePassed } from '../../core/utility/deadline';
 
 /**
  * Departmental dues — what a student owes, and how to settle it.
@@ -201,6 +202,17 @@ export class Dues implements OnInit {
             );
             return;
           }
+          // Pressed Pay with an earlier checkout still open: say where they
+          // are going before the page changes under them.
+          if (resp.data.resumed) {
+            this.toast.showNotification(
+              'success',
+              resp.data.alreadyPaid ? 'That payment went through' : 'Continuing your payment',
+              resp.data.alreadyPaid
+                ? 'Your earlier payment was completed. Showing it now.'
+                : `You already started a payment of ${this.money(resp.data.amount ?? 0)}. Taking you back to finish it.`
+            );
+          }
           window.location.href = link;
         },
         error: (err) => {
@@ -223,6 +235,11 @@ export class Dues implements OnInit {
 
   money(kobo: number): string {
     return formatNaira(kobo);
+  }
+
+  /** The due date is a deadline: open all through that day, passed after it. */
+  deadlinePassed(dueDate: string | Date | null | undefined): boolean {
+    return deadlinePassed(dueDate);
   }
 
   trackByReference = (_: number, item: { reference: string }) => item.reference;

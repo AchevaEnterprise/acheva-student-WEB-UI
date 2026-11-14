@@ -25,6 +25,17 @@ export const routes: Routes = [
       import('./features/student-details/student-details').then((m) => m.StudentDetails),
   },
   {
+    /**
+     * Where a missed payment deadline locks the portal (2026-11-11). Outside
+     * the shell, like `/details`: nothing else to wander into until it is paid.
+     */
+    path: 'payment-required',
+    canMatch: [authGuard],
+    data: { title: 'Payment Required' },
+    loadComponent: () =>
+      import('./features/payment-required/payment-required').then((m) => m.PaymentRequired),
+  },
+  {
     path: '',
     canMatch: [authGuard],
     canActivate: [detailsGuard],

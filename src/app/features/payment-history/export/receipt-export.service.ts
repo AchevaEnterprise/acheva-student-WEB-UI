@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 
 import { IPaymentReceipt } from '../models/payment.model';
-import { ReceiptDocument, buildReceiptPdf, receiptFileName } from './receipt-pdf';
+import {
+  ReceiptDocument,
+  ReceiptProvenance,
+  buildReceiptPdf,
+  receiptFileName,
+} from './receipt-pdf';
 
 /**
  * Turns a receipt payload into the PDF a student takes away.
@@ -38,8 +43,40 @@ export class ReceiptExportService {
   }
 
   private async createPdf(receipt: IPaymentReceipt, institution?: string): Promise<PdfDocument> {
-    const pdfMake = await this.loadPdfMake();
-    return pdfMake.createPdf(buildReceiptPdf(receipt, institution) as ReceiptDocument);
+    const [pdfMake, provenance] = await Promise.all([
+      this.loadPdfMake(),
+      this.provenanceFor(receipt),
+    ]);
+    return pdfMake.createPdf(buildReceiptPdf(receipt, institution, provenance) as ReceiptDocument);
+  }
+
+  /**
+   * The serial and QR for the receipt — the preview carries them too, since
+   * it IS the downloaded file. None when the server had no serial to give.
+   */
+  private async provenanceFor(receipt: IPaymentReceipt): Promise<ReceiptProvenance | undefined> {
+    const verification = receipt.verification;
+    if (!verification) return undefined;
+    return {
+      serial: verification.serial,
+      verifyUrl: verification.verifyUrl,
+      qrDataUrl: await this.qrDataUrl(verification.verifyUrl),
+    };
+  }
+
+  /**
+   * The QR as a PNG data URI — the transcript's settings: `M` correction
+   * survives a photocopier's speckle, and the serial is printed beside it for
+   * when a scan fails entirely. `qrcode` loads only when a receipt does.
+   */
+  private async qrDataUrl(verifyUrl: string): Promise<string> {
+    const QRCode = await import('qrcode');
+    return QRCode.toDataURL(verifyUrl, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 240,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    });
   }
 
   private loadPdfMake(): Promise<PdfMakeStatic> {

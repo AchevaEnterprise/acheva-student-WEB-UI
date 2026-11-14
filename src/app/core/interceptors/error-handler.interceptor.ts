@@ -1,7 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpStatusCode } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, Subject, switchMap, take, throwError } from 'rxjs';
+import { Router } from '@angular/router';
 import { AuthenticationService } from '../../features/auth/services/auth.service';
+import { PaymentHoldsService } from '../services/payment-holds';
 import { ToastService } from '../utility/toast.service';
 
 let refreshInProgress = false;
@@ -14,6 +16,8 @@ const refreshCooldownMs = 30000; // 30 seconds
 export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthenticationService);
   const toast = inject(ToastService);
+  const router = inject(Router);
+  const holds = inject(PaymentHoldsService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -87,6 +91,15 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
       // portal's convention. Used by logout, where the user is already signed
       // out locally and has nothing to act on.
       if (req.headers.has('X-Silent-Error')) {
+        return throwError(() => error);
+      }
+
+      // A missed payment deadline has the portal locked (2026-11-11): not an
+      // error to toast — take them to the page that explains it and lets
+      // them pay.
+      if (error.status === HttpStatusCode.Forbidden && error.error?.code === 'PAYMENT_HOLD') {
+        holds.refresh().subscribe({ error: () => undefined });
+        void router.navigateByUrl('/payment-required');
         return throwError(() => error);
       }
 

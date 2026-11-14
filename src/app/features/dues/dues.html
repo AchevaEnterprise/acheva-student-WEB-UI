@@ -91,7 +91,9 @@
           <label class="pay__label acva-caption" for="dues-amount">
             Payment {{ next.number }} of {{ next.of }}
             @if (next.dueDate) {
-              · due by {{ next.dueDate | date: 'dd/MM/yyyy' }}
+              ·
+              {{ deadlinePassed(next.dueDate) ? 'deadline passed' : 'deadline' }}
+              {{ next.dueDate | date: 'dd/MM/yyyy' }}
             }
           </label>
           <div class="pay__row">
@@ -112,11 +114,16 @@
             </span>
             <button
               type="button"
-              class="btn btn--primary acva-para-1"
+              class="btn btn--primary acva-para-1 fw-500"
               [disabled]="!canPay() || !!amountProblem()"
               (click)="pay('AMOUNT')"
             >
-              {{ starting() === 'AMOUNT' ? 'Opening…' : 'Pay ' + money(amountKobo()) }}
+              {{
+                starting() === 'AMOUNT'
+                  ? 'Opening Paystack…'
+                  : 'Pay ' + money(amountKobo()) + ' with Paystack'
+              }}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
             @if (!next.mustClear) {
               <button
@@ -146,6 +153,10 @@
               Choose any amount from {{ money(next.minimumKobo) }} ({{ minimumPercent }}% of the
               total) up to {{ money(next.maximumKobo) }}.
             }
+          </p>
+          <p class="pay__rule acva-caption">
+            You will pay on Paystack — by card, bank transfer or USSD — and come straight back
+            here. Pay any time before the deadline.
           </p>
         </div>
       }
@@ -188,8 +199,12 @@
                   <span class="schedule__state schedule__state--next acva-caption"> next </span>
                 }
               </span>
-              <span class="acva-caption text-neutral-500">
-                due by {{ row.dueDate | date: 'dd/MM/yyyy' }}
+              <span
+                class="acva-caption text-neutral-500"
+                [class.schedule__late]="row.state !== 'paid' && deadlinePassed(row.dueDate)"
+              >
+                {{ row.state !== 'paid' && deadlinePassed(row.dueDate) ? 'Deadline passed' : 'Pay by' }}
+                {{ row.dueDate | date: 'dd/MM/yyyy' }}
                 @if (row.note) {
                   · {{ row.note }}
                 }

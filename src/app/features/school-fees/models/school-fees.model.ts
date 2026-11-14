@@ -97,6 +97,10 @@ export interface ISchoolFeeCheckout {
   readonly amount: number;
   readonly processingFeeKobo: number;
   readonly totalKobo: number;
+  /** An earlier checkout was still open — this link goes back to it (2026-11-11). */
+  readonly resumed?: boolean;
+  /** …and Paystack says it went through: the link is its success page. */
+  readonly alreadyPaid?: boolean;
 }
 
 export type { PaymentChoice };

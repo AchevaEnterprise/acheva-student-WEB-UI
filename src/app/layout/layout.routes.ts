@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
 import { Layout } from './layout';
+import { paymentHoldGuard } from '../core/guards/payment-hold.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: Layout,
+    // A missed payment deadline keeps the student to paying it (2026-11-11).
+    canActivateChild: [paymentHoldGuard],
     children: [
       {
         path: '',
